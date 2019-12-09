@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { IAppState, IAppProps } from '../types/index';
+import { IFooterState, IFooterProps } from '../types';
 
 import App from '../App';
 
 
 
-export class Footer extends Component<IAppProps, IAppState> {
-    constructor (props:IAppProps) {
+export class Footer extends Component<IFooterProps, IFooterState> {
+    constructor(props: IFooterProps) {
         super(props);
         this.state = { year: new Date().getFullYear() };
     }
