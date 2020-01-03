@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
 import { IFooterState, IFooterProps } from '../types';
 
-import App from '../App';
-
-
-
 export class Footer extends Component<IFooterProps, IFooterState> {
     constructor(props: IFooterProps) {
         super(props);
