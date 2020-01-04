@@ -8,13 +8,14 @@ export interface IDictAppData {
 export interface IAppData {
     id: string;
     value: string;
+    owner: string;
 }
 
 export interface IAppState {
     authenticated: boolean;
     loading: boolean;
     dataSets: IDictAppData;
-    currentUser: any;
+    currentUser: firebase.UserInfo | null;
 }
 
 export interface IAppProps {}
@@ -33,7 +34,7 @@ export interface IWorkspaceState {
 
 export interface IWorkspaceProps {
     updateData(data: IAppData): void;
-    data: IAppData;
+    item: IAppData;
 }
 
 export interface IWorkspaceData extends IAppData {}

@@ -26,19 +26,38 @@ function AuthenticatedRoute({component: Component, authenticated, ...rest}: any)
     return <Route {...rest} render={routeComponent}/>;
 }
 
+// use this when multiple items should open the same component
+function AuthenticatedRouteMulti({component: Component, items, param, ...rest}: any) {
+    return (
+        <Route  {...rest}
+            render = {({match, ...props}) => {
+                if (rest.requireAuth && !rest.authenticated) {
+                    return (
+                        <Redirect to={{pathname: '/login', state: {from: props.location}}}/>
+                    );
+                }
+
+                const item = items[match.params[param]];
+                if (item) {
+                    return <Component item={item} {...props} match={match} {...rest}/>;
+                } else {
+                    return <h1>Component not found</h1>;
+                }
+            }
+        }    
+        />
+    )
+}
+
 class App extends Component<IAppProps, IAppState> {
     dataRef: RebaseBinding;
     fb: Firebase;
     removeAuthListener: Unsubscribe;
-    currentUser: any;
 
     constructor(props: IAppProps) {
         super(props);
         this.state = {
-            dataSets: {
-                "dataA": { id: "dataA", value: "Type something here" },
-                "dataB": { id: "dataB", value: "Type something else" },
-            },
+            dataSets: {},
             authenticated: false,
             loading: true,
             currentUser: null,
@@ -47,12 +66,17 @@ class App extends Component<IAppProps, IAppState> {
     }
 
     addData = (value: string) => {
+        if (!this.state.currentUser) {
+            throw Error("Data was added with no user signed in");
+        }
         const dataSets = { ...this.state.dataSets };
         const id = uuidv4();
         dataSets[id] = {
             id: id,
             value: value,
+            owner: this.state.currentUser!.uid,
         }
+        console.log(dataSets);
         this.setState({ dataSets });
     }
 
@@ -62,10 +86,11 @@ class App extends Component<IAppProps, IAppState> {
         this.setState({ dataSets });
     }
 
-    setCurrentUser = (user: any) => {
-        if (user) {
+    setCurrentUser = (userCred: firebase.auth.UserCredential) => {
+        console.log(userCred.user)
+        if (userCred) {
             this.setState({
-                currentUser: user,
+                currentUser: userCred.user,
                 authenticated: true,
                 loading: false,
             });
@@ -78,17 +103,28 @@ class App extends Component<IAppProps, IAppState> {
         }
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.removeAuthListener = this.fb.app.auth().onAuthStateChanged((user) => {
-            this.setState({
-                authenticated: user? true: false,
-                loading: false,
-            });
+            if (user) {
+                this.setState({
+                    authenticated: true,
+                    loading: false,
+                });
+                this.dataRef = this.fb.base.syncState(`dataSets/${user.uid}`, {
+                    context: this,
+                    state: 'dataSets',
+                });
+            } else {
+                this.setState({
+                    authenticated: false,
+                    currentUser: null,
+                    loading: false,
+                });
+                this.fb.base.removeBinding(this.dataRef);
+            }
+
         });
-        this.dataRef = this.fb.base.syncState('dataSets', {
-            context: this,
-            state: 'dataSets',
-        });
+
     }
 
     componentWillUnmount() {
@@ -129,14 +165,15 @@ class App extends Component<IAppProps, IAppState> {
                                     component={DataSetList}
                                     dataSets={this.state.dataSets}
                                 />
-                                <Route path="/dataSets/:dataId" render={(props) => {
-                                    const data = this.state.dataSets[props.match.params.dataId];
-                                    return (
-                                        data?
-                                            <Workspace data={data} updateData={this.updateData} />
-                                            : <h3>Data does not exist</h3>
-                                    )
-                                }} />
+                                <AuthenticatedRouteMulti
+                                    path="/dataSets/:dataId"
+                                    component={Workspace}
+                                    authenticated={this.state.authenticated}
+                                    requireAuth={true}
+                                    param="dataId"
+                                    items={this.state.dataSets}
+                                    updateData={this.updateData}
+                                />
                             </div>
                         </div>
                     </div>

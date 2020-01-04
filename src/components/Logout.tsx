@@ -12,7 +12,7 @@ export class Logout extends Component<ILogoutProps, ILogoutState> {
         }
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.props.fb.app.auth().signOut()
             .then((user) => {
                 this.setState({ redirect: true })
