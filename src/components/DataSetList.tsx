@@ -36,7 +36,6 @@ class DataSetList extends Component<IDataSetListProps, IDataSetListState> {
                         })
                     }
                 </div>
-                <button style={{width: "100%"}} className="pt-button pt-intent-primary" onClick={() => { console.log(this.props.dataSets ) }}>Test</button>
             </div>
         )
     }
