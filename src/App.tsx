@@ -5,15 +5,21 @@ import { Footer } from './components/Footer';
 import { Login } from './components/Login';
 import { Logout } from './components/Logout';
 import { Workspace } from './components/Workspace';
-import { IAppData, IAppProps, IAppState } from './types';
+import { IProject, IAppProps, IAppState } from './types';
 
 import { Firebase } from './base';
 import { RebaseBinding } from 're-base';
 import { Unsubscribe } from 'firebase';
 
 import { v4 as uuidv4 } from 'uuid';
-import DataSetList from './components/DataSetList';
+import { ProjectList } from './components/ProjectList';
 import { Spinner } from '@blueprintjs/core'
+
+const mainContentStyles = {
+    padding: "1em",
+    //flex: "0 1 auto"
+}
+
 
 // todo: not really typescript, no type safety but couldn't get it to work
 // cf: https://stackoverflow.com/questions/47747754/how-to-rewrite-the-protected-router-using-typescript-and-react-router-4-and-5/47754325#47754325
@@ -57,7 +63,7 @@ class App extends Component<IAppProps, IAppState> {
     constructor(props: IAppProps) {
         super(props);
         this.state = {
-            dataSets: {},
+            projects: {},
             authenticated: false,
             loading: true,
             currentUser: null,
@@ -65,25 +71,25 @@ class App extends Component<IAppProps, IAppState> {
         this.fb = new Firebase();
     }
 
-    addData = (value: string) => {
+    addProject = (value: string) => {
         if (!this.state.currentUser) {
-            throw Error("Data was added with no user signed in");
+            throw Error("Project was added with no user signed in");
         }
-        const dataSets = { ...this.state.dataSets };
+        const projects = { ...this.state.projects };
         const id = uuidv4();
-        dataSets[id] = {
+        projects[id] = {
             id: id,
             value: value,
             owner: this.state.currentUser!.uid,
         }
-        console.log(dataSets);
-        this.setState({ dataSets });
+        console.log(projects);
+        this.setState({ projects });
     }
 
-    updateData = (data: IAppData) => {
-        const dataSets = { ...this.state.dataSets };
-        dataSets[data.id] = data;
-        this.setState({ dataSets });
+    updateProject = (project: IProject) => {
+        const projects = { ...this.state.projects };
+        projects[project.id] = project;
+        this.setState({ projects });
     }
 
     setCurrentUser = (userCred: firebase.auth.UserCredential) => {
@@ -110,9 +116,9 @@ class App extends Component<IAppProps, IAppState> {
                     authenticated: true,
                     loading: false,
                 });
-                this.dataRef = this.fb.base.syncState(`dataSets/${user.uid}`, {
+                this.dataRef = this.fb.base.syncState(`projects/${user.uid}`, {
                     context: this,
-                    state: 'dataSets',
+                    state: 'projects',
                 });
             } else {
                 this.setState({
@@ -142,11 +148,11 @@ class App extends Component<IAppProps, IAppState> {
             )
         }
         return (
-            <div style={{ maxWidth: "1160px", margin: "0 auto" }}>
+            <div style={{ maxWidth: "1160px", margin: "0 auto", height: "100%", display: "flex", flexDirection: "column" }}>
                 <BrowserRouter>
-                    <div>
-                        <Header addData={this.addData} authenticated={this.state.authenticated} />
-                        <div className="main-content" style={{ padding: "1em" }}>
+                    <div style={{flex: "1 1 auto"}}>
+                        <Header addProject={this.addProject} authenticated={this.state.authenticated} />
+                        <div className="main-content" style={mainContentStyles}>
                             <div className="workspace-wrapper">
                                 <Route exact path="/login" render={(props) => {
                                     return (
@@ -160,19 +166,19 @@ class App extends Component<IAppProps, IAppState> {
                                 }} />
                                 <AuthenticatedRoute
                                     exact={true}
-                                    path="/dataSets"
+                                    path="/projects"
                                     authenticated={this.state.authenticated}
-                                    component={DataSetList}
-                                    dataSets={this.state.dataSets}
+                                    component={ProjectList}
+                                    projects={this.state.projects}
                                 />
                                 <AuthenticatedRouteMulti
-                                    path="/dataSets/:dataId"
+                                    path="/projects/:projectId"
                                     component={Workspace}
                                     authenticated={this.state.authenticated}
                                     requireAuth={true}
-                                    param="dataId"
-                                    items={this.state.dataSets}
-                                    updateData={this.updateData}
+                                    param="projectId"
+                                    items={this.state.projects}
+                                    updateProject={this.updateProject}
                                 />
                             </div>
                         </div>
