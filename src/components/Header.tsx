@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Popover, PopoverInteractionKind, Position } from '@blueprintjs/core';
-import { NewDataForm } from './NewDataForm';
+import { NewProjectForm } from './NewProjectForm';
 import { IHeaderProps, IHeaderState } from '../types'
 
 export class Header extends Component<IHeaderProps, IHeaderState> {
@@ -33,14 +33,14 @@ export class Header extends Component<IHeaderProps, IHeaderState> {
                     this.props.authenticated?
                     (
                         <div className="bp3-navbar-group bp3-align-right">
-                        <Link className="bp3-button bp3-minimal bp3-icon-database" to="/dataSets">Datasets</Link>
+                        <Link className="bp3-button bp3-minimal bp3-icon-database" to="/projects">Projects</Link>
                         <Popover
-                            content={(<NewDataForm addData={this.props.addData} postSubmitHandler={this.closePopover}/>)}
+                            content={(<NewProjectForm addProject={this.props.addProject} postSubmitHandler={this.closePopover}/>)}
                             interactionKind={PopoverInteractionKind.CLICK}
                             isOpen={this.state.popoverOpen}
                             onInteraction={(state) => this.setState({ popoverOpen: state })}
                             position={Position.BOTTOM}>
-                            <button className="bp3-button bp3-minimal bp3-icon-add" aria-label="add new data"></button>
+                            <button className="bp3-button bp3-minimal bp3-icon-add" aria-label="add new project"></button>
                         </Popover>
                         <span className="bp3-navbar-divider"></span>
                         <Button minimal icon="user"></Button>

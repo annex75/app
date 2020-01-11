@@ -4,9 +4,9 @@ import { IWorkspaceState, IWorkspaceProps } from '../types/index';
 
 export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
     handleChange = (e:ChangeEvent<HTMLTextAreaElement>) => {
-        const data = { ...this.props.item };
-        data.value = e.target.value;
-        this.props.updateData(data);
+        const project = { ...this.props.item };
+        project.value = e.target.value;
+        this.props.updateProject(project);
     }
 
     formatValue = () => {
@@ -14,21 +14,21 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
     }
 
     render() {
-        const { item: data } = this.props;
+        const { item: project } = this.props;
         return (
             <div>
                 <ul className="bp3-breadcrumbs">
-                    <li><Breadcrumb href="/dataSets" text="Datasets"/></li>
-                    <li><Breadcrumb href="#" text={data.id}/></li>
+                    <li><Breadcrumb href="/project" text="Projects"/></li>
+                    <li><Breadcrumb href="#" text={project.id}/></li>
                 </ul>
-                <h2 style={{margin: "0.5em 0"}}>{data.id}</h2>
+                <h2 style={{margin: "0.5em 0"}}>{project.id}</h2>
                 <div className="workspace">
                     <div className="panel">
                         <h3>Input</h3>
                         <textarea
                             style={{width: "100%", height:"100%"}}
                             onChange={this.handleChange}
-                            value={data.value} />
+                            value={project.value} />
                     </div>
                     <div className="panel">
                         <h3>Output</h3>

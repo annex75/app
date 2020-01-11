@@ -1,11 +1,11 @@
 import { Firebase } from "../base";
 import { ComponentClass } from "react";
 
-export interface IDictAppData {
-    [index: string]: IAppData;
+export interface IDictProject {
+    [index: string]: IProject;
 }
 
-export interface IAppData {
+export interface IProject {
     id: string;
     value: string;
     owner: string;
@@ -14,33 +14,33 @@ export interface IAppData {
 export interface IAppState {
     authenticated: boolean;
     loading: boolean;
-    dataSets: IDictAppData;
+    projects: IDictProject;
     currentUser: firebase.UserInfo | null;
 }
 
 export interface IAppProps {}
 
-export interface IDataSetListProps {
-    dataSets: IDictAppData;
+export interface IProjectListProps {
+    projects: IDictProject;
 }
 
-export interface IDataSetListState {
-    dataSets: IDictAppData;
+export interface IProjectListState {
+    projects: IDictProject;
 }
 
 export interface IWorkspaceState {
-    data: IAppData;
+    project: IProject;
 }
 
 export interface IWorkspaceProps {
-    updateData(data: IAppData): void;
-    item: IAppData;
+    updateProject(project: IProject): void;
+    item: IProject;
 }
 
-export interface IWorkspaceData extends IAppData {}
+export interface IWorkspaceData extends IProject {}
 
 export interface IHeaderProps {
-    addData(value: string): void;
+    addProject(value: string): void;
     authenticated: boolean;
 }
 
@@ -48,10 +48,10 @@ export interface IHeaderState {
     popoverOpen: boolean;
 }
 
-export interface INewDataFormState {}
+export interface INewProjectFormState {}
 
-export interface INewDataFormProps {
-    addData(value: string): void;
+export interface INewProjectFormProps {
+    addProject(value: string): void;
     postSubmitHandler: any
 }
 

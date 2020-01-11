@@ -6,7 +6,7 @@ import { IWorkspaceData } from '../../types';
 describe('<Workspace />', () => {
     it('renders without crashing', () => {
         const update = () => { };
-        const editor = shallow(<Workspace data={{ id: "defaultId", value: "" }} updateData={update} />);
+        const editor = shallow(<Workspace item={{ id: "defaultId", value: "", owner: "defOwner", }} updateProject={update} />);
         expect(editor.find('textarea').length).toEqual(1);
     });
 
@@ -14,7 +14,7 @@ describe('<Workspace />', () => {
         // Given
         const testStr = 'hello world';
         const update = () => { };
-        const editor = shallow(<Workspace data={{ id: "defaultId", value: testStr }} updateData={update} />);
+        const editor = shallow(<Workspace item={{ id: "defaultId", value: testStr, owner: "defOwner", }} updateProject={update} />);
 
         // When
         //editor.setState({value: testStr});
@@ -25,14 +25,14 @@ describe('<Workspace />', () => {
         expect(output.indexOf(expected) > -1).toEqual(true);
     });
 
-    it('calls updateData when the input changes', () => {
+    it('calls updateProject when the input changes', () => {
         // Given
-        let theData: IWorkspaceData | undefined;
-        const update = (data: IWorkspaceData) => {
-            theData = data;
+        let theProject: IWorkspaceData | undefined;
+        const update = (project: IWorkspaceData) => {
+            theProject = project;
         };
         const testStr = 'hello world';
-        const editor = shallow(<Workspace data={{ id: "defaultId", value: testStr }} updateData={update} />);
+        const editor = shallow(<Workspace item={{ id: "defaultId", value: testStr, owner: "defOwner", }} updateProject={update} />);
 
         // When
         //editor.setState({value: testStr});
@@ -40,7 +40,7 @@ describe('<Workspace />', () => {
         // Then
         editor.find('textarea').simulate("change", { target: { value: `${testStr} ` } });
 
-        expect(theData).toEqual({ id: "defaultId", value: `${testStr} ` });
+        expect(theProject).toEqual({ id: "defaultId", value: `${testStr} `, owner: "defOwner", });
     });
 });
 
