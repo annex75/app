@@ -1,5 +1,5 @@
 import { Firebase } from "../base";
-import { ComponentClass } from "react";
+import { ComponentClass, ReactText } from "react";
 
 export interface IDictProject {
     [index: string]: IProject;
@@ -7,7 +7,7 @@ export interface IDictProject {
 
 export interface IProject {
     id: string;
-    value: string;
+    name: string;
     owner: string;
 }
 
@@ -30,6 +30,7 @@ export interface IProjectListState {
 
 export interface IWorkspaceState {
     project: IProject;
+    tabId: ReactText;
 }
 
 export interface IWorkspaceProps {
@@ -41,12 +42,20 @@ export interface IWorkspaceData extends IProject {}
 
 export interface IHeaderProps {
     addProject(value: string): void;
+    userData: firebase.UserInfo | null;
     authenticated: boolean;
 }
 
 export interface IHeaderState {
-    popoverOpen: boolean;
+    userPopoverOpen: boolean;
+    projectPopoverOpen: boolean;
 }
+
+export interface IUserInfoProps {
+    userData: firebase.UserInfo | null;
+}
+
+export interface IUserInfoState {}
 
 export interface INewProjectFormState {}
 
@@ -79,3 +88,29 @@ export interface ILoginProps extends ILogInOutProps {
 export interface ILogoutState extends ILogInOutState {}
 
 export interface ILogoutProps extends ILogInOutProps {}
+
+export interface IPanelProps {
+    title: string;
+}
+
+export interface IPanelState {}
+
+export interface IOverviewPanelProps extends IPanelProps {}
+
+export interface IOverviewPanelState extends IPanelState {}
+
+export interface ICalcDataPanelProps extends IPanelProps {}
+
+export interface ICalcDataPanelState extends IPanelState {}
+
+export interface IScenariosPanelProps extends IPanelProps {}
+
+export interface IScenariosPanelState extends IPanelState {}
+
+export interface IModelPanelProps extends IPanelProps {}
+
+export interface IModelPanelState extends IPanelState {}
+
+export interface IResultsPanelProps extends IPanelProps {}
+
+export interface IResultsPanelState extends IPanelState {}

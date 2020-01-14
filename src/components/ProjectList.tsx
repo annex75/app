@@ -30,7 +30,7 @@ export class ProjectList extends Component<IProjectListProps, IProjectListState>
                             const project = this.props.projects[id];
                             return (
                                 <div key={id} style={projectCardStyles} className="bp3-card bp3-elevation-0 bp3-interactive">
-                                    <h5><Link to={`/projects/${id}`}>{project.id}</Link></h5>
+                                    <h5><Link to={`/projects/${id}`}>{project.name}</Link></h5>
                                 </div>
                             )
                         })
