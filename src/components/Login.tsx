@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Intent } from '@blueprintjs/core';
 import { AppToaster } from '../toaster';
-
 import { ILoginProps, ILoginState } from '../types';
 
 const loginStyles = {
@@ -33,6 +32,7 @@ export class Login extends Component<ILoginProps, ILoginState> {
                 this.setState( { redirect:true } );
             })                         
             .catch(error => {
+                //todo: should this toast propagate to App?
                 AppToaster.show({ intent: Intent.DANGER, message: "Unable to sign in with Google" });
             });
         console.log("Authenticated with Google")
@@ -51,7 +51,7 @@ export class Login extends Component<ILoginProps, ILoginState> {
                 } else if (providers.indexOf("password") === -1) {
                     // they used google
                     this.loginForm.reset();
-                    AppToaster.show( { intent: Intent.WARNING, message: "This e-mail address was already signed in using Google."})
+                    AppToaster.show( { intent: Intent.WARNING, message: "Could not sign in. Try authenticating using Google."})
                 } else {
                     // sign user in
                     return this.props.fb.app.auth().signInWithEmailAndPassword(email, password);
@@ -75,7 +75,7 @@ export class Login extends Component<ILoginProps, ILoginState> {
     }
 
     render() {
-        const { from } = this.props.location.state || { from: { pathname: '/' } }
+        const { from } = this.props.location.state || { from: { pathname: '/projects' } }
         if (this.state.redirect) {
             return <Redirect to={from} />
         }

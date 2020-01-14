@@ -1,16 +1,30 @@
-import React, { Component, ChangeEvent } from 'react';
+import React, { Component, ChangeEvent, ReactText } from 'react';
 import { Breadcrumb } from '@blueprintjs/core';
+import { Tab, Tabs } from "@blueprintjs/core";
 import { IWorkspaceState, IWorkspaceProps } from '../types/index';
+import { OverviewPanel, CalcDataPanel, ScenariosPanel, ModelPanel, ResultsPanel } from './Panels';
 
 export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
+    constructor(props:IWorkspaceProps) {
+        super(props);
+        this.state = {
+            project: props.item,
+            tabId: "overview",
+        }
+    }
+    
     handleChange = (e:ChangeEvent<HTMLTextAreaElement>) => {
         const project = { ...this.props.item };
-        project.value = e.target.value;
+        project.name = e.target.value;
         this.props.updateProject(project);
     }
 
+    handleTabChange = (tabId:ReactText, oldTab:ReactText, e:React.MouseEvent<HTMLElement, MouseEvent>) => {
+        this.setState({ tabId });
+    }
+
     formatValue = () => {
-        return { __html: `The value in the text box is "${this.props.item.value}"` };
+        return { __html: `The value in the text box is "${this.props.item.name}"` };
     }
 
     render() {
@@ -18,17 +32,25 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
         return (
             <div>
                 <ul className="bp3-breadcrumbs">
-                    <li><Breadcrumb href="/project" text="Projects"/></li>
-                    <li><Breadcrumb href="#" text={project.id}/></li>
+                    <li><Breadcrumb href="/projects" text="Projects"/></li>
+                    <li><Breadcrumb href="#" text={project.name}/></li>
                 </ul>
-                <h2 style={{margin: "0.5em 0"}}>{project.id}</h2>
+                <Tabs id="WorkspaceTabs" onChange={this.handleTabChange} selectedTabId={this.state.tabId}>
+                    <Tab id="overview" title="Overview" panel={<OverviewPanel title="overview"/>} />
+                    <Tab id="calc-data" title="Calculation data" panel={<CalcDataPanel title="calculation data"/>} />
+                    <Tab id="scenarios" title="Scenarios" panel={<ScenariosPanel title="scenarios"/>} />
+                    <Tab id="model" title="Model settings" panel={<ModelPanel title="model settings"/>} />
+                    <Tab id="results" title="Results" panel={<ResultsPanel title="results"/>} />
+                </Tabs>
+                {/*
+                <h2 style={{margin: "0.5em 0"}}>{project.name}</h2>
                 <div className="workspace">
                     <div className="panel">
                         <h3>Input</h3>
                         <textarea
                             style={{width: "100%", height:"100%"}}
                             onChange={this.handleChange}
-                            value={project.value} />
+                            value={project.name} />
                     </div>
                     <div className="panel">
                         <h3>Output</h3>
@@ -38,6 +60,7 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
                             dangerouslySetInnerHTML={this.formatValue()}/>
                     </div>
                 </div>
+                */}
             </div>
         );
     }

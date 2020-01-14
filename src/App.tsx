@@ -13,7 +13,9 @@ import { Unsubscribe } from 'firebase';
 
 import { v4 as uuidv4 } from 'uuid';
 import { ProjectList } from './components/ProjectList';
-import { Spinner } from '@blueprintjs/core'
+import { Spinner } from '@blueprintjs/core';
+import { Intent } from '@blueprintjs/core';
+import { AppToaster } from './toaster';
 
 const mainContentStyles = {
     padding: "1em",
@@ -71,19 +73,35 @@ class App extends Component<IAppProps, IAppState> {
         this.fb = new Firebase();
     }
 
-    addProject = (value: string) => {
+    addProject = (name: string) => {
         if (!this.state.currentUser) {
-            throw Error("Project was added with no user signed in");
+            AppToaster.show({ intent: Intent.DANGER, message: "Project could not be added: no user signed in"});
+        } else if (!this.validProjectName(name)) {
+            // todo: save warning messages somewhere
+            AppToaster.show({ intent: Intent.DANGER, message: "Project could not be added: project name is not unique"});
+        } else {
+            const projects = { ...this.state.projects };
+            const id = uuidv4();
+            projects[id] = {
+                id: id,
+                name: name,
+                owner: this.state.currentUser!.uid,
+            }
+            console.log(projects);
+            this.setState({ projects });
         }
-        const projects = { ...this.state.projects };
-        const id = uuidv4();
-        projects[id] = {
-            id: id,
-            value: value,
-            owner: this.state.currentUser!.uid,
+    }
+
+    validProjectName = (name: string) => {
+        let valid = true;
+        const projects = { ...this.state.projects }
+        for (const id in projects) {
+            if (projects[id].name === name) {
+                valid = false;
+                break;
+            }
         }
-        console.log(projects);
-        this.setState({ projects });
+        return valid;
     }
 
     updateProject = (project: IProject) => {
@@ -113,6 +131,7 @@ class App extends Component<IAppProps, IAppState> {
         this.removeAuthListener = this.fb.app.auth().onAuthStateChanged((user) => {
             if (user) {
                 this.setState({
+                    currentUser: user,
                     authenticated: true,
                     loading: false,
                 });
@@ -148,10 +167,10 @@ class App extends Component<IAppProps, IAppState> {
             )
         }
         return (
-            <div style={{ maxWidth: "1160px", margin: "0 auto", height: "100%", display: "flex", flexDirection: "column" }}>
+            <div style={{ maxWidth: "1220px", margin: "0 auto", height: "100%", display: "flex", flexDirection: "column" }}>
                 <BrowserRouter>
                     <div style={{flex: "1 1 auto"}}>
-                        <Header addProject={this.addProject} authenticated={this.state.authenticated} />
+                        <Header userData={this.state.currentUser} addProject={this.addProject} authenticated={this.state.authenticated} />
                         <div className="main-content" style={mainContentStyles}>
                             <div className="workspace-wrapper">
                                 <Route exact path="/login" render={(props) => {
