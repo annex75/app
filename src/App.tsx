@@ -86,8 +86,29 @@ class App extends Component<IAppProps, IAppState> {
                 id: id,
                 name: name,
                 owner: this.state.currentUser!.uid,
+                deleted: false,
             }
-            console.log(projects);
+            this.setState({ projects });
+        }
+    }
+
+    // todo: merge this method with addProject()
+    copyProject = (project: IProject) => {
+        const copyname = `${project.name}-copy`
+        if (!this.state.currentUser) {
+            AppToaster.show({ intent: Intent.DANGER, message: "Project could not be copied: no user signed in"});
+        } else if (!this.validProjectName(copyname)) {
+            // todo: save warning messages somewhere
+            AppToaster.show({ intent: Intent.DANGER, message: "Project could not be copied: project name is not unique"});
+        } else {
+            const projects = { ...this.state.projects };
+            const id = uuidv4();
+            projects[id] = {
+                id: id,
+                name: copyname,
+                owner: this.state.currentUser!.uid,
+                deleted: false,
+            }
             this.setState({ projects });
         }
     }
@@ -96,7 +117,7 @@ class App extends Component<IAppProps, IAppState> {
         let valid = true;
         const projects = { ...this.state.projects }
         for (const id in projects) {
-            if (projects[id].name === name) {
+            if (!projects[id].deleted && projects[id].name === name) {
                 valid = false;
                 break;
             }
@@ -105,13 +126,26 @@ class App extends Component<IAppProps, IAppState> {
     }
 
     updateProject = (project: IProject) => {
+        if (!this.validProjectName(project.name)) {
+            // todo: save warning messages somewhere
+            AppToaster.show({ intent: Intent.DANGER, message: "Project could not be updated: project name is not unique"});
+        } else {
+            const projects = { ...this.state.projects };
+            projects[project.id] = project;
+            this.setState({ projects });
+        }
+    }
+
+    // todo: update this to actually remove the project from db
+    deleteProject = (id: string) => {
         const projects = { ...this.state.projects };
-        projects[project.id] = project;
-        this.setState({ projects });
+        projects[id].deleted = true;
+        this.setState(() => ({
+            projects: projects
+        }));
     }
 
     setCurrentUser = (userCred: firebase.auth.UserCredential) => {
-        console.log(userCred.user)
         if (userCred) {
             this.setState({
                 currentUser: userCred.user,
@@ -189,6 +223,9 @@ class App extends Component<IAppProps, IAppState> {
                                     authenticated={this.state.authenticated}
                                     component={ProjectList}
                                     projects={this.state.projects}
+                                    updateProject={this.updateProject}
+                                    copyProject={this.copyProject}
+                                    deleteProject={this.deleteProject}
                                 />
                                 <AuthenticatedRouteMulti
                                     path="/projects/:projectId"

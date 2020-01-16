@@ -31,7 +31,7 @@ export class Header extends Component<IHeaderProps, IHeaderState> {
         return (
             <nav className="bp3-navbar" style={{}}>
                 <div className="bp3-navbar-group bp3-align-left">
-                    <div className="bp3-navbar-heading">Annex 75 Calculation Tool</div>
+                    <Link className="bp3-button bp3-minimal bp3-navbar-heading" to="/">Annex 75 Calculation Tool</Link>
                     { 
                         this.props.authenticated
                         ? <input disabled className="bp3-input" placeholder="Search projects..." type="text"/>

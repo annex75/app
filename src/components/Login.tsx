@@ -35,7 +35,6 @@ export class Login extends Component<ILoginProps, ILoginState> {
                 //todo: should this toast propagate to App?
                 AppToaster.show({ intent: Intent.DANGER, message: "Unable to sign in with Google" });
             });
-        console.log("Authenticated with Google")
     }
 
     authWithEmailPassword = (event:React.FormEvent) => {
@@ -67,7 +66,6 @@ export class Login extends Component<ILoginProps, ILoginState> {
             .catch((error) => {
                 AppToaster.show({ intent: Intent.DANGER, message: error.message })
             });
-        console.log("Authenticated with E-mail")
         /*console.table([{
             email: this.emailInput.value,
             password: this.passwordInput.value,
