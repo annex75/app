@@ -9,6 +9,7 @@ export interface IProject {
     id: string;
     name: string;
     owner: string;
+    deleted: boolean;
 }
 
 export interface IAppState {
@@ -21,11 +22,32 @@ export interface IAppState {
 export interface IAppProps {}
 
 export interface IProjectListProps {
+    updateProject(project: IProject): void;
+    copyProject(project: IProject): void;
+    deleteProject(id: string): void;
     projects: IDictProject;
 }
 
 export interface IProjectListState {
+    projectPopoverOpen: IDictPopover;
     projects: IDictProject;
+}
+
+export interface IDictPopover {
+    [index: string]: boolean;
+}
+
+export interface IProjectSettingsProps {
+    updateProject(project: IProject): void;
+    copyProject(project: IProject): void;
+    deleteProject(id: string): void;
+    project: IProject;
+    postSubmitHandler: any;
+}
+
+export interface IProjectSettingsState {
+    deleteProjectWarningOpen: boolean;
+    project: IProject;
 }
 
 export interface IWorkspaceState {
@@ -61,7 +83,7 @@ export interface INewProjectFormState {}
 
 export interface INewProjectFormProps {
     addProject(value: string): void;
-    postSubmitHandler: any
+    postSubmitHandler: any;
 }
 
 export interface IFooterProps {}

@@ -36,11 +36,11 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
                     <li><Breadcrumb href="#" text={project.name}/></li>
                 </ul>
                 <Tabs id="WorkspaceTabs" onChange={this.handleTabChange} selectedTabId={this.state.tabId}>
-                    <Tab id="overview" title="Overview" panel={<OverviewPanel title="overview"/>} />
-                    <Tab id="calc-data" title="Calculation data" panel={<CalcDataPanel title="calculation data"/>} />
-                    <Tab id="scenarios" title="Scenarios" panel={<ScenariosPanel title="scenarios"/>} />
-                    <Tab id="model" title="Model settings" panel={<ModelPanel title="model settings"/>} />
-                    <Tab id="results" title="Results" panel={<ResultsPanel title="results"/>} />
+                    <Tab id="overview" title={"Overview"} panel={<OverviewPanel title="Overview"/>} />
+                    <Tab id="calc-data" title={"Calculation data"} panel={<CalcDataPanel title="Calculation data"/>} />
+                    <Tab disabled id="scenarios" title={"Scenarios"} panel={<ScenariosPanel title="Scenarios"/>} />
+                    <Tab id="model" title={"Model settings"} panel={<ModelPanel title="Model settings"/>} />
+                    <Tab id="results" title={"Results"} panel={<ResultsPanel title="Results"/>} />
                 </Tabs>
                 {/*
                 <h2 style={{margin: "0.5em 0"}}>{project.name}</h2>
