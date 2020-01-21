@@ -1,5 +1,5 @@
 import { Firebase } from "../base";
-import { ComponentClass, ReactText } from "react";
+import { ReactText } from "react";
 
 export interface IDictProject {
     [index: string]: IProject;
@@ -9,9 +9,43 @@ export interface IProject {
     id: string;
     name: string;
     owner: string;
+    overviewData: OverviewData;
     deleted: boolean;
+    test?: string;
 }
 
+export class OverviewData {
+    // assessment information
+    contactInfo: string = "";
+    toolsInfo: string = "";
+
+    // location information
+    location: Location = new Location();
+
+    // results overview
+    resultOverview: ResultOverview = new ResultOverview();
+
+    // about
+    aboutText: string = "";
+}
+
+export class Location {
+    country: Country = new Country();
+    place: string = "";
+    lat: number = 0;
+    lon: number = 0;
+}
+
+export class Country {
+    country: string = "";
+}
+
+export class ResultOverview {
+
+}
+
+
+/* App */
 export interface IAppState {
     authenticated: boolean;
     loading: boolean;
@@ -21,6 +55,8 @@ export interface IAppState {
 
 export interface IAppProps {}
 
+
+/* Project list */
 export interface IProjectListProps {
     updateProject(project: IProject): void;
     copyProject(project: IProject): void;
@@ -50,18 +86,8 @@ export interface IProjectSettingsState {
     project: IProject;
 }
 
-export interface IWorkspaceState {
-    project: IProject;
-    tabId: ReactText;
-}
 
-export interface IWorkspaceProps {
-    updateProject(project: IProject): void;
-    item: IProject;
-}
-
-export interface IWorkspaceData extends IProject {}
-
+/* Header */
 export interface IHeaderProps {
     addProject(value: string): void;
     userData: firebase.UserInfo | null;
@@ -86,12 +112,16 @@ export interface INewProjectFormProps {
     postSubmitHandler: any;
 }
 
+
+/* Footer */
 export interface IFooterProps {}
 
 export interface IFooterState {
     year: number;
 }
 
+
+/* Login/Logout */
 export interface ILogInOutState {
     redirect: boolean;
 }
@@ -111,15 +141,37 @@ export interface ILogoutState extends ILogInOutState {}
 
 export interface ILogoutProps extends ILogInOutProps {}
 
+
+/* Workspace */
+export interface IWorkspaceState {
+    project: IProject;
+    tabId: ReactText;
+}
+
+export interface IWorkspaceProps {
+    updateProject(project: IProject): void;
+    item: IProject;
+}
+
+export interface IWorkspaceData extends IProject {}
+
+
+/* Panels */
 export interface IPanelProps {
     title: string;
 }
 
 export interface IPanelState {}
 
-export interface IOverviewPanelProps extends IPanelProps {}
+export interface IOverviewPanelProps extends IPanelProps {
+    updateProject(project: IProject): void;
+    title: string;
+    project: IProject;
+}
 
-export interface IOverviewPanelState extends IPanelState {}
+export interface IOverviewPanelState extends IPanelState {
+    project: IProject;
+}
 
 export interface ICalcDataPanelProps extends IPanelProps {}
 
