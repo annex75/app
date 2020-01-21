@@ -5,11 +5,13 @@ import { Footer } from './components/Footer';
 import { Login } from './components/Login';
 import { Logout } from './components/Logout';
 import { Workspace } from './components/Workspace';
-import { IProject, IAppProps, IAppState } from './types';
+import { IProject, IAppProps, IAppState, OverviewData } from './types';
 
 import { Firebase } from './base';
 import { RebaseBinding } from 're-base';
 import { Unsubscribe } from 'firebase';
+
+import _ from 'lodash';
 
 import { v4 as uuidv4 } from 'uuid';
 import { ProjectList } from './components/ProjectList';
@@ -86,6 +88,7 @@ class App extends Component<IAppProps, IAppState> {
                 id: id,
                 name: name,
                 owner: this.state.currentUser!.uid,
+                overviewData: new OverviewData(),
                 deleted: false,
             }
             this.setState({ projects });
@@ -101,23 +104,22 @@ class App extends Component<IAppProps, IAppState> {
             // todo: save warning messages somewhere
             AppToaster.show({ intent: Intent.DANGER, message: "Project could not be copied: project name is not unique"});
         } else {
-            const projects = { ...this.state.projects };
+            const projectClone = _.cloneDeep(project);
             const id = uuidv4();
-            projects[id] = {
-                id: id,
-                name: copyname,
-                owner: this.state.currentUser!.uid,
-                deleted: false,
-            }
+            projectClone.id = uuidv4();
+            projectClone.name = copyname;
+
+            const projects = { ...this.state.projects };
+            projects[id] = projectClone;
             this.setState({ projects });
         }
     }
 
-    validProjectName = (name: string) => {
+    validProjectName = (projectName: string, projectId: string = "") => {
         let valid = true;
         const projects = { ...this.state.projects }
         for (const id in projects) {
-            if (!projects[id].deleted && projects[id].name === name) {
+            if (id !== projectId && !projects[id].deleted && projects[id].name === projectName) {
                 valid = false;
                 break;
             }
@@ -126,7 +128,7 @@ class App extends Component<IAppProps, IAppState> {
     }
 
     updateProject = (project: IProject) => {
-        if (!this.validProjectName(project.name)) {
+        if (!this.validProjectName(project.name, project.id)) {
             // todo: save warning messages somewhere
             AppToaster.show({ intent: Intent.DANGER, message: "Project could not be updated: project name is not unique"});
         } else {
