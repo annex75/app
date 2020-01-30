@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { panelCardStyles } from '../../style/stylesheet';
 
 import { IResultsPanelProps, IResultsPanelState } from '../../types';
 
@@ -8,8 +7,8 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
         return (
             <div>
                 <h1>{this.props.title}</h1>
-                <div className="bp3-card" style={panelCardStyles}>Graph output</div>
-                <div className="bp3-card" style={panelCardStyles}>Tabulated results</div>
+                <div className="bp3-card panel-card">Graph output</div>
+                <div className="bp3-card panel-card">Tabulated results</div>
             </div>
         )
     }

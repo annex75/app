@@ -21,7 +21,7 @@ export class Login extends Component<ILoginProps, ILoginState> {
     constructor(props:ILoginProps) {
         super(props);
         this.state = {
-            redirect: false,
+            redirect: this.props.authenticated,
         }
     }
 
