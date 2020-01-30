@@ -7,6 +7,8 @@ import { Logout } from './components/Logout';
 import { Workspace } from './components/Workspace';
 import { IProject, IAppProps, IAppState, OverviewData } from './types';
 
+import './style/stylesheet.css'
+
 import { Firebase } from './base';
 import { RebaseBinding } from 're-base';
 import { Unsubscribe } from 'firebase';
@@ -18,12 +20,6 @@ import { ProjectList } from './components/ProjectList';
 import { Spinner } from '@blueprintjs/core';
 import { Intent } from '@blueprintjs/core';
 import { AppToaster } from './toaster';
-
-const mainContentStyles = {
-    padding: "1em",
-    //flex: "0 1 auto"
-}
-
 
 // todo: not really typescript, no type safety but couldn't get it to work
 // cf: https://stackoverflow.com/questions/47747754/how-to-rewrite-the-protected-router-using-typescript-and-react-router-4-and-5/47754325#47754325
@@ -169,11 +165,15 @@ class App extends Component<IAppProps, IAppState> {
                 this.setState({
                     currentUser: user,
                     authenticated: true,
-                    loading: false,
                 });
                 this.dataRef = this.fb.base.syncState(`projects/${user.uid}`, {
                     context: this,
                     state: 'projects',
+                    then: () => {
+                        this.setState({
+                            loading: false,
+                        });
+                    },
                 });
             } else {
                 this.setState({
@@ -203,15 +203,15 @@ class App extends Component<IAppProps, IAppState> {
             )
         }
         return (
-            <div style={{ maxWidth: "1220px", margin: "0 auto", height: "100%", display: "flex", flexDirection: "column" }}>
+            <div className="app-body">
                 <BrowserRouter>
-                    <div style={{flex: "1 1 auto"}}>
+                    <div className="app-container">
                         <Header userData={this.state.currentUser} addProject={this.addProject} authenticated={this.state.authenticated} />
-                        <div className="main-content" style={mainContentStyles}>
+                        <div className="main-content">
                             <div className="workspace-wrapper">
                                 <Route exact path="/login" render={(props) => {
                                     return (
-                                        <Login setCurrentUser={this.setCurrentUser} {...props} fb={this.fb} />
+                                        <Login authenticated={this.state.authenticated} setCurrentUser={this.setCurrentUser} {...props} fb={this.fb} />
                                     )
                                 }} />
                                 <Route exact path="/logout" render={(props) => {
@@ -240,9 +240,9 @@ class App extends Component<IAppProps, IAppState> {
                                 />
                             </div>
                         </div>
+                        <Footer />
                     </div>
                 </BrowserRouter>
-                <Footer />
             </div>
         );
     }

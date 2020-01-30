@@ -35,6 +35,7 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
                     <li><Breadcrumb href="/projects" text="Projects"/></li>
                     <li><Breadcrumb href="#" text={project.name}/></li>
                 </ul>
+                
                 <Tabs id="WorkspaceTabs" onChange={this.handleTabChange} selectedTabId={this.state.tabId}>
                     <Tab id="overview" title={"Overview"} panel={
                         <OverviewPanel

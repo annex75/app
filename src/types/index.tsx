@@ -16,7 +16,7 @@ export interface IProject {
 
 export class OverviewData {
     // assessment information
-    contactInfo: string = "";
+    contactInfo: ContactInfo = new ContactInfo();
     toolsInfo: string = "";
 
     // location information
@@ -27,6 +27,12 @@ export class OverviewData {
 
     // about
     aboutText: string = "";
+}
+
+export class ContactInfo {
+    email: string = "";
+    name: string = "";
+    affiliation: string = "";
 }
 
 export class Location {
@@ -133,6 +139,7 @@ export interface ILogInOutProps {
 export interface ILoginState extends ILogInOutState {}
 
 export interface ILoginProps extends ILogInOutProps {
+    authenticated: boolean;
     setCurrentUser(user: any): void;
     location: any;
 }
@@ -157,6 +164,7 @@ export interface IWorkspaceData extends IProject {}
 
 
 /* Panels */
+
 export interface IPanelProps {
     title: string;
 }
