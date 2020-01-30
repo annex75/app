@@ -1,0 +1,3 @@
+[submodule "calculation-model"]
+	path = calculation-model
+	url = https://github.com/annex75/calculation-model.git
