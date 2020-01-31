@@ -1,8 +1,16 @@
 import { Firebase } from "../base";
-import { ReactText } from "react";
+import { ReactText, ComponentType } from "react";
 
 export interface IDictProject {
     [index: string]: IProject;
+}
+
+export interface IDictBool {
+    [index: string]: boolean;
+}
+
+export interface IDictComponentType {
+    [index: string]: ComponentType;
 }
 
 export interface IProject {
@@ -183,7 +191,18 @@ export interface IOverviewPanelState extends IPanelState {
 
 export interface ICalcDataPanelProps extends IPanelProps {}
 
-export interface ICalcDataPanelState extends IPanelState {}
+export interface ICalcDataPanelState extends IPanelState {
+    cards: IDictCalcDataPanelCard;
+}
+
+export interface IDictCalcDataPanelCard {
+    [index: string]: ICalcDataPanelCard;
+}
+export interface ICalcDataPanelCard {
+    name: string;
+    title: string;
+    isOpen: boolean;
+}
 
 export interface IScenariosPanelProps extends IPanelProps {}
 

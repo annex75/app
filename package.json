@@ -38,6 +38,7 @@
     ]
   },
   "devDependencies": {
+    "@annex-75/calculation-model": "^0.2.3",
     "@blueprintjs/core": "^3.22.3",
     "@blueprintjs/icons": "^3.13.0",
     "@types/enzyme": "^3.10.4",
