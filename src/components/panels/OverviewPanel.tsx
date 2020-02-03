@@ -5,7 +5,7 @@ import { TextArea, FormGroup, InputGroup,/*, NumericInput, */Tooltip } from '@bl
 
 import { set as _fpSet } from 'lodash/fp';
 import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter } from 'recharts';
-import { strings } from '../../text/textData';
+import { strings } from '../../constants/textData';
 
 export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanelState> {
 
