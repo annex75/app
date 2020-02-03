@@ -5,7 +5,7 @@ import { Footer } from './components/Footer';
 import { Login } from './components/Login';
 import { Logout } from './components/Logout';
 import { Workspace } from './components/Workspace';
-import { IProject, IAppProps, IAppState, OverviewData } from './types';
+import { IProject, IAppProps, IAppState, OverviewData, CalcData } from './types';
 
 import './style/stylesheet.css'
 
@@ -20,6 +20,8 @@ import { ProjectList } from './components/ProjectList';
 import { Spinner } from '@blueprintjs/core';
 import { Intent } from '@blueprintjs/core';
 import { AppToaster } from './toaster';
+
+import { APP_VERSION } from './constants'
 
 // todo: not really typescript, no type safety but couldn't get it to work
 // cf: https://stackoverflow.com/questions/47747754/how-to-rewrite-the-protected-router-using-typescript-and-react-router-4-and-5/47754325#47754325
@@ -76,15 +78,17 @@ class App extends Component<IAppProps, IAppState> {
             AppToaster.show({ intent: Intent.DANGER, message: "Project could not be added: no user signed in"});
         } else if (!this.validProjectName(name)) {
             // todo: save warning messages somewhere
-            AppToaster.show({ intent: Intent.DANGER, message: "Project could not be added: project name is not unique"});
+            AppToaster.show({ intent: Intent.DANGER, message: "Project could not be added: project name is empty or is not unique"});
         } else {
             const projects = { ...this.state.projects };
             const id = uuidv4();
             projects[id] = {
+                appVersion: APP_VERSION,
                 id: id,
                 name: name,
                 owner: this.state.currentUser!.uid,
                 overviewData: new OverviewData(),
+                calcData: new CalcData(),
                 deleted: false,
             }
             this.setState({ projects });
@@ -97,27 +101,31 @@ class App extends Component<IAppProps, IAppState> {
         if (!this.state.currentUser) {
             AppToaster.show({ intent: Intent.DANGER, message: "Project could not be copied: no user signed in"});
         } else if (!this.validProjectName(copyname)) {
+            console.log(copyname);
             // todo: save warning messages somewhere
             AppToaster.show({ intent: Intent.DANGER, message: "Project could not be copied: project name is not unique"});
         } else {
-            const projectClone = _.cloneDeep(project);
-            const id = uuidv4();
+            let projectClone = _.cloneDeep(project);
             projectClone.id = uuidv4();
             projectClone.name = copyname;
 
             const projects = { ...this.state.projects };
-            projects[id] = projectClone;
+            projects[projectClone.id] = projectClone;
             this.setState({ projects });
         }
     }
 
     validProjectName = (projectName: string, projectId: string = "") => {
         let valid = true;
-        const projects = { ...this.state.projects }
-        for (const id in projects) {
-            if (id !== projectId && !projects[id].deleted && projects[id].name === projectName) {
-                valid = false;
-                break;
+        if (projectName === "") {
+            valid = false;
+        } else {
+            const projects = { ...this.state.projects }
+            for (const id in projects) {
+                if (id !== projectId && !projects[id].deleted && projects[id].name === projectName) {
+                    valid = false;
+                    break;
+                }
             }
         }
         return valid;

@@ -1,6 +1,6 @@
 import React, { Component, CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
-import { IProjectListProps, IProjectListState, IProjectSettingsProps, IProjectSettingsState } from '../types';
+import { IProjectListProps, IProjectListState, IProjectSettingsProps, IProjectSettingsState, IProject } from '../types';
 import { Button, Popover, PopoverInteractionKind, Position, Alert, Intent } from '@blueprintjs/core';
 
 const projectListStyles:CSSProperties = {
@@ -38,39 +38,47 @@ export class ProjectList extends Component<IProjectListProps, IProjectListState>
     }
     
     render() {
-        const projectIds = Object.keys(this.props.projects);
+        const activeProjectIds = Object.keys(this.props.projects).filter(id => isActive(this.props.projects[id]));
+
         return (
             <div>
                 <h1 style={{marginBottom: "0.5em"}}>Projects</h1>
-                <div style={projectListStyles}>
-                    {
-                        projectIds.map(id => {
-                            const project = this.props.projects[id];
-                            return (
-                                project.deleted?
-                                null
-                                : <div key={id} style={projectCardStyles} className="bp3-card bp3-elevation-0 bp3-interactive">
-                                    <h5><Link to={`/projects/${id}`}>{project.name}</Link></h5>
-                                    <Popover
-                                        content={(<ProjectSettings project={project} updateProject={this.props.updateProject} copyProject={this.props.copyProject} deleteProject={this.props.deleteProject} postSubmitHandler={this.closeProjectPopover}/>)}
-                                        interactionKind={PopoverInteractionKind.CLICK}
-                                        isOpen={this.state.projectPopoverOpen[id]}
-                                        onInteraction={(state) => {
-                                            let projectPopoverOpen = { ...this.state.projectPopoverOpen };
-                                            projectPopoverOpen[id] = state;
-                                            this.setState({projectPopoverOpen});
-                                        }}
-                                        position={Position.BOTTOM}>
-                                        <button className="bp3-button bp3-minimal bp3-icon-cog" aria-label="project settings"></button>
-                                    </Popover>
-                                </div>
-                            )
-                        })
-                    }
-                </div>
+                {
+                    activeProjectIds.length?
+                    (<div style={projectListStyles}>
+                        {
+                            activeProjectIds.map(id => {
+                                const project = this.props.projects[id];
+                                return (
+                                    <div key={id} style={projectCardStyles} className="bp3-card bp3-elevation-0 bp3-interactive">
+                                        <h5><Link to={`/projects/${id}`}>{project.name}</Link></h5>
+                                        <Popover
+                                            content={(<ProjectSettings project={project} updateProject={this.props.updateProject} copyProject={this.props.copyProject} deleteProject={this.props.deleteProject} postSubmitHandler={this.closeProjectPopover}/>)}
+                                            interactionKind={PopoverInteractionKind.CLICK}
+                                            isOpen={this.state.projectPopoverOpen[id]}
+                                            onInteraction={(state) => {
+                                                let projectPopoverOpen = { ...this.state.projectPopoverOpen };
+                                                projectPopoverOpen[id] = state;
+                                                this.setState({projectPopoverOpen});
+                                            }}
+                                            position={Position.BOTTOM}>
+                                            <button className="bp3-button bp3-minimal bp3-icon-cog" aria-label="project settings"></button>
+                                        </Popover>
+                                    </div>
+                                )
+                            })
+                        }
+                    </div>)
+                    : <div><h2>No projects have been created.</h2></div>
+                }
             </div>
         )
     }
+}
+
+// todo: possibly add more checks here
+const isActive = (project: IProject) => {
+    return !project.deleted;
 }
 
 class ProjectSettings extends Component<IProjectSettingsProps,IProjectSettingsState> {
@@ -107,6 +115,7 @@ class ProjectSettings extends Component<IProjectSettingsProps,IProjectSettingsSt
         const project = { ...this.state.project };
         project.name = name;
         this.props.updateProject(project);
+        this.setState( { project });
 
         this.projectForm.reset();
     }

@@ -10,14 +10,16 @@ export interface IDictBool {
 }
 
 export interface IDictComponentType {
-    [index: string]: ComponentType;
+    [index: string]: ComponentType<any>;
 }
 
 export interface IProject {
+    appVersion: string | undefined;
     id: string;
     name: string;
     owner: string;
     overviewData: OverviewData;
+    calcData: CalcData;
     deleted: boolean;
     test?: string;
 }
@@ -56,6 +58,14 @@ export class Country {
 
 export class ResultOverview {
 
+}
+
+// todo: defined here now, should be moved to @annex-75/calculation-model npm package
+export class CalcData {
+    district: string = "Placeholder for district data";
+    buildings: string = "Placeholder for building data";
+    energySystems: string = "Placeholder for energy system data";
+    buildingMeasures: string = "Placeholder for building measure data";
 }
 
 
@@ -189,9 +199,14 @@ export interface IOverviewPanelState extends IPanelState {
     project: IProject;
 }
 
-export interface ICalcDataPanelProps extends IPanelProps {}
+export interface ICalcDataPanelProps extends IPanelProps {
+    updateProject(project: IProject): void;
+    title: string;
+    project: IProject;
+}
 
 export interface ICalcDataPanelState extends IPanelState {
+    project: IProject;
     cards: IDictCalcDataPanelCard;
 }
 
