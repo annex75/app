@@ -1,10 +1,14 @@
-import React, { Component } from 'react';
+import React, { Component, ChangeEvent } from 'react';
 
+import { set as _fpSet } from 'lodash/fp';
 import { Collapse, Button, Card } from '@blueprintjs/core';
 
 //import { CalcData } from '@annex-75/calculation-model/';
 
-import { ICalcDataPanelProps, ICalcDataPanelState, IDictComponentType, CalcData } from '../../types';
+import { ICalcDataPanelProps, ICalcDataPanelState, IDictComponentType, CalcData, IDictDictEventHandler, Building, ICalcDataCardProps } from '../../types';
+import { DistrictCard } from './cards/DistrictCard';
+import { BuildingCard } from './cards/BuildingCard';
+
 
 export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanelState> {
     
@@ -43,8 +47,35 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
         this.setState(newState);
     }
 
+    handleChange = (e:ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const path = this.formatPath(e.target.name);
+        const newState = _fpSet(path, e.target.value, this.state);
+        this.setState(newState);
+        this.props.updateProject(newState.project);
+    }
+
+    // takes a subpath and returns its location in the main data structure
+    formatPath = (childPath: string) => {
+        return `project.calcData.${childPath}`;
+    }
+
+    handleFileInput = (e: ChangeEvent<HTMLInputElement>) => {
+        // todo: handle file input
+    }
+
+    addBuilding = () => {
+        const building = new Building();
+        let newState = { ...this.state };
+
+        // hack: annoyingly we can't store empty objects in firebase so we need to check if the buildings key exists
+        newState.project.calcData.buildings = newState.project.calcData.buildings || {};
+        newState.project.calcData.buildings[building.id] = building;
+        this.setState(newState);
+        this.props.updateProject(newState.project);
+    }    
+
     // todo: hmm doesn't look very robust to hard code this. but how can we else keep the order when iterating using map?
-    renderOrder = [
+   cardsInOrder = [
         "district",
         "buildings",
         "energySystems",
@@ -56,7 +87,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
             <div>
                 <h1>{this.props.title}</h1>
                 { 
-                    this.renderOrder.map( id => {
+                    this.cardsInOrder.map( id => {
                         const card = this.state.cards[id];
                         const data = this.state.project.calcData[id as keyof CalcData];
                         return (
@@ -68,7 +99,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
                                     </Button>
                                 </div>
                                 <Collapse key={`${id}-collapse`} isOpen={card.isOpen}>
-                                    <PanelCard component={this.cardComponents[id]} data={data}/>
+                                    <PanelCard component={this.cardComponents[id]} data={data} {...this.cardEventHandlers[id]}/>
                                 </Collapse>
                             </Card>
                         )
@@ -85,49 +116,39 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
         buildingMeasures: BuildingMeasuresCard,
     }
 
-}
-
-interface ICalcDataCardProps {
-    data:string;
+    // todo: this is getting a bit messy, maybe refactor
+    cardEventHandlers: IDictDictEventHandler = {
+        district: { 
+            handleChange: this.handleChange,
+            handleFileInput: this.handleFileInput,
+        },
+        buildings: {
+            handleChange: this.handleChange,
+            addBuilding: this.addBuilding,
+        },
+        energySystems: {
+            handleChange: this.handleChange,
+        },
+        buildingMeasures: {
+            handleChange: this.handleChange,
+        }
+    }
 }
 
 const PanelCard = ({component: Component, ...rest}: any) => {
     return <Component {...rest}/>
 }
 
-interface IDistrictCardProps extends ICalcDataCardProps {
-
-}
-
-class DistrictCard extends Component<IDistrictCardProps> {
-
-    render() {
-        return (
-            <div>{this.props.data}</div>
-        )
-    }
-}
-
-class BuildingCard extends Component<ICalcDataCardProps> {
-    render() {
-        return (
-            <div>{this.props.data}</div>
-        )
-    }
-}
-
-class EnergySystemsCard extends Component<ICalcDataCardProps> {
-    render() {
-        return (
-            <div>{this.props.data}</div>
-        )
-    }
+const EnergySystemsCard = (props: ICalcDataCardProps) => {
+    const energySystems = props.data;
+    return (
+        <div>{energySystems}</div>
+    )
 }
     
-class BuildingMeasuresCard extends Component<ICalcDataCardProps> {
-    render() {
-        return (
-            <div>{this.props.data}</div>
-        )
-    }
+const BuildingMeasuresCard = (props: ICalcDataCardProps) => {
+    const buildingMeasures = props.data;
+    return (
+        <div>{buildingMeasures}</div>
+    )
 }
