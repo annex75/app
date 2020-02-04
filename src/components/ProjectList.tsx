@@ -2,6 +2,7 @@ import React, { Component, CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { IProjectListProps, IProjectListState, IProjectSettingsProps, IProjectSettingsState, IProject } from '../types';
 import { Button, Popover, PopoverInteractionKind, Position, Alert, Intent } from '@blueprintjs/core';
+import { APP_VERSION } from '../constants';
 
 const projectListStyles:CSSProperties = {
     display: "flex",
@@ -78,7 +79,7 @@ export class ProjectList extends Component<IProjectListProps, IProjectListState>
 
 // todo: possibly add more checks here
 const isActive = (project: IProject) => {
-    return !project.deleted;
+    return (!project.deleted && project.appVersion === APP_VERSION);
 }
 
 class ProjectSettings extends Component<IProjectSettingsProps,IProjectSettingsState> {

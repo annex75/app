@@ -53,6 +53,7 @@
     "normalize.css": "^8.0.1",
     "re-base": "^4.0.0",
     "react-addons-test-utils": "^15.6.2",
+    "react-firebase-file-uploader": "^2.4.3",
     "react-router-dom": "^5.1.2",
     "recharts": "^2.0.0-beta.1"
   }

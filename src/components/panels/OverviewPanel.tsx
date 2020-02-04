@@ -113,8 +113,8 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
                         <InputGroup 
                             name="project.overviewData.location.country.country"
                             id="country-input"
-                            onChange={this.handleChange}
-                            value={project.overviewData.location.country.country}/>                
+                            disabled
+                            value={project.calcData.district.location.country.country}/>                
                     </FormGroup>
                     <FormGroup
                         inline
@@ -123,8 +123,8 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
                         <InputGroup 
                             name="project.overviewData.location.place"
                             id="city-input"
-                            onChange={this.handleChange}
-                            value={project.overviewData.location.place}/>
+                            disabled
+                            value={project.calcData.district.location.place}/>
                     </FormGroup>
                     <FormGroup
                         inline
@@ -137,8 +137,8 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
                             min={-90}
                             max={90}
                             type="number"
-                            onChange={this.handleChange}
-                            value={project.overviewData.location.lat}/>
+                            disabled
+                            value={project.calcData.district.location.lat}/>
                         {/* Annoying that we can't use this, but it does not expose NumericInput
                         <NumericInput 
                             name="project.overviewData.location.lat"
@@ -160,8 +160,8 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
                             min={-90}
                             max={90}
                             type="number"
-                            onChange={this.handleChange}
-                            value={project.overviewData.location.lon}/>
+                            disabled
+                            value={project.calcData.district.location.lon}/>
                             
                     </FormGroup>
                     
