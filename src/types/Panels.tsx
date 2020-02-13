@@ -1,5 +1,5 @@
-import { IProject, District, IDictBuilding } from "./Data";
-import { ChangeEvent } from "react";
+import { IProject, District, IDictBuilding, IDictEventHandler } from "./Data";
+import { ChangeEvent, ComponentType } from "react";
 
 /* Panels */
 
@@ -27,16 +27,15 @@ export interface ICalcDataPanelProps extends IPanelProps {
 
 export interface ICalcDataPanelState extends IPanelState {
     project: IProject;
-    cards: IDictCalcDataPanelCard;
+    cards: Record<string, ICalcDataPanelCard>;
 }
 
-export interface IDictCalcDataPanelCard {
-    [index: string]: ICalcDataPanelCard;
-}
 export interface ICalcDataPanelCard {
     name: string;
     title: string;
     isOpen: boolean;
+    component: ComponentType<any>;
+    eventHandlers: IDictEventHandler;
 }
 
 export interface ICalcDataCardProps {
@@ -61,6 +60,16 @@ export interface IBuildingCardProps extends ICalcDataCardProps {
 
 export interface IBuildingCardState extends ICalcDataCardState {
     advancedIsOpen: boolean;
+    buildingAdvancedOptions: Record<string,IBuildingAdvancedOptionsCard>;
+}
+
+export interface IBuildingAdvancedOptionsCard {
+  name: string;
+  title: string;
+  isOpen: boolean;
+  component: ComponentType<any>;
+  eventHandlers: IDictEventHandler;
+
 }
 
 export interface IScenariosPanelProps extends IPanelProps {}
