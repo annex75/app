@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { IBuildingCardProps, IBuildingCardState, IBuildingAdvancedOptionsCard } from "../../../types";
+import { IBuildingCardProps, IBuildingCardState, IBuildingAdvancedOptionsCard, IDictEventHandler, IBuildingInfo, IDictBuilding, BuildingGeometry, BuildingInformation, BuildingOccupancy } from "../../../types";
 import { FormGroup, Button, InputGroup, Collapse } from "@blueprintjs/core";
 
 export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardState> {
@@ -8,31 +8,50 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
     super(props);
 
     const buildingAdvancedOptions: Record<string,IBuildingAdvancedOptionsCard> = {
-      "buildingTypeInformation": {
-        name: "buildingTypeInformation",
+      "buildingInformation": {
+        name: "buildingInformation",
         title: "Building type information",
         isOpen: false,
-        component: BuildingTypeInformationCard,
         eventHandlers: {
           handleChange: this.props.handleChange,
+        },
+        parameters: {
+          constructionYear: {
+            type: Number,
+            label: "Construction year:",
+          },
+          energyPerformanceCertificate: {
+            type: String,
+            label: "Energy performance certificates:",
+          }
         }
       },
-      "buildingGeometryInformation": {
-        name: "buildingGeometryInformation",
+      "buildingGeometry": {
+        name: "buildingGeometry",
         title: "Geometry",
         isOpen: false,
-        component: BuildingGeometryCard,
         eventHandlers: {
           handleChange: this.props.handleChange,
+        },
+        parameters: {
+          grossFloorArea: {
+            type: Number,
+            label: "Gross heated floor area:"
+          }
         }
       },
-      "buildingOccupancyInformation": {
-        name: "buildingOccupancyInformation",
+      "buildingOccupancy": {
+        name: "buildingOccupancy",
         title: "Occupancy and usage",
         isOpen: false,
-        component: BuildingOccupancyCard,
         eventHandlers: {
           handleChange: this.props.handleChange,
+        },
+        parameters: {
+          occupants: {
+            type: Number,
+            label: "Occupants:",
+          }
         }
       },
     }
@@ -63,29 +82,25 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
       <div>
         <div className="building-list-header">
           {
-            buildings ? (
-              <FormGroup
-                inline
-                className="building-input"
-                key={`building-name-input`}
-                label="Building name"
-                labelFor="building-name-input"
-                style={{display: "flex", flexDirection: "row"}}>
-                {
-                  Object.keys(buildings).map(id => {
-                    return (
-                        <InputGroup
-                          key={`building-${id}-name-input`}
-                          name={`buildings.${id}.name`}
-                          id={`building-${id}-name-input`}
-                          onChange={this.props.handleChange}
-                          value={buildings[id].name} />
-                    )
-                  })
-                }
-                </FormGroup>
-              )
-              : (<p>No buildings have been added</p>)
+            <FormGroup
+              inline
+              className="inline-input"
+              key={`building-name-input`}
+              label="Building name:"
+              labelFor="building-name-input">
+              {
+                Object.keys(buildings).map(id => {
+                  return (
+                    <InputGroup
+                      key={`building-${id}-name-input`}
+                      name={`buildings.${id}.name`}
+                      id={`building-${id}-name-input`}
+                      onChange={this.props.handleChange}
+                      value={buildings[id].name} />
+                  )
+                })
+              }
+            </FormGroup>
           }
           <Button
             minimal
@@ -117,7 +132,7 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
                       onClick={(e: React.MouseEvent<HTMLElement>) => this.handleExpandAdvancedOptionsClick(e, id)}>
                       {card.title}
                     </Button>
-                    <AdvancedOptionsCard key={id} isOpen={card.isOpen} component={card.component} data={data} {...card.eventHandlers} />
+                    <AdvancedOptionsCard key={id} isOpen={card.isOpen} data={data} eventHandlers={card.eventHandlers} category={id} parameters={card.parameters} />
                   </div>
                 )
               })
@@ -129,45 +144,66 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
   }
 }
 
-const AdvancedOptionsCard = ({ component: Component, ...rest }: any) => {
-  return <Component {...rest} />
-}
-
-export interface IAdvancedOptionsCardProps {
+interface IAdvancedOptionsCardProps {
   isOpen: boolean;
-  data: any;
+  data: IDictBuilding;
+  eventHandlers: IDictEventHandler;
+  category: string;
+  parameters: Record<string,IBuildingInfo>;
 }
 
-export interface IAdvancedOptionsCardState {
-  data: any;
-  isOpen: boolean;
-}
+type AdvancedBuildingOptionsCategory = BuildingGeometry | BuildingInformation | BuildingOccupancy;
 
-const BuildingTypeInformationCard = (props: IAdvancedOptionsCardProps) => {
+const AdvancedOptionsCard = (props: IAdvancedOptionsCardProps) => {
+  const buildings = props.data;
+  const category = props.category;
   return (
     <div>
-      <Collapse key={`building-information-collapse`} isOpen={props.isOpen}>
-        Hello world!
-      </Collapse>
-    </div>
-  )
-}
-
-const BuildingGeometryCard = (props: IAdvancedOptionsCardProps) => {
-  return (
-    <div>
-      <Collapse key={`building-geometry-collapse`} isOpen={props.isOpen}>
-        Hello world!
-      </Collapse>
-    </div>
-  )
-}
-
-const BuildingOccupancyCard = (props: IAdvancedOptionsCardProps) => {
-  return (
-    <div>
-      <Collapse key={`building-occupancy-collapse`} isOpen={props.isOpen}>
-        Hello world!
+      <Collapse key={`${category}-collapse`} isOpen={props.isOpen}>
+        {
+          Object.keys(props.parameters).map( (param: string) => {
+            return (
+              <FormGroup
+                inline
+                className="inline-input"
+                key={`building-${param}-input`}
+                label={props.parameters[param].label}
+                labelFor={`building-${param}-input`}>
+                {
+                  Object.keys(buildings).map(id => {
+                    const c = buildings[id][category] as AdvancedBuildingOptionsCategory;
+                    if (!c.hasOwnProperty(param)) {
+                      throw Error(`Building ${id} does not have parameter ${param}`);
+                    }
+                    switch(props.parameters[param].type) {
+                      case Number:
+                        return (
+                          //todo: we can't handle numeric inputs here yet!
+                          <InputGroup
+                            key={`building-${id}-${category}-${param}-input`}
+                            name={`buildings.${id}.${category}.${param}`}
+                            id={`building-${id}-${param}-input`}
+                            onChange={props.eventHandlers.handleChange}
+                            value={c[param] as string} />
+                        )
+                      case String:
+                        return (
+                          <InputGroup
+                            key={`building-${id}-${category}-${param}-input`}
+                            name={`buildings.${id}.${category}.${param}`}
+                            id={`building-${id}-${param}-input`}
+                            onChange={props.eventHandlers.handleChange}
+                            value={c[param] as string} />
+                        )
+                      default:
+                        throw Error(`this data type: ${props.parameters[param].type} has not been defined`);
+                    }
+                  })
+                }
+              </FormGroup>
+            )
+          })
+        }
       </Collapse>
     </div>
   )

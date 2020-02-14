@@ -2,10 +2,6 @@ import { IDictProject, IProject } from "./Data";
 import { Firebase } from "../base";
 import { ReactText } from "react";
 
-/* Panels */
-export * from './Panels';
-
-
 /* App */
 export interface IAppState {
     authenticated: boolean;
@@ -116,3 +112,7 @@ export interface IWorkspaceProps {
 }
 
 export interface IWorkspaceData extends IProject {}
+
+
+/* Panels */
+export * from './Panels';

@@ -56,13 +56,18 @@ export class CalcData {
   constructor() {
     const firstBuildingId = uuidv4();
     this.buildings = {
-      firstBuildingId: new Building(firstBuildingId)
+      [firstBuildingId]: new Building(firstBuildingId)
+    };
+
+    const firstEnergySystemId = uuidv4();
+    this.energySystems = {
+      [firstEnergySystemId]: new EnergySystem(firstEnergySystemId)
     };
   }
 
   district: District = new District();
   buildings: IDictBuilding;
-  energySystems: string = "Placeholder for energy system data";
+  energySystems: IDictEnergySystem;
   buildingMeasures: string = "Placeholder for building measure data";
 }
 
@@ -96,7 +101,45 @@ export class Building {
   constructor(id: string = uuidv4()) {
     this.id = id;
   }
-
   id: string;
   name: string = "";
+  buildingInformation = new BuildingInformation();
+  buildingGeometry = new BuildingGeometry();
+  buildingOccupancy = new BuildingOccupancy();
+  [key: string]: Building[keyof Building];
 }
+
+export class BuildingInformation {
+  constructionYear: number = 1970;
+  energyPerformanceCertificate: string = "";
+  [key: string]: BuildingInformation[keyof BuildingInformation];
+}
+
+export class BuildingGeometry {
+  grossFloorArea: number = 0;
+  [key: string]: BuildingGeometry[keyof BuildingGeometry];
+}
+
+export class BuildingOccupancy {
+  occupants: number = 0;
+  [key: string]: BuildingOccupancy[keyof BuildingOccupancy];
+}
+
+export interface IDictEnergySystem {
+  [index: string]: EnergySystem;
+}
+
+export class EnergySystem {
+  constructor(id: string = uuidv4()) {
+    this.id = id;
+  }
+  id: string;
+  name: string = "";
+  systemType: string = "";
+  [key: string]: EnergySystem[keyof EnergySystem];
+}
+
+export class EnergySystemType {
+  name: string = "";
+}
+

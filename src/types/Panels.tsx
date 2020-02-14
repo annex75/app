@@ -1,4 +1,4 @@
-import { IProject, District, IDictBuilding, IDictEventHandler } from "./Data";
+import { IProject, District, IDictBuilding, IDictEventHandler, IDictEnergySystem } from "./Data";
 import { ChangeEvent, ComponentType } from "react";
 
 /* Panels */
@@ -58,18 +58,29 @@ export interface IBuildingCardProps extends ICalcDataCardProps {
     data: IDictBuilding;
 }
 
+
 export interface IBuildingCardState extends ICalcDataCardState {
     advancedIsOpen: boolean;
     buildingAdvancedOptions: Record<string,IBuildingAdvancedOptionsCard>;
+}
+
+export interface IBuildingInfo {
+  type: StringConstructor | NumberConstructor;
+  label: string;
 }
 
 export interface IBuildingAdvancedOptionsCard {
   name: string;
   title: string;
   isOpen: boolean;
-  component: ComponentType<any>;
   eventHandlers: IDictEventHandler;
+  parameters: Record<string,IBuildingInfo>;
+}
 
+export interface IEnergySystemsCardProps extends ICalcDataCardProps {
+  handleChange(e: ChangeEvent<HTMLInputElement>): void;
+  addEnergySystem(): void;
+  data: IDictEnergySystem;
 }
 
 export interface IScenariosPanelProps extends IPanelProps {}
