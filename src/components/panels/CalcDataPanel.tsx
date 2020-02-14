@@ -6,10 +6,11 @@ import { Collapse, Button, Card, Intent } from '@blueprintjs/core';
 //import { CalcData } from '@annex-75/calculation-model/';
 
 import * as config from '../../config.json';
-import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, Building, ICalcDataCardProps, ICalcDataPanelCard } from '../../types';
+import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, Building, ICalcDataCardProps, ICalcDataPanelCard, EnergySystem } from '../../types';
 import { DistrictCard } from './cards/DistrictCard';
 import { BuildingCard } from './cards/BuildingCard';
 import { AppToaster } from '../../toaster';
+import { EnergySystemsCard } from './cards/EnergySystemsCard';
 
 
 export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanelState> {
@@ -43,6 +44,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
         isOpen: false,
         component: EnergySystemsCard,
         eventHandlers: {
+          addEnergySystem: this.addEnergySystem,
           handleChange: this.handleChange,
         },
       },
@@ -99,6 +101,21 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     this.props.updateProject(newState.project);
   }
 
+  addEnergySystem = () => {
+    let newState = { ...this.state };
+
+    if (Object.keys(newState.project.calcData.energySystems).length >= config.MAX_ENERGY_SYSTEMS) {
+      AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_ENERGY_SYSTEMS} energy systems are currently allowed`});
+      return;
+    }
+    
+    const energySystem = new EnergySystem();
+    newState.project.calcData.energySystems[energySystem.id] = energySystem;
+    
+    this.setState(newState);
+    this.props.updateProject(newState.project);
+  }
+
   render() {
     return (
       <div>
@@ -129,13 +146,6 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
 
 const PanelCard = ({ component: Component, ...rest }: any) => {
   return <Component {...rest} />
-}
-
-const EnergySystemsCard = (props: ICalcDataCardProps) => {
-  const energySystems = props.data;
-  return (
-    <div>{energySystems}</div>
-  )
 }
 
 const BuildingMeasuresCard = (props: ICalcDataCardProps) => {

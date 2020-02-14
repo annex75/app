@@ -1,3 +1,4 @@
 {
-  "MAX_BUILDINGS": 5
+  "MAX_BUILDINGS": 5,
+  "MAX_ENERGY_SYSTEMS": 5
 }
