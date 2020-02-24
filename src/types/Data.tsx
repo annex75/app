@@ -1,4 +1,4 @@
-import { ChangeEvent } from 'react';
+//import { ChangeEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 // this module defines data containers
@@ -12,8 +12,9 @@ export interface IDictBool {
   [index: string]: boolean;
 }
 
+// todo: a bit ugly that we are not type checking here. but it was the only way I managed to allow both events and string as arguments
 export interface IDictEventHandler {
-  [index: string]: (e: ChangeEvent<HTMLInputElement>) => void;
+  [index: string]: (e: any) => void;
 }
 
 export interface IProject {
@@ -136,6 +137,7 @@ export class EnergySystem {
   id: string;
   name: string = "";
   systemType: string = "";
+  systemCategory: string = "";
   [key: string]: EnergySystem[keyof EnergySystem];
 }
 

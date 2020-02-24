@@ -12,7 +12,11 @@ export const EnergySystemsCard = (props: IEnergySystemsCardProps) => {
   const energySystemParameters: Record<string,IEnergySystemParameter> = {
     systemType: {
       type: String,
-      label: "System type",
+      label: "System type:",
+    },
+    systemCategory: {
+      type: String,
+      label: "System category:"
     }
   }
 
@@ -20,17 +24,15 @@ export const EnergySystemsCard = (props: IEnergySystemsCardProps) => {
     props.addEnergySystem();
   }
 
+  const handleEditCostCurveClick = (e: React.MouseEvent<HTMLElement>, id: string) => {
+    props.editCostCurve(id);
+  }
   
   const energySystems = props.data;
   return (
     <div>
-      <Button
-        minimal
-        className="bp3-button add-energy-system-button"
-        icon="add"
-        onClick={handleAddEnergySystemClick} />
       {
-        Object.keys(energySystemParameters).map( (param: string) => {
+        Object.keys(energySystemParameters).map( (param: string, i: number) => {
           return (
             <FormGroup
               inline
@@ -68,10 +70,39 @@ export const EnergySystemsCard = (props: IEnergySystemsCardProps) => {
                   }
                 })
               }
+              {
+              !i?  // only have an add button on the first row (i == 0)
+                <Button
+                  minimal
+                  className="bp3-button add-energy-system-button"
+                  icon="add"
+                  onClick={handleAddEnergySystemClick} />
+                : <span className="empty-button"/>
+              }
             </FormGroup>
           )
         })
       }
+      <FormGroup
+        inline
+        className="inline-input"
+        label=" "
+        labelFor=""
+        key={`edit-cost-curve-button-form`}>
+        {
+          Object.keys(energySystems).map(id => {
+            return (
+              <Button
+                className="bp3-button edit-cost-curve-button bp3-minimal"
+                key={`energy-system-${id}-edit-cost-curve-button`}
+                onClick={(e: React.MouseEvent<HTMLElement>) => handleEditCostCurveClick(e, id)}>
+                Edit cost curve
+              </Button>
+            )
+          })
+        }
+        <span className="empty-button"/>
+      </FormGroup>
     </div>
   )
 }
