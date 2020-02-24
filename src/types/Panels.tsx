@@ -1,4 +1,4 @@
-import { IProject, District, IDictBuilding, IDictEventHandler, IDictEnergySystem } from "./Data";
+import { IProject, District, IDictBuilding, IDictEventHandler, IDictEnergySystem, EnergySystem } from "./Data";
 import { ChangeEvent, ComponentType } from "react";
 
 /* Panels */
@@ -28,6 +28,8 @@ export interface ICalcDataPanelProps extends IPanelProps {
 export interface ICalcDataPanelState extends IPanelState {
     project: IProject;
     cards: Record<string, ICalcDataPanelCard>;
+    costCurveEditorIsOpen: boolean;
+    activeEnergySystemId: string;
 }
 
 export interface ICalcDataPanelCard {
@@ -80,7 +82,13 @@ export interface IBuildingAdvancedOptionsCard {
 export interface IEnergySystemsCardProps extends ICalcDataCardProps {
   handleChange(e: ChangeEvent<HTMLInputElement>): void;
   addEnergySystem(): void;
+  editCostCurve(id: string): void;
   data: IDictEnergySystem;
+}
+
+export interface ICostCurveEditorProps {
+  className: string;
+  energySystem: EnergySystem;
 }
 
 export interface IScenariosPanelProps extends IPanelProps {}
