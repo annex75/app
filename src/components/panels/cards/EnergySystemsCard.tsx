@@ -3,6 +3,7 @@ import { IEnergySystemsCardProps } from "../../../types";
 import { Button, FormGroup, InputGroup } from '@blueprintjs/core';
 
 interface IEnergySystemParameter {
+  disabled: boolean;
   type: StringConstructor | NumberConstructor;
   label: string;
 }
@@ -10,11 +11,18 @@ interface IEnergySystemParameter {
 export const EnergySystemsCard = (props: IEnergySystemsCardProps) => {
 
   const energySystemParameters: Record<string,IEnergySystemParameter> = {
+    name: {
+      disabled: false,
+      type: String,
+      label: "System name:"
+    },
     systemType: {
+      disabled: false,
       type: String,
       label: "System type:",
     },
     systemCategory: {
+      disabled: true,
       type: String,
       label: "System category:"
     }
@@ -54,8 +62,9 @@ export const EnergySystemsCard = (props: IEnergySystemsCardProps) => {
                           name={`energySystems.${id}.${param}`}
                           id={`energySystem-${id}-${param}-input`}
                           onChange={props.handleChange}
+                          disabled={energySystemParameters[param].disabled}
                           value={energySystems[id][param] as string} />
-                      )
+                          )
                     case String:
                       return (
                         <InputGroup
@@ -63,6 +72,7 @@ export const EnergySystemsCard = (props: IEnergySystemsCardProps) => {
                           name={`energySystems.${id}.${param}`}
                           id={`energySystem-${id}-${param}-input`}
                           onChange={props.handleChange}
+                          disabled={energySystemParameters[param].disabled}
                           value={energySystems[id][param] as string} />
                       )
                     default:

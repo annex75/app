@@ -101,6 +101,7 @@ ul {
 }
 
 .inline-input .bp3-form-content .bp3-input-group {
+  flex: 1;
   max-width: 200px;
   padding-right: 5px;
   padding-left: 5px;
@@ -150,4 +151,8 @@ input {
   width: var(--container-width);
   left: calc(50vw - var(--container-width)/2);
   margin: 10vh 0;
+}
+
+.cost-curve-editor-dialog {
+  min-width: 800px;
 }
