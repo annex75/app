@@ -200,6 +200,7 @@ const AdvancedOptionsCard = (props: IAdvancedOptionsCardProps) => {
                     }
                   })
                 }
+                <span className="empty-button"/>
               </FormGroup>
             )
           })

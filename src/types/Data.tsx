@@ -130,18 +130,79 @@ export interface IDictEnergySystem {
   [index: string]: EnergySystem;
 }
 
+const defSystemSizes = [ 50, 100, 150, 200, 250 ];
+const defCostCurve = [ 0, 0, 0, 0, 0];
+
 export class EnergySystem {
   constructor(id: string = uuidv4()) {
     this.id = id;
+    this.costCurves = {};
+    this.costCurves.investment = new CostCurveDict("euro");
+    this.costCurves.maintenance = new CostCurveDict("euro/a");
+    this.costCurves.embodiedEnergy = new CostCurveDict("co2eq/a");
   }
   id: string;
   name: string = "";
   systemType: string = "";
-  systemCategory: string = "";
+  systemCategory: string = "District";
+  costCurves: Record<string,CostCurveDict>;
   [key: string]: EnergySystem[keyof EnergySystem];
+}
+
+export class CostCurveDict {
+  constructor(unit: string) {
+    this.intake.unit = unit;
+    this.generation.unit = unit;
+    this.circulation.unit = unit;
+    this.substation.unit = unit;
+  }
+  systemSize: ICostCurve = {
+    label: "System size [kW]",
+    value: defSystemSizes,
+    index: 0,
+    unit: "kW",
+  };
+  intake: ICostCurve = {
+    label: "Intake",
+    value: defCostCurve,
+    index: 1,
+    unit: "",
+  };
+  generation: ICostCurve = {
+    label: "Generation",
+    value: defCostCurve,
+    index: 2,
+    unit: "",
+  };
+  circulation: ICostCurve = {
+    label: "Circulation",
+    value: defCostCurve,
+    index: 3,
+    unit: "",
+  };
+  substation: ICostCurve = {
+    label: "Substation",
+    value: defCostCurve,
+    index: 4,
+    unit: "",
+  };
+  [key: string]: CostCurveDict[keyof CostCurveDict]
+}
+
+export interface ICostCurve {
+  label: string;
+  unit: string;
+  value: number[];
+  index: number;
 }
 
 export class EnergySystemType {
   name: string = "";
 }
 
+export interface ICostCurveType {
+  name: string;
+  label: string;
+  unit: string;
+}
+  

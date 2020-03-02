@@ -1,18 +1,17 @@
 import React, { Component, ChangeEvent } from 'react';
 
 import { set as _fpSet } from 'lodash/fp';
-import { Collapse, Button, Card, Intent, Overlay } from '@blueprintjs/core';
-
-import classNames from "classnames";
+import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 
 //import { CalcData } from '@annex-75/calculation-model/';
 
 import * as config from '../../config.json';
-import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, Building, ICalcDataCardProps, ICalcDataPanelCard, EnergySystem, ICostCurveEditorProps } from '../../types';
+import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, Building, ICalcDataCardProps, ICalcDataPanelCard, EnergySystem, ICostCurve } from '../../types';
 import { DistrictCard } from './cards/DistrictCard';
 import { BuildingCard } from './cards/BuildingCard';
 import { AppToaster } from '../../toaster';
 import { EnergySystemsCard } from './cards/EnergySystemsCard';
+import { CostCurveEditor } from './dialogs/CostCurveEditor';
 
 
 export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanelState> {
@@ -91,6 +90,14 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     // todo: handle file input
   }
 
+  handleCostCurveEdit = (costCurve: ICostCurve, costCurveId: string, activeEnergySystemId: string, costCurveType: string) => {
+    let newState = { ...this.state };
+    newState.project.calcData.energySystems[activeEnergySystemId].costCurves[costCurveType][costCurveId] = costCurve;
+    this.setState(newState);
+    this.props.updateProject(newState.project);
+    console.log(costCurve)
+  }
+
   addBuilding = () => {
     let newState = { ...this.state };
 
@@ -125,7 +132,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     this.setState({ costCurveEditorIsOpen: true, activeEnergySystemId: id });
   }
 
-  closeEditCostcurve = () => {
+  closeEditCostCurve = () => {
     this.setState({ costCurveEditorIsOpen: false })
   }
 
@@ -152,9 +159,12 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
             )
           })
         }
-        <Overlay isOpen={this.state.costCurveEditorIsOpen} onClose={this.closeEditCostcurve} >
-          <CostCurveEditor className="overlay-content" energySystem={this.state.project.calcData.energySystems[this.state.activeEnergySystemId]}/>
-        </Overlay>
+        <Dialog className="cost-curve-editor-dialog" isOpen={this.state.costCurveEditorIsOpen} onClose={this.closeEditCostCurve} >
+          <CostCurveEditor
+            activeEnergySystemId={this.state.activeEnergySystemId}
+            energySystems={this.state.project.calcData.energySystems}
+            handleCostCurveEdit={this.handleCostCurveEdit}/>
+        </Dialog>
       </div>
     )
   }
@@ -169,17 +179,4 @@ const BuildingMeasuresCard = (props: ICalcDataCardProps) => {
   return (
     <div>{buildingMeasures}</div>
   )
-}
-
-class CostCurveEditor extends Component<ICostCurveEditorProps> {
-  render() {
-    return (
-      <div className={classNames(this.props.className)}>
-        <Card elevation={4}>
-          {this.props.energySystem.systemType}
-        </Card>
-        
-      </div>
-    )
-  }
 }

@@ -5,58 +5,58 @@ import { IWorkspaceState, IWorkspaceProps } from '../types/index';
 import { OverviewPanel, CalcDataPanel, ScenariosPanel, ModelPanel, ResultsPanel } from './Panels';
 
 export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
-    constructor(props:IWorkspaceProps) {
-        super(props);
-        this.state = {
-            project: props.item,
-            tabId: "overview",
-        }
+  constructor(props: IWorkspaceProps) {
+    super(props);
+    this.state = {
+      project: props.item,
+      tabId: "overview",
     }
-    
-    handleChange = (e:ChangeEvent<HTMLTextAreaElement>) => {
-        const project = { ...this.props.item };
-        project.name = e.target.value;
-        this.props.updateProject(project);
-    }
+  }
 
-    handleTabChange = (tabId:ReactText, oldTab:ReactText, e:React.MouseEvent<HTMLElement, MouseEvent>) => {
-        this.setState({ tabId });
-    }
+  handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    const project = { ...this.props.item };
+    project.name = e.target.value;
+    this.props.updateProject(project);
+  }
 
-    formatValue = () => {
-        return { __html: `The value in the text box is "${this.props.item.name}"` };
-    }
+  handleTabChange = (tabId: ReactText, oldTab: ReactText, e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    this.setState({ tabId });
+  }
 
-    render() {
-        const { item: project } = this.props;
-        return (
-            <div>
-                <ul className="bp3-breadcrumbs">
-                    <li><Breadcrumb href="/projects" text="Projects"/></li>
-                    <li><Breadcrumb href="#" text={project.name}/></li>
-                </ul>
-                
-                <Tabs id="WorkspaceTabs" onChange={this.handleTabChange} selectedTabId={this.state.tabId}>
-                    <Tab id="overview" title={"Overview"} panel={
-                        <OverviewPanel
-                            updateProject={this.props.updateProject}
-                            title="Overview"
-                            project={this.state.project}
+  formatValue = () => {
+    return { __html: `The value in the text box is "${this.props.item.name}"` };
+  }
 
-                        />
-                    } />
-                    <Tab id="calc-data" title={"Calculation data"} panel={
-                        <CalcDataPanel 
-                            title="Calculation data"
-                            updateProject={this.props.updateProject}
-                            project={this.state.project}
-                        />
-                    } />
-                    <Tab disabled id="scenarios" title={"Scenarios"} panel={<ScenariosPanel title="Scenarios"/>} />
-                    <Tab id="model" title={"Model settings"} panel={<ModelPanel title="Model settings"/>} />
-                    <Tab id="results" title={"Results"} panel={<ResultsPanel title="Results"/>} />
-                </Tabs>
-                {/*
+  render() {
+    const { item: project } = this.props;
+    return (
+      <div>
+        <ul className="bp3-breadcrumbs">
+          <li><Breadcrumb href="/projects" text="Projects" /></li>
+          <li><Breadcrumb href="#" text={project.name} /></li>
+        </ul>
+
+        <Tabs id="WorkspaceTabs" onChange={this.handleTabChange} selectedTabId={this.state.tabId}>
+          <Tab id="overview" title={"Overview"} panel={
+            <OverviewPanel
+              updateProject={this.props.updateProject}
+              title="Overview"
+              project={this.state.project}
+
+            />
+          } />
+          <Tab id="calc-data" title={"Calculation data"} panel={
+            <CalcDataPanel
+              title="Calculation data"
+              updateProject={this.props.updateProject}
+              project={this.state.project}
+            />
+          } />
+          <Tab disabled id="scenarios" title={"Scenarios"} panel={<ScenariosPanel title="Scenarios" />} />
+          <Tab id="model" title={"Model settings"} panel={<ModelPanel title="Model settings" />} />
+          <Tab id="results" title={"Results"} panel={<ResultsPanel title="Results" />} />
+        </Tabs>
+        {/*
                 <h2 style={{margin: "0.5em 0"}}>{project.name}</h2>
                 <div className="workspace">
                     <div className="panel">
@@ -75,7 +75,7 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
                     </div>
                 </div>
                 */}
-            </div>
-        );
-    }
+      </div>
+    );
+  }
 }
