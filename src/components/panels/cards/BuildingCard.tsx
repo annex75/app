@@ -80,7 +80,7 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
     const buildings = this.props.data;
     return (
       <div>
-        <div className="building-list-header">
+        <div className="panel-list-header">
           {
             <FormGroup
               inline
@@ -163,45 +163,47 @@ const AdvancedOptionsCard = (props: IAdvancedOptionsCardProps) => {
         {
           Object.keys(props.parameters).map( (param: string) => {
             return (
-              <FormGroup
-                inline
-                className="inline-input"
-                key={`building-${param}-input`}
-                label={props.parameters[param].label}
-                labelFor={`building-${param}-input`}>
-                {
-                  Object.keys(buildings).map(id => {
-                    const c = buildings[id][category] as AdvancedBuildingOptionsCategory;
-                    if (!c.hasOwnProperty(param)) {
-                      throw Error(`Building ${id} does not have parameter ${param}`);
-                    }
-                    switch(props.parameters[param].type) {
-                      case Number:
-                        return (
-                          //todo: we can't handle numeric inputs here yet!
-                          <InputGroup
-                            key={`building-${id}-${category}-${param}-input`}
-                            name={`buildings.${id}.${category}.${param}`}
-                            id={`building-${id}-${param}-input`}
-                            onChange={props.eventHandlers.handleChange}
-                            value={c[param] as string} />
-                        )
-                      case String:
-                        return (
-                          <InputGroup
-                            key={`building-${id}-${category}-${param}-input`}
-                            name={`buildings.${id}.${category}.${param}`}
-                            id={`building-${id}-${param}-input`}
-                            onChange={props.eventHandlers.handleChange}
-                            value={c[param] as string} />
-                        )
-                      default:
-                        throw Error(`this data type: ${props.parameters[param].type} has not been defined`);
-                    }
-                  })
-                }
-                <span className="empty-button"/>
-              </FormGroup>
+              <div className={"panel-list-row"}>
+                <FormGroup
+                  inline
+                  className="inline-input"
+                  key={`building-${param}-input`}
+                  label={props.parameters[param].label}
+                  labelFor={`building-${param}-input`}>
+                  {
+                    Object.keys(buildings).map(id => {
+                      const c = buildings[id][category] as AdvancedBuildingOptionsCategory;
+                      if (!c.hasOwnProperty(param)) {
+                        throw Error(`Building ${id} does not have parameter ${param}`);
+                      }
+                      switch(props.parameters[param].type) {
+                        case Number:
+                          return (
+                            //todo: we can't handle numeric inputs here yet!
+                            <InputGroup
+                              key={`building-${id}-${category}-${param}-input`}
+                              name={`buildings.${id}.${category}.${param}`}
+                              id={`building-${id}-${param}-input`}
+                              onChange={props.eventHandlers.handleChange}
+                              value={c[param] as string} />
+                          )
+                        case String:
+                          return (
+                            <InputGroup
+                              key={`building-${id}-${category}-${param}-input`}
+                              name={`buildings.${id}.${category}.${param}`}
+                              id={`building-${id}-${param}-input`}
+                              onChange={props.eventHandlers.handleChange}
+                              value={c[param] as string} />
+                          )
+                        default:
+                          throw Error(`this data type: ${props.parameters[param].type} has not been defined`);
+                      }
+                    })
+                  }
+                  <span className="empty-button"/>
+                </FormGroup>
+              </div>
             )
           })
         }

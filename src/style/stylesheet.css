@@ -75,7 +75,12 @@ ul {
   height: 30px;
 }
 
-.building-list-header {
+.panel-list-header {
+  display: flex;
+  flex-direction: row;
+}
+
+.panel-list-row {
   display: flex;
   flex-direction: row;
 }

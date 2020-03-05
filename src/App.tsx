@@ -5,7 +5,7 @@ import { Footer } from './components/Footer';
 import { Login } from './components/Login';
 import { Logout } from './components/Logout';
 import { Workspace } from './components/Workspace';
-import { IProject, IAppProps, IAppState, OverviewData, CalcData } from './types';
+import { IProject, IAppProps, IAppState, OverviewData, CalcData, ScenarioData, Scenario, ScenarioInfo } from './types';
 
 import './style/stylesheet.css'
 
@@ -89,8 +89,17 @@ class App extends Component<IAppProps, IAppState> {
         owner: this.state.currentUser!.uid,
         overviewData: new OverviewData(),
         calcData: new CalcData(),
+        scenarioData: new ScenarioData(),
         deleted: false,
       }
+      
+      const scenarioId = uuidv4();
+      for (const buildingId in projects[id].calcData.buildings) {
+        let building = projects[id].calcData.buildings[buildingId];
+        building.scenarioInfos[scenarioId] = new ScenarioInfo();
+      } 
+      projects[id].scenarioData.scenarios[scenarioId] = new Scenario(scenarioId);
+
       this.setState({ projects });
     }
   }
@@ -136,7 +145,9 @@ class App extends Component<IAppProps, IAppState> {
       // todo: save warning messages somewhere
       AppToaster.show({ intent: Intent.DANGER, message: "Project could not be updated: project name is not unique" });
     } else {
+      
       const projects = { ...this.state.projects };
+      
       projects[project.id] = project;
       this.setState({ projects });
     }

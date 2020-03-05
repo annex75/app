@@ -1,4 +1,4 @@
-import { IProject, District, IDictBuilding, IDictEventHandler, IDictEnergySystem, ICostCurveType, ICostCurve } from "./Data";
+import { IProject, District, IDictBuilding, IDictEventHandler, IDictEnergySystem, ICostCurveType, ICostCurve, IDictBuildingMeasure } from "./Data";
 import { ChangeEvent, ComponentType } from "react";
 
 /* Panels */
@@ -98,9 +98,54 @@ export interface ICostCurveEditorState {
   costCurveRows: number;
 }
 
-export interface IScenariosPanelProps extends IPanelProps {}
+export interface IBuildingMeasuresCardProps extends ICalcDataCardProps {
+  handleChange(e: ChangeEvent<HTMLInputElement>): void;
+  addBuildingMeasure(category: string): void;
+  data: Record<string,IDictBuildingMeasure>;
+}
 
-export interface IScenariosPanelState extends IPanelState {}
+export interface IBuildingMeasuresCardState extends ICalcDataCardState {
+  buildingMeasureCategories: Record<string,IBuildingMeasureCategoryCard>;
+}
+
+export interface IBuildingMeasureCategoryCard {
+  name: string;
+  title: string;
+  isOpen: boolean;
+  eventHandlers: IDictEventHandler;
+  parameters: Record<string,IBuildingMeasure>;
+}
+
+export interface IBuildingMeasure {
+  type: StringConstructor | NumberConstructor;
+  label: string;
+  unit: string;
+}
+
+export interface IScenariosPanelProps extends IPanelProps {
+  updateProject(project: IProject): void;
+  title: string;
+  project: IProject;
+}
+
+export interface IScenariosPanelState extends IPanelState {
+  project: IProject;
+  scenarioOptions: IScenarioOptionsCard;
+}
+
+export type TScenarioParamCategory = "building" | "energySystem" | "buildingMeasures";
+
+export interface IScenarioOptionsCard {
+  isOpen: Record<string,boolean>;
+  eventHandlers: IDictEventHandler;
+  parameters: Record<TScenarioParamCategory,Record<string,IScenarioInfo>>;
+  labels: Record<string,string>;
+}
+
+export interface IScenarioInfo {
+  type: StringConstructor | NumberConstructor;
+  label: string;
+}
 
 export interface IModelPanelProps extends IPanelProps {}
 

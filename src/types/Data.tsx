@@ -24,6 +24,7 @@ export interface IProject {
   owner: string;
   overviewData: OverviewData;
   calcData: CalcData;
+  scenarioData: ScenarioData;
   deleted: boolean;
   test?: string;
 }
@@ -64,12 +65,35 @@ export class CalcData {
     this.energySystems = {
       [firstEnergySystemId]: new EnergySystem(firstEnergySystemId)
     };
+
+    const firstRoofMeasureId = uuidv4();
+    const firstFacadeMeasureId = uuidv4();
+    const firstFoundationMeasureId = uuidv4();
+    const firstWindowsMeasureId = uuidv4();
+    const firstHvacMeasureId = uuidv4();
+    this.buildingMeasures = {
+      roof: {
+        [firstRoofMeasureId]: new BuildingMeasure("roof", firstRoofMeasureId),
+      },
+      facade: {
+        [firstFacadeMeasureId]: new BuildingMeasure("facade", firstFacadeMeasureId),
+      },
+      foundation: {
+        [firstFoundationMeasureId]: new BuildingMeasure("foundation", firstFoundationMeasureId),
+      },
+      windows: {
+        [firstWindowsMeasureId]: new BuildingMeasure("windows", firstWindowsMeasureId),
+      },
+      hvac: {
+        [firstHvacMeasureId]: new BuildingMeasure("hvac", firstHvacMeasureId),
+      },
+    }
   }
 
   district: District = new District();
   buildings: IDictBuilding;
   energySystems: IDictEnergySystem;
-  buildingMeasures: string = "Placeholder for building measure data";
+  buildingMeasures: Record<string,IDictBuildingMeasure>;
 }
 
 export class District {
@@ -107,6 +131,7 @@ export class Building {
   buildingInformation = new BuildingInformation();
   buildingGeometry = new BuildingGeometry();
   buildingOccupancy = new BuildingOccupancy();
+  scenarioInfos: Record<string,ScenarioInfo> = {};
   [key: string]: Building[keyof Building];
 }
 
@@ -204,5 +229,73 @@ export interface ICostCurveType {
   name: string;
   label: string;
   unit: string;
+}
+
+export interface IDictBuildingMeasure {
+  [index: string]: BuildingMeasure;
+}
+
+export type TBuildingMeasureCategory = "roof" | "facade" | "foundation" | "windows" | "hvac";
+
+export class BuildingMeasure {
+  constructor(category: TBuildingMeasureCategory, id: string = uuidv4()) {
+    this.id = id;
+    this.category = category;
+    switch(category) {
+      case "roof":
+      case "facade":
+      case "foundation":
+      case "windows":
+        this.uValue = 0;
+        break;
+      case "hvac":
+        this.efficiency = 1;
+        break;
+      default:
+        throw new Error(`Building measure category ${category} has not been defined.`);
+    }
+  }
+  id: string;
+  category: TBuildingMeasureCategory;
+  measureName: string = "";
+  refurbishmentCost: number = 0;
+  
+  uValue?: number | null = null;
+  efficiency?: number | null = null;
+
+  [key: string]: BuildingMeasure[keyof BuildingMeasure];
+}
+
+export class ScenarioData {
+  scenarios: Record<string,Scenario> = {};
+}
+
+export class Scenario {
+  constructor(scenarioId: string = uuidv4()) {
+    this.id = scenarioId;
+  }
+  id: string;
+  name: string = "";
+}
+
+export class ScenarioInfo {
+  building: IScenarioBuildingData = {
+    numberOfBuildings: 0,
+  };
+  energySystem: Record<string,string> = {
+    energySystem: "",
+  };
+  buildingMeasures: Record<TBuildingMeasureCategory,string> = {
+    roof: "",
+    facade: "",
+    foundation: "",
+    windows: "",
+    hvac: "",
+  };
+  [index: string]: ScenarioInfo[keyof ScenarioInfo];
+}
+
+export interface IScenarioBuildingData {
+  numberOfBuildings: number;
 }
   

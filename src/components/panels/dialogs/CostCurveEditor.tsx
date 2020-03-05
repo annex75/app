@@ -1,10 +1,10 @@
-import React, { Component, ChangeEvent } from 'react';
+import React, { Component } from 'react';
 
 import '@blueprintjs/table/lib/css/table.css';
 
 import { MenuItem, Button, Classes, FormGroup } from '@blueprintjs/core';
 import { Select, ItemRenderer } from '@blueprintjs/select';
-import { Table, Column, EditableCell, EditableName, ColumnHeaderCell } from '@blueprintjs/table';
+import { Table, Column, EditableCell, ColumnHeaderCell } from '@blueprintjs/table';
 import { ICostCurveType, ICostCurveEditorProps, ICostCurveEditorState, ICostCurve } from '../../../types';
 import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter } from 'recharts';
 
@@ -62,9 +62,6 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
   }
 
   renderCell = (rowIndex: number, columnIndex: number, id: string, costCurve: ICostCurve) => {
-    if(rowIndex === 0 && columnIndex === 1) {
-      console.log(costCurve.value[rowIndex]);
-    }
     return (
       <EditableCell
         value={costCurve.value[rowIndex] == null ? String(0) : String(costCurve.value[rowIndex])}
@@ -160,7 +157,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
           >
           {columns}
         </Table>
-        <h2>Cost curves</h2>
+        <h2>Cost curves (placeholder)</h2>
         <ScatterChart {...this.chartSettings}>
           <CartesianGrid />
           <XAxis type="number" dataKey="x" name="x" unit="-" />
