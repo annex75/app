@@ -1,4 +1,4 @@
-import { IProject, OverviewData, CalcData } from "../../types"
+import { IProject, OverviewData, CalcData, ScenarioData } from "../../types"
 import uuid from "uuid"
 import { APP_VERSION } from "../../constants";
 
@@ -14,6 +14,7 @@ export const generateDefaultProject = (): IProject => {
         owner: "defaultOwner",
         overviewData: new OverviewData(),
         calcData: new CalcData(),
+        scenarioData: new ScenarioData(),
         deleted: false,
     };
     return defProject;

@@ -1,7 +1,7 @@
 import React, { Component, ChangeEvent, FormEvent } from 'react';
 
 import { IOverviewPanelProps, IOverviewPanelState } from '../../types';
-import { TextArea, FormGroup, InputGroup, NumericInput, Tooltip } from '@blueprintjs/core';
+import { TextArea, FormGroup, InputGroup, /*NumericInput,*/ Tooltip } from '@blueprintjs/core';
 
 import { set as _fpSet } from 'lodash/fp';
 import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter } from 'recharts';
@@ -169,7 +169,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
         </div>
 
         <div id="results-overview" className="bp3-card panel-card">
-          <h2>Results overview</h2>
+          <h2>Results overview (placeholder)</h2>
           <ScatterChart {...this.chartSettings}>
             <CartesianGrid />
             <XAxis type="number" dataKey="x" name="x" unit="-" />

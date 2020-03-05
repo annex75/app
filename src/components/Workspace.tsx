@@ -13,6 +13,12 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
     }
   }
 
+  componentDidUpdate(prevProps: IWorkspaceProps) {
+    if (this.props.item !== prevProps.item) {
+      this.setState({ project: this.props.item });
+    }
+  }
+
   handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const project = { ...this.props.item };
     project.name = e.target.value;
@@ -41,18 +47,20 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
             <OverviewPanel
               updateProject={this.props.updateProject}
               title="Overview"
-              project={this.state.project}
-
-            />
+              project={this.state.project}/>
           } />
           <Tab id="calc-data" title={"Calculation data"} panel={
             <CalcDataPanel
               title="Calculation data"
               updateProject={this.props.updateProject}
-              project={this.state.project}
-            />
+              project={this.state.project}/>
           } />
-          <Tab disabled id="scenarios" title={"Scenarios"} panel={<ScenariosPanel title="Scenarios" />} />
+          <Tab id="scenarios" title={"Scenarios"} panel={
+            <ScenariosPanel 
+              title="Scenarios" 
+              updateProject={this.props.updateProject}
+              project={this.state.project}/>
+          } />
           <Tab id="model" title={"Model settings"} panel={<ModelPanel title="Model settings" />} />
           <Tab id="results" title={"Results"} panel={<ResultsPanel title="Results" />} />
         </Tabs>

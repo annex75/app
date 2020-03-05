@@ -6,12 +6,13 @@ import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 //import { CalcData } from '@annex-75/calculation-model/';
 
 import * as config from '../../config.json';
-import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, Building, ICalcDataCardProps, ICalcDataPanelCard, EnergySystem, ICostCurve } from '../../types';
+import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, Building, ICalcDataPanelCard, EnergySystem, ICostCurve, BuildingMeasure, TBuildingMeasureCategory, ScenarioInfo } from '../../types';
 import { DistrictCard } from './cards/DistrictCard';
 import { BuildingCard } from './cards/BuildingCard';
 import { AppToaster } from '../../toaster';
 import { EnergySystemsCard } from './cards/EnergySystemsCard';
 import { CostCurveEditor } from './dialogs/CostCurveEditor';
+import { BuildingMeasuresCard } from './cards/BuildingMeasuresCard';
 
 
 export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanelState> {
@@ -57,6 +58,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
         component: BuildingMeasuresCard,
         eventHandlers: {
           handleChange: this.handleChange,
+          addBuildingMeasure: this.addBuildingMeasure,
         },
       },
     }
@@ -107,8 +109,13 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     }
     
     const building = new Building();
+    for (const scenarioId in newState.project.scenarioData.scenarios) {
+      building.scenarioInfos[scenarioId] = new ScenarioInfo();
+    } 
+
     newState.project.calcData.buildings[building.id] = building;
     
+
     this.setState(newState);
     this.props.updateProject(newState.project);
   }
@@ -123,6 +130,21 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     
     const energySystem = new EnergySystem();
     newState.project.calcData.energySystems[energySystem.id] = energySystem;
+    
+    this.setState(newState);
+    this.props.updateProject(newState.project);
+  }
+
+  addBuildingMeasure = (category: TBuildingMeasureCategory) => {
+    let newState = { ...this.state };
+
+    if (Object.keys(newState.project.calcData.buildingMeasures[category]).length >= config.MAX_BUILDING_MEASURES) {
+      AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_BUILDING_MEASURES} building measures are currently allowed per category`});
+      return;
+    }
+    
+    const buildingMeasure = new BuildingMeasure(category);
+    newState.project.calcData.buildingMeasures[category][buildingMeasure.id] = buildingMeasure;
     
     this.setState(newState);
     this.props.updateProject(newState.project);
@@ -172,11 +194,4 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
 
 const PanelCard = ({ component: Component, ...rest }: any) => {
   return <Component {...rest} />
-}
-
-const BuildingMeasuresCard = (props: ICalcDataCardProps) => {
-  const buildingMeasures = props.data;
-  return (
-    <div>{buildingMeasures}</div>
-  )
 }
