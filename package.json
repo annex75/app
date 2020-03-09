@@ -1,6 +1,6 @@
 {
   "name": "app",
-  "version": "0.2.4-2",
+  "version": "0.2.4",
   "private": true,
   "dependencies": {
     "@blueprintjs/table": "^3.8.3",
