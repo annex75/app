@@ -1,9 +1,9 @@
 import React, { Component, ChangeEvent, FormEvent } from 'react';
 
-import { IOverviewPanelProps, IOverviewPanelState } from '../../types';
+import { IOverviewPanelProps, IOverviewPanelState, IOverviewDataCard } from '../../types';
 import { TextArea, FormGroup, InputGroup, /*NumericInput,*/ Tooltip } from '@blueprintjs/core';
 
-import { set as _fpSet } from 'lodash/fp';
+import { set as _fpSet, get as _fpGet } from 'lodash/fp';
 import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter } from 'recharts';
 import { strings } from '../../constants/textData';
 
@@ -11,8 +11,72 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
 
   constructor(props: IOverviewPanelProps) {
     super(props);
+    const overviewDataCards: Record<string,IOverviewDataCard> = {
+      assessmentInfo: {
+        name: "assessmentInfo",
+        title: "Assessment info",
+        isOpen: false,
+        eventHandlers: { handleChange: this.handleChange },
+        parameters: {
+          name: {
+            type: String,
+            label: "Name:",
+            path: "project.overviewData.contactInfo.name",
+          },
+          email: {
+            type: String,
+            label: "E-mail:",
+            path: "project.overviewData.contactInfo.email",
+          },
+          affiliation: {
+            type: String,
+            label: "Affiliation:",
+            path: "project.overviewData.contactInfo.affiliation",
+          },
+          //todo: make this a list instead of just a text area
+          toolsUsed: {
+            type: String,
+            label: "Tools used:",
+            path: "project.overviewData.toolsInfo",
+          }
+        }
+      },
+      locationInfo: {
+        name: "locationInfo",
+        title: "Location info",
+        isOpen: false,
+        eventHandlers: { handleChange: this.handleChange },
+        parameters: {
+          country: {
+            disabled: true,
+            type: String,
+            label: "Country:",
+            path: "project.calcData.district.location.country.country",
+          },
+          place: {
+            disabled: true,
+            type: String,
+            label: "City:",
+            path: "project.calcData.district.location.place",
+          },
+          latitude: {
+            disabled: true,
+            type: String,
+            label: "Latitude:",
+            path: "project.calcData.district.location.lat",
+          },
+          longitude: {
+            disabled: true,
+            type: String,
+            label: "Longitude:",
+            path: "project.calcData.district.location.lon",
+          }
+        }
+      }
+    }
     this.state = {
       project: props.project,
+      overviewDataCards
     }
   }
 
@@ -46,128 +110,68 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
     { x: 110, y: 280, z: 200 },
   ]
 
+  renderInputField = (param: any, paramId: string) => {
+    const val = _fpGet(param.path, this.state) as string;
+    switch(param.type) {
+      case Number:
+        //todo: we can't handle numeric inputs here yet!
+        // return (
+        //<NumericInput 
+        //    name="project.overviewData.location.lat"
+        //    id="lat-input"
+        //    min={-90}
+        //    max={90}
+        //    onValueChange={ (n, s, e) => { this.handleChange(e) }}
+        //    value={project.calcData.district.location.lat}/>
+        //)
+      case String:
+        return (
+          <InputGroup
+            disabled={param.disabled || false}
+            key={`overview-${paramId}-input`}
+            name={param.path}
+            id={`overview-${paramId}-input`}
+            onChange={this.handleChange}
+            value={val} />
+        )
+      default:
+        throw Error(`this data type: ${param.type} has not been defined`);
+    }
+  }
+
   render() {
     const { project } = this.state;
     return (
       <div>
         <h1>{this.props.title}</h1>
-        <div id="assessment-info" className="bp3-card panel-card">
-          <h2>Assessment information</h2>
-          <FormGroup
-            label="Contact info"
-          >
-            <FormGroup
-              inline
-              label="Name:"
-              labelFor="name-input">
-              <InputGroup
-                name="project.overviewData.contactInfo.name"
-                id="name-input"
-                onChange={this.handleChange}
-                value={project.overviewData.contactInfo.name} />
-            </FormGroup>
-            <FormGroup
-              inline
-              label="E-mail:"
-              labelFor="email">
-              <InputGroup
-                type="email"
-                name="project.overviewData.contactInfo.email"
-                id="email-input"
-                onChange={this.handleChange}
-                value={project.overviewData.contactInfo.email} />
-            </FormGroup>
-            <FormGroup
-              inline
-              label="Affiliation:"
-              labelFor="affiliation-input">
-              <InputGroup
-                name="project.overviewData.contactInfo.affiliation"
-                id="affiliation-input"
-                onChange={this.handleChange}
-                value={project.overviewData.contactInfo.affiliation} />
-            </FormGroup>
-          </FormGroup>
-
-          <FormGroup
-            label="Tools used"
-            labelFor="tools-info"
-          >
-            {/*todo: make this a list instead of just a text area*/}
-            <TextArea
-              fill
-              id="tools-info"
-              name="project.overviewData.toolsInfo"
-              onChange={this.handleChange}
-              value={project.overviewData.toolsInfo} />
-          </FormGroup>
-
-        </div>
-
-        <div id="location-info" className="bp3-card panel-card">
-          <h2>Location</h2>
-          <FormGroup
-            inline
-            label="Country:"
-            labelFor="country-input">
-            <InputGroup
-              name="project.overviewData.location.country.country"
-              id="country-input"
-              disabled
-              value={project.calcData.district.location.country.country} />
-          </FormGroup>
-          <FormGroup
-            inline
-            label="City:"
-            labelFor="city-input">
-            <InputGroup
-              name="project.overviewData.location.place"
-              id="city-input"
-              disabled
-              value={project.calcData.district.location.place} />
-          </FormGroup>
-          <FormGroup
-            inline
-            label="Latitude:"
-            labelFor="lat-input">
-            {<input
-              className="bp3-input"
-              name="project.overviewData.location.lat"
-              id="lat-input"
-              min={-90}
-              max={90}
-              type="number"
-              disabled
-              value={project.calcData.district.location.lat} />
-            }
-            {/* todo: make use of this once @blueprintjs/core is updated
-            <NumericInput 
-                name="project.overviewData.location.lat"
-                id="lat-input"
-                min={-90}
-                max={90}
-                onValueChange={ (n, s, e) => { this.handleChange(e) }}
-                value={project.calcData.district.location.lat}/>
-            */}
-          </FormGroup>
-          <FormGroup
-            inline
-            label="Longitude:"
-            labelFor="lon-input">
-            <input
-              className="bp3-input"
-              name="project.overviewData.location.lon"
-              id="lon-input"
-              min={-90}
-              max={90}
-              type="number"
-              disabled
-              value={project.calcData.district.location.lon} />
-
-          </FormGroup>
-
-        </div>
-
+        {
+          Object.keys(this.state.overviewDataCards).map(cardId => {
+            const card = this.state.overviewDataCards[cardId];
+            return (
+              <div className="bp3-card panel-card" id={`overview-data-${cardId}-card`} key={`overview-data-${cardId}-card`}>
+                <h2>{card.title}</h2>
+                {
+                  Object.keys(card.parameters).map(paramId => {
+                    const param = card.parameters[paramId];
+                    return (
+                      <FormGroup
+                        inline
+                        className="inline-input"
+                        key={`overview-${paramId}-input`}
+                        label={param.label}
+                        labelFor={`overview-${paramId}-input`}>
+                        {
+                          this.renderInputField(param, paramId)
+                        }
+                      </FormGroup>
+                    )
+                  })
+                }  
+              </div>
+            )
+          })
+        }
+        
         <div id="results-overview" className="bp3-card panel-card">
           <h2>Results overview (placeholder)</h2>
           <ScatterChart {...this.chartSettings}>

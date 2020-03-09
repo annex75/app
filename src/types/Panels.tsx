@@ -17,6 +17,22 @@ export interface IOverviewPanelProps extends IPanelProps {
 
 export interface IOverviewPanelState extends IPanelState {
     project: IProject;
+    overviewDataCards: Record<string,IOverviewDataCard>;
+}
+
+export interface IOverviewDataCard {
+  name: string;
+  title: string;
+  isOpen: boolean;
+  eventHandlers: IDictEventHandler;
+  parameters: Record<string,IOverviewInfo>;
+}
+
+export interface IOverviewInfo {
+  disabled? : boolean;
+  type: StringConstructor | NumberConstructor;
+  label: string;
+  path: string;
 }
 
 export interface ICalcDataPanelProps extends IPanelProps {
@@ -147,9 +163,30 @@ export interface IScenarioInfo {
   label: string;
 }
 
-export interface IModelPanelProps extends IPanelProps {}
+export interface IModelPanelProps extends IPanelProps {
+  updateProject(project: IProject): void;
+  title: string;
+  project: IProject;
+}
 
-export interface IModelPanelState extends IPanelState {}
+export interface IModelPanelState extends IPanelState {
+  project: IProject;
+  modelOptions: Record<TModelOptionsCategory,IModelOptionsCard>;
+}
+
+export type TModelOptionsCategory = "energyDemand" | "energySystemOutput" | "energySystemCost";
+
+export interface IModelOptionsCard {
+  isOpen: boolean;
+  eventHandlers: IDictEventHandler;
+  parameters: Record<string,IModelOption>;
+  title: string;
+}
+
+export interface IModelOption {
+  type: StringConstructor | NumberConstructor;
+  label: string;
+}
 
 export interface IResultsPanelProps extends IPanelProps {}
 

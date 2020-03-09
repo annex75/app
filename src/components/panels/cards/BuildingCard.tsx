@@ -115,7 +115,7 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
             className="bp3-button"
             icon={this.state.advancedIsOpen ? "arrow-up" : "arrow-down"}
             onClick={this.handleExpandClick}>
-            Advanced
+            <h3>Advanced</h3>
           </Button>
           <Collapse key="building-advanced-collapse" isOpen={this.state.advancedIsOpen}>
             {
@@ -130,7 +130,7 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
                       name={card.name}
                       icon={card.isOpen ? "arrow-up" : "arrow-down"}
                       onClick={(e: React.MouseEvent<HTMLElement>) => this.handleExpandAdvancedOptionsClick(e, id)}>
-                      {card.title}
+                      <h3>{card.title}</h3>
                     </Button>
                     <AdvancedOptionsCard key={id} isOpen={card.isOpen} data={data} eventHandlers={card.eventHandlers} category={id} parameters={card.parameters} />
                   </div>
@@ -163,7 +163,7 @@ const AdvancedOptionsCard = (props: IAdvancedOptionsCardProps) => {
         {
           Object.keys(props.parameters).map( (param: string) => {
             return (
-              <div className={"panel-list-row"}>
+              <div className={"panel-list-row"} key={`building-${param}-div`}>
                 <FormGroup
                   inline
                   className="inline-input"
