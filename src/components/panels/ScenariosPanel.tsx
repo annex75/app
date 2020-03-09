@@ -160,7 +160,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                     className="bp3-button"
                     icon={this.state.scenarioOptions.isOpen[buildingId] ? "arrow-up" : "arrow-down"}
                     onClick={() => this.handleExpandClick(buildingId)}>
-                    {project.calcData.buildings[buildingId].name}
+                    <h3>{project.calcData.buildings[buildingId].name}</h3>
                   </Button>
                   <Collapse key={`scenario-${buildingId}-collapse`} isOpen={this.state.scenarioOptions.isOpen[buildingId]}>
                     {

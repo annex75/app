@@ -169,10 +169,8 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
             return (
               <Card key={`${id}-card`} id={`${id}-card`} elevation={card.isOpen ? 2 : 0} className="panel-card">
                 <div className="panel-card-header">
-                  <h3 style={{ flexGrow: 1 }}>{card.title}</h3>
-                  <Button minimal className="bp3-button" icon={card.isOpen ? "arrow-up" : "arrow-down"} onClick={(e: React.MouseEvent<HTMLElement>) => this.handleClick(e, id)}>
-
-                  </Button>
+                  <h2 style={{ flexGrow: 1 }}>{card.title}</h2>
+                  <Button minimal className="bp3-button" icon={card.isOpen ? "arrow-up" : "arrow-down"} onClick={(e: React.MouseEvent<HTMLElement>) => this.handleClick(e, id)}/>
                 </div>
                 <Collapse key={`${id}-collapse`} isOpen={card.isOpen}>
                   <PanelCard component={card.component} data={data} {...card.eventHandlers} />
