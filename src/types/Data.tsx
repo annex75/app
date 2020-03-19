@@ -43,6 +43,7 @@ export class OverviewData {
 
 export class ContactInfo {
   email: string = "";
+  phone: string = "";
   name: string = "";
   affiliation: string = "";
 }
@@ -73,19 +74,19 @@ export class CalcData {
     const firstHvacMeasureId = uuidv4();
     this.buildingMeasures = {
       roof: {
-        [firstRoofMeasureId]: new BuildingMeasure("roof", firstRoofMeasureId),
+        [firstRoofMeasureId]: new EnvelopeMeasure("roof", firstRoofMeasureId),
       },
       facade: {
-        [firstFacadeMeasureId]: new BuildingMeasure("facade", firstFacadeMeasureId),
+        [firstFacadeMeasureId]: new EnvelopeMeasure("facade", firstFacadeMeasureId),
       },
       foundation: {
-        [firstFoundationMeasureId]: new BuildingMeasure("foundation", firstFoundationMeasureId),
+        [firstFoundationMeasureId]: new EnvelopeMeasure("foundation", firstFoundationMeasureId),
       },
       windows: {
-        [firstWindowsMeasureId]: new BuildingMeasure("windows", firstWindowsMeasureId),
+        [firstWindowsMeasureId]: new EnvelopeMeasure("windows", firstWindowsMeasureId),
       },
       hvac: {
-        [firstHvacMeasureId]: new BuildingMeasure("hvac", firstHvacMeasureId),
+        [firstHvacMeasureId]: new HvacMeasure("hvac", firstHvacMeasureId),
       },
     }
   }
@@ -99,7 +100,10 @@ export class CalcData {
 export class District {
   // location information
   location: Location = new Location();
-  climate: Climate = new Climate();
+  climate = new Climate();
+  geometry: DistrictGeometry = new DistrictGeometry();
+  energy: DistrictEnergy = new DistrictEnergy();
+  //economy: DistrictEconomy = new DistrictEconomy(); // should this possibly be in Country?
 }
 
 export class Location {
@@ -118,10 +122,29 @@ export class Climate {
   filename: string = "";
 }
 
+export class DistrictGeometry {
+  pipingLength: number = 0;
+  districtToDistrictHeatingNetwork: number = 0;
+  solarPanelArea: number = 0;
+}
+
+export class DistrictEnergy {
+  heatSources: string = ""; // what should this be?
+  gshpArea: number = 0; // is this a useful way of quantifying this?
+}
+
+/*
+export class DistrictEconomy {
+  interestRate: number = 0;
+  energyPriceIncrease: number = 0;
+}
+*/
+
 export interface IDictBuilding {
   [index: string]: Building;
 }
 
+// really is a building type/building typology
 export class Building {
   constructor(id: string = uuidv4()) {
     this.id = id;
@@ -130,26 +153,45 @@ export class Building {
   name: string = "";
   buildingInformation = new BuildingInformation();
   buildingGeometry = new BuildingGeometry();
-  buildingOccupancy = new BuildingOccupancy();
+  //buildingOccupancy = new BuildingOccupancy(); // modify in scenarios?
   scenarioInfos: Record<string,ScenarioInfo> = {};
   [key: string]: Building[keyof Building];
 }
 
 export class BuildingInformation {
   constructionYear: number = 1970;
+  buildingClass: string = "";
   energyPerformanceCertificate: string = "";
+  ownership: string = "";
   [key: string]: BuildingInformation[keyof BuildingInformation];
 }
 
 export class BuildingGeometry {
   grossFloorArea: number = 0;
+  heatedVolume: number = 0;
+  facadeAreaN: number = 0;
+  facadeAreaE: number = 0;
+  facadeAreaS: number = 0;
+  facadeAreaW: number = 0;
+  windowAreaN: number = 0;
+  windowAreaE: number = 0;
+  windowAreaS: number = 0;
+  windowAreaW: number = 0;
+  roofArea: number = 0;
+  foundationArea: number = 0;
+  numberOfFloorsAbove: number = 0;
+  numberOfFloorsBelow: number = 0;
+  floorHeight: number = 0;
   [key: string]: BuildingGeometry[keyof BuildingGeometry];
 }
 
+/* modify in scenarios?
 export class BuildingOccupancy {
+  occupancy: string = "";
   occupants: number = 0;
   [key: string]: BuildingOccupancy[keyof BuildingOccupancy];
 }
+*/
 
 export interface IDictEnergySystem {
   [index: string]: EnergySystem;
@@ -232,38 +274,50 @@ export interface ICostCurveType {
 }
 
 export interface IDictBuildingMeasure {
-  [index: string]: BuildingMeasure;
+  [index: string]: IBuildingMeasure;
 }
 
 export type TBuildingMeasureCategory = "roof" | "facade" | "foundation" | "windows" | "hvac";
 
-export class BuildingMeasure {
+export interface IBuildingMeasure {
+  id: string;
+  category: TBuildingMeasureCategory;
+  measureName: string;
+  refurbishmentCost: number;
+
+  [key: string]: IBuildingMeasure[keyof IBuildingMeasure];
+}
+
+
+
+export class EnvelopeMeasure implements IBuildingMeasure {
   constructor(category: TBuildingMeasureCategory, id: string = uuidv4()) {
     this.id = id;
     this.category = category;
-    switch(category) {
-      case "roof":
-      case "facade":
-      case "foundation":
-      case "windows":
-        this.uValue = 0;
-        break;
-      case "hvac":
-        this.efficiency = 1;
-        break;
-      default:
-        throw new Error(`Building measure category ${category} has not been defined.`);
-    }
   }
-  id: string;
+  id: string = uuidv4();
   category: TBuildingMeasureCategory;
   measureName: string = "";
   refurbishmentCost: number = 0;
   
-  uValue?: number | null = null;
-  efficiency?: number | null = null;
+  uValue: number = 0;
 
-  [key: string]: BuildingMeasure[keyof BuildingMeasure];
+  [key: string]: EnvelopeMeasure[keyof EnvelopeMeasure];
+}
+
+export class HvacMeasure implements IBuildingMeasure {
+  constructor(category: TBuildingMeasureCategory, id: string = uuidv4()) {
+    this.id = id;
+    this.category = category;
+  }
+  id: string = uuidv4();
+  category: TBuildingMeasureCategory;
+  measureName: string = "";
+  refurbishmentCost: number = 0;
+  
+  efficiency: number = 0;
+
+  [key: string]: EnvelopeMeasure[keyof EnvelopeMeasure];
 }
 
 export class ScenarioData {

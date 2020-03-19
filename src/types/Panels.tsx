@@ -28,11 +28,22 @@ export interface IOverviewDataCard {
   parameters: Record<string,IOverviewInfo>;
 }
 
-export interface IOverviewInfo {
+export type TInputType = StringConstructor | NumberConstructor | "file";
+
+export interface IInput {
+  key: string;
   disabled? : boolean;
-  type: StringConstructor | NumberConstructor;
+  type: TInputType;
   label: string;
-  path: string;
+  buttonLabel?: string;
+  path?: string;
+  localPath?: string;
+  rootPath?: string;
+  handleChange?(e: ChangeEvent<HTMLInputElement>): void;
+}
+
+export interface IOverviewInfo extends IInput {
+  
 }
 
 export interface ICalcDataPanelProps extends IPanelProps {
@@ -70,6 +81,19 @@ export interface IDistrictCardProps extends ICalcDataCardProps {
     data: District;
 }
 
+export interface IDistrictCardState extends ICalcDataCardState {
+  paramCategories: Record<string,IDistrictParamCategory>;
+}
+
+export interface IDistrictParamCategory {
+  label: string,
+  parameters: Record<string, IDistrictInfo>,
+}
+
+export interface IDistrictInfo extends IInput {
+  
+}
+
 export interface IBuildingCardProps extends ICalcDataCardProps {
     handleChange(e: ChangeEvent<HTMLInputElement>): void;
     addBuilding(): void;
@@ -82,9 +106,8 @@ export interface IBuildingCardState extends ICalcDataCardState {
     buildingAdvancedOptions: Record<string,IBuildingAdvancedOptionsCard>;
 }
 
-export interface IBuildingInfo {
-  type: StringConstructor | NumberConstructor;
-  label: string;
+export interface IBuildingInfo extends IInput {
+
 }
 
 export interface IBuildingAdvancedOptionsCard {
@@ -129,10 +152,10 @@ export interface IBuildingMeasureCategoryCard {
   title: string;
   isOpen: boolean;
   eventHandlers: IDictEventHandler;
-  parameters: Record<string,IBuildingMeasure>;
+  parameters: Record<string,IBuildingMeasureInfo>;
 }
 
-export interface IBuildingMeasure {
+export interface IBuildingMeasureInfo {
   type: StringConstructor | NumberConstructor;
   label: string;
   unit: string;
@@ -154,8 +177,12 @@ export type TScenarioParamCategory = "building" | "energySystem" | "buildingMeas
 export interface IScenarioOptionsCard {
   isOpen: Record<string,boolean>;
   eventHandlers: IDictEventHandler;
-  parameters: Record<TScenarioParamCategory,Record<string,IScenarioInfo>>;
-  labels: Record<string,string>;
+  paramCategories: Record<TScenarioParamCategory,IScenarioParamCategory>;
+}
+
+export interface IScenarioParamCategory {
+  label: string,
+  parameters: Record<string, IScenarioInfo>,
 }
 
 export interface IScenarioInfo {

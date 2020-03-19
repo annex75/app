@@ -17,46 +17,50 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
     const scenarioOptions: IScenarioOptionsCard = {
       eventHandlers: { handleChange: this.handleChange },
       isOpen: isOpen,
-      parameters: {
+      paramCategories: {
         building: {
-          numberOfBuildings: {
-            type: Number,
-            label: "Number of buildings:",
+          label: "Building options",
+          parameters: {
+            numberOfBuildings: {
+              type: Number,
+              label: "Number of buildings:",
+            }
           }
         },
         energySystem: {
-          energySystem: {
-            type: String,
-            label: "Energy system:",
+          label: "Energy system options",
+          parameters: {
+            energySystem: {
+              type: String,
+              label: "Energy system:",
+            }
           }
         },
         buildingMeasures: {
-          roof: {
-            type: String,
-            label: "Roof:",
-          },
-          facade: {
-            type: String,
-            label: "Facade:",
-          },
-          foundation: {
-            type: String,
-            label: "Foundation:"
-          },
-          windows: {
-            type: String,
-            label: "Windows:",
-          },
-          hvac: {
-            type: String,
-            label: "HVAC system:"
+          label: "Building renovation measures",
+          parameters: {
+            roof: {
+              type: String,
+              label: "Roof:",
+            },
+            facade: {
+              type: String,
+              label: "Facade:",
+            },
+            foundation: {
+              type: String,
+              label: "Foundation:"
+            },
+            windows: {
+              type: String,
+              label: "Windows:",
+            },
+            hvac: {
+              type: String,
+              label: "HVAC system:"
+            }
           }
         },
-      },
-      labels: {
-        building: "Building options",
-        energySystem: "Energy system options",
-        buildingMeasures: "Building renovation measures",
       },
     }
 
@@ -160,19 +164,19 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                     className="bp3-button"
                     icon={this.state.scenarioOptions.isOpen[buildingId] ? "arrow-up" : "arrow-down"}
                     onClick={() => this.handleExpandClick(buildingId)}>
-                    <h3>{project.calcData.buildings[buildingId].name}</h3>
+                    <h4>{project.calcData.buildings[buildingId].name}</h4>
                   </Button>
                   <Collapse key={`scenario-${buildingId}-collapse`} isOpen={this.state.scenarioOptions.isOpen[buildingId]}>
                     {
                       // for each parameter category
-                      Object.keys(this.state.scenarioOptions.parameters).map(paramCategoryName => {
-                        const paramCategory = this.state.scenarioOptions.parameters[paramCategoryName as TScenarioParamCategory];
+                      Object.keys(this.state.scenarioOptions.paramCategories).map(paramCategoryName => {
+                        const paramCategory = this.state.scenarioOptions.paramCategories[paramCategoryName as TScenarioParamCategory];
                         return (
                           <div key={`scenario-${buildingId}-${paramCategoryName}-div`}>
-                          <h3>{this.state.scenarioOptions.labels[paramCategoryName]}</h3>
+                          <h3>{paramCategory.label}</h3>
                           {
-                            Object.keys(paramCategory).map(paramName => {
-                              const param = paramCategory[paramName];
+                            Object.keys(paramCategory.parameters).map(paramName => {
+                              const param = paramCategory.parameters[paramName];
                               return (
                                 <div key={`scenario-${buildingId}-${paramName}-div`} className="panel-list-row">
                                   <FormGroup

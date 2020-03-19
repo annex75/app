@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { IBuildingMeasuresCardProps, IBuildingMeasuresCardState, IBuildingMeasureCategoryCard, IBuildingMeasure, IDictEventHandler, IDictBuildingMeasure } from '../../../types';
+import { IBuildingMeasuresCardProps, IBuildingMeasuresCardState, IBuildingMeasureCategoryCard, IDictEventHandler, IDictBuildingMeasure, IBuildingMeasureInfo } from '../../../types';
 import { Button, Collapse, FormGroup, InputGroup } from '@blueprintjs/core';
 
 export class BuildingMeasuresCard extends Component<IBuildingMeasuresCardProps, IBuildingMeasuresCardState> {
@@ -166,7 +166,7 @@ export class BuildingMeasuresCard extends Component<IBuildingMeasuresCardProps, 
                   name={card.name}
                   icon={card.isOpen ? "arrow-up" : "arrow-down"}
                   onClick={(e: React.MouseEvent<HTMLElement>) => this.handleExpandBuildingMeasuresCategoryClick(e, id)}>
-                  {card.title}
+                  <h4>{card.title}</h4>
                 </Button>
                 <BuildingMeasureCategoryCard key={id} isOpen={card.isOpen} data={data} eventHandlers={card.eventHandlers} category={id} parameters={card.parameters} />
               </div>
@@ -183,7 +183,7 @@ interface IBuildingMeasureCategoryCardProps {
   data: IDictBuildingMeasure;
   eventHandlers: IDictEventHandler;
   category: string;
-  parameters: Record<string,IBuildingMeasure>;
+  parameters: Record<string,IBuildingMeasureInfo>;
 }
 
 const BuildingMeasureCategoryCard = (props: IBuildingMeasureCategoryCardProps) => {
