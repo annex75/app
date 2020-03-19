@@ -1,9 +1,11 @@
 import React, { Component, ChangeEvent, FormEvent } from 'react';
 
 import { IOverviewPanelProps, IOverviewPanelState, IOverviewDataCard } from '../../types';
-import { TextArea, FormGroup, InputGroup, /*NumericInput,*/ Tooltip } from '@blueprintjs/core';
+import { renderInputField, } from '../../helpers';
 
-import { set as _fpSet, get as _fpGet } from 'lodash/fp';
+import { FormGroup, Tooltip } from '@blueprintjs/core';
+
+import { set as _fpSet } from 'lodash/fp';
 import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter } from 'recharts';
 import { strings } from '../../constants/textData';
 
@@ -14,27 +16,37 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
     const overviewDataCards: Record<string,IOverviewDataCard> = {
       assessmentInfo: {
         name: "assessmentInfo",
-        title: "Assessment info",
+        title: "Assessment information",
         isOpen: false,
         eventHandlers: { handleChange: this.handleChange },
         parameters: {
           name: {
+            key: "name",
             type: String,
             label: "Name:",
             path: "project.overviewData.contactInfo.name",
           },
           email: {
+            key: "email",
             type: String,
             label: "E-mail:",
             path: "project.overviewData.contactInfo.email",
           },
-          affiliation: {
+          phone: {
+            key: "phone",
             type: String,
-            label: "Affiliation:",
+            label: "Telephone number:",
+            path: "project.overviewData.contactInfo.phone",
+          },
+          affiliation: {
+            key: "affiliation",
+            type: String,
+            label: "Affiliation/Organisation:",
             path: "project.overviewData.contactInfo.affiliation",
           },
           //todo: make this a list instead of just a text area
           toolsUsed: {
+            key: "toolsUsed",
             type: String,
             label: "Tools used:",
             path: "project.overviewData.toolsInfo",
@@ -43,29 +55,33 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
       },
       locationInfo: {
         name: "locationInfo",
-        title: "Location info",
+        title: "Location information",
         isOpen: false,
         eventHandlers: { handleChange: this.handleChange },
         parameters: {
           country: {
+            key: "country",
             disabled: true,
             type: String,
             label: "Country:",
             path: "project.calcData.district.location.country.country",
           },
           place: {
+            key: "place",
             disabled: true,
             type: String,
             label: "City:",
             path: "project.calcData.district.location.place",
           },
           latitude: {
+            key: "latitude",
             disabled: true,
             type: String,
             label: "Latitude:",
             path: "project.calcData.district.location.lat",
           },
           longitude: {
+            key: "longitude",
             disabled: true,
             type: String,
             label: "Longitude:",
@@ -109,7 +125,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
     { x: 150, y: 400, z: 500 },
     { x: 110, y: 280, z: 200 },
   ]
-
+/*
   renderInputField = (param: any, paramId: string) => {
     const val = _fpGet(param.path, this.state) as string;
     switch(param.type) {
@@ -138,9 +154,9 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
         throw Error(`this data type: ${param.type} has not been defined`);
     }
   }
+  */
 
   render() {
-    const { project } = this.state;
     return (
       <div>
         <h1>{this.props.title}</h1>
@@ -149,7 +165,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
             const card = this.state.overviewDataCards[cardId];
             return (
               <div className="bp3-card panel-card" id={`overview-data-${cardId}-card`} key={`overview-data-${cardId}-card`}>
-                <h2>{card.title}</h2>
+                <h3>{card.title}</h3>
                 {
                   Object.keys(card.parameters).map(paramId => {
                     const param = card.parameters[paramId];
@@ -161,7 +177,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
                         label={param.label}
                         labelFor={`overview-${paramId}-input`}>
                         {
-                          this.renderInputField(param, paramId)
+                          renderInputField("overview", param, this.state, this.handleChange)
                         }
                       </FormGroup>
                     )
@@ -173,7 +189,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
         }
         
         <div id="results-overview" className="bp3-card panel-card">
-          <h2>Results overview (placeholder)</h2>
+          <h3>Results overview (placeholder)</h3>
           <ScatterChart {...this.chartSettings}>
             <CartesianGrid />
             <XAxis type="number" dataKey="x" name="x" unit="-" />
@@ -186,7 +202,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
         </div>
 
         <div id="about-project" className="bp3-card panel-card">
-          <h2>About Annex 75</h2>
+          <h3>About Annex 75</h3>
           <p>{strings.aboutAnnex75.en}</p>
         </div>
       </div>

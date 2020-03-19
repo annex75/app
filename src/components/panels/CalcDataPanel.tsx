@@ -6,7 +6,7 @@ import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 //import { CalcData } from '@annex-75/calculation-model/';
 
 import * as config from '../../config.json';
-import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, Building, ICalcDataPanelCard, EnergySystem, ICostCurve, BuildingMeasure, TBuildingMeasureCategory, ScenarioInfo } from '../../types';
+import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, Building, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure } from '../../types';
 import { DistrictCard } from './cards/DistrictCard';
 import { BuildingCard } from './cards/BuildingCard';
 import { AppToaster } from '../../toaster';
@@ -77,6 +77,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
   }
 
   handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    console.log(e.target.name)
     const path = this.formatPath(e.target.name);
     const newState = _fpSet(path, e.target.value, this.state);
     this.setState(newState);
@@ -143,11 +144,20 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
       return;
     }
     
-    const buildingMeasure = new BuildingMeasure(category);
+    const buildingMeasure = this.getBuildingMeasure(category);
     newState.project.calcData.buildingMeasures[category][buildingMeasure.id] = buildingMeasure;
     
     this.setState(newState);
     this.props.updateProject(newState.project);
+  }
+
+  getBuildingMeasure(category: TBuildingMeasureCategory) {
+    switch(category) {
+      case "hvac":
+        return new HvacMeasure(category);
+      default:
+        return new EnvelopeMeasure(category);
+    }
   }
 
   editCostCurve = (id: string) => {
@@ -169,7 +179,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
             return (
               <Card key={`${id}-card`} id={`${id}-card`} elevation={card.isOpen ? 2 : 0} className="panel-card">
                 <div className="panel-card-header">
-                  <h2 style={{ flexGrow: 1 }}>{card.title}</h2>
+                  <h3 style={{ flexGrow: 1 }}>{card.title}</h3>
                   <Button minimal className="bp3-button" icon={card.isOpen ? "arrow-up" : "arrow-down"} onClick={(e: React.MouseEvent<HTMLElement>) => this.handleClick(e, id)}/>
                 </div>
                 <Collapse key={`${id}-collapse`} isOpen={card.isOpen}>
