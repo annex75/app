@@ -1,23 +1,23 @@
-import { IProject, District, IDictBuilding, IDictEventHandler, IDictEnergySystem, ICostCurveType, ICostCurve, IDictBuildingMeasure } from "./Data";
+import { IProject, District, IDictBuilding, IDictEventHandler, IDictEnergySystem, ICostCurveType, ICostCurve, IDictBuildingMeasure, IDictEnergyCarrier } from "./Data";
 import { ChangeEvent, ComponentType } from "react";
 
 /* Panels */
 
 export interface IPanelProps {
-    title: string;
+  title: string;
 }
 
-export interface IPanelState {}
+export interface IPanelState { }
 
 export interface IOverviewPanelProps extends IPanelProps {
-    updateProject(project: IProject): void;
-    title: string;
-    project: IProject;
+  updateProject(project: IProject): void;
+  title: string;
+  project: IProject;
 }
 
 export interface IOverviewPanelState extends IPanelState {
-    project: IProject;
-    overviewDataCards: Record<string,IOverviewDataCard>;
+  project: IProject;
+  overviewDataCards: Record<string, IOverviewDataCard>;
 }
 
 export interface IOverviewDataCard {
@@ -25,14 +25,14 @@ export interface IOverviewDataCard {
   title: string;
   isOpen: boolean;
   eventHandlers: IDictEventHandler;
-  parameters: Record<string,IOverviewInfo>;
+  parameters: Record<string, IOverviewInfo>;
 }
 
 export type TInputType = StringConstructor | NumberConstructor | "file";
 
 export interface IInput {
   key: string;
-  disabled? : boolean;
+  disabled?: boolean;
   type: TInputType;
   label: string;
   buttonLabel?: string;
@@ -43,46 +43,62 @@ export interface IInput {
 }
 
 export interface IOverviewInfo extends IInput {
-  
+
 }
 
 export interface ICalcDataPanelProps extends IPanelProps {
-    updateProject(project: IProject): void;
-    title: string;
-    project: IProject;
+  updateProject(project: IProject): void;
+  title: string;
+  project: IProject;
 }
 
 export interface ICalcDataPanelState extends IPanelState {
-    project: IProject;
-    cards: Record<string, ICalcDataPanelCard>;
-    costCurveEditorIsOpen: boolean;
-    activeEnergySystemId: string;
+  project: IProject;
+  cards: Record<string, ICalcDataPanelCard>;
+  costCurveEditorIsOpen: boolean;
+  activeEnergySystemId: string;
 }
 
 export interface ICalcDataPanelCard {
-    name: string;
-    title: string;
-    isOpen: boolean;
-    component: ComponentType<any>;
-    eventHandlers: IDictEventHandler;
+  name: string;
+  title: string;
+  isOpen: boolean;
+  component: ComponentType<any>;
+  eventHandlers: IDictEventHandler;
 }
 
 export interface ICalcDataCardProps {
-    data: any;
+  data: any;
 }
 
 export interface ICalcDataCardState {
 
 }
 
+export interface ICalcDataAdvancedOptionsCard {
+  name: string;
+  title: string;
+  isOpen: boolean;
+  eventHandlers: IDictEventHandler;
+  parameters: Record<string, IInput>;
+}
+
+export interface IAdvancedOptionsCardProps {
+  isOpen: boolean;
+  data: any;
+  eventHandlers: IDictEventHandler;
+  category: string;
+  parameters: Record<string,IInput>;
+}
+
 export interface IDistrictCardProps extends ICalcDataCardProps {
-    handleFileInput(e: ChangeEvent<HTMLInputElement>): void;
-    handleChange(e: ChangeEvent<HTMLInputElement>): void;
-    data: District;
+  handleFileInput(e: ChangeEvent<HTMLInputElement>): void;
+  handleChange(e: ChangeEvent<HTMLInputElement>): void;
+  data: District;
 }
 
 export interface IDistrictCardState extends ICalcDataCardState {
-  paramCategories: Record<string,IDistrictParamCategory>;
+  paramCategories: Record<string, IDistrictParamCategory>;
 }
 
 export interface IDistrictParamCategory {
@@ -91,38 +107,43 @@ export interface IDistrictParamCategory {
 }
 
 export interface IDistrictInfo extends IInput {
-  
+
 }
 
 export interface IBuildingCardProps extends ICalcDataCardProps {
-    handleChange(e: ChangeEvent<HTMLInputElement>): void;
-    addBuilding(): void;
-    data: IDictBuilding;
+  handleChange(e: ChangeEvent<HTMLInputElement>): void;
+  addBuilding(): void;
+  data: IDictBuilding;
 }
 
 
 export interface IBuildingCardState extends ICalcDataCardState {
-    advancedIsOpen: boolean;
-    buildingAdvancedOptions: Record<string,IBuildingAdvancedOptionsCard>;
+  advancedIsOpen: boolean;
+  buildingAdvancedOptions: Record<string, IBuildingAdvancedOptionsCard>;
 }
 
 export interface IBuildingInfo extends IInput {
 
 }
 
-export interface IBuildingAdvancedOptionsCard {
-  name: string;
-  title: string;
-  isOpen: boolean;
-  eventHandlers: IDictEventHandler;
-  parameters: Record<string,IBuildingInfo>;
+export interface IBuildingAdvancedOptionsCard extends ICalcDataAdvancedOptionsCard {
+  parameters: Record<string, IBuildingInfo>;
+}
+
+export interface IEnergySystemParameter extends IInput {
+
 }
 
 export interface IEnergySystemsCardProps extends ICalcDataCardProps {
   handleChange(e: ChangeEvent<HTMLInputElement>): void;
   addEnergySystem(): void;
+  addEnergyCarrier(): void;
   editCostCurve(id: string): void;
-  data: IDictEnergySystem;
+  data: Record<string,IDictEnergySystem | IDictEnergyCarrier>;
+}
+
+export interface IEnergySystemsCardState extends ICalcDataCardState {
+  energySystemsAdvancedOptions: Record<string,ICalcDataAdvancedOptionsCard>; 
 }
 
 export interface ICostCurveEditorProps {
@@ -140,11 +161,11 @@ export interface ICostCurveEditorState {
 export interface IBuildingMeasuresCardProps extends ICalcDataCardProps {
   handleChange(e: ChangeEvent<HTMLInputElement>): void;
   addBuildingMeasure(category: string): void;
-  data: Record<string,IDictBuildingMeasure>;
+  data: Record<string, IDictBuildingMeasure>;
 }
 
 export interface IBuildingMeasuresCardState extends ICalcDataCardState {
-  buildingMeasureCategories: Record<string,IBuildingMeasureCategoryCard>;
+  buildingMeasureCategories: Record<string, IBuildingMeasureCategoryCard>;
 }
 
 export interface IBuildingMeasureCategoryCard {
@@ -152,13 +173,146 @@ export interface IBuildingMeasureCategoryCard {
   title: string;
   isOpen: boolean;
   eventHandlers: IDictEventHandler;
-  parameters: Record<string,IBuildingMeasureInfo>;
+  parameters: IBuildingMeasureParameters;
 }
 
-export interface IBuildingMeasureInfo {
+export interface IBuildingMeasureInfo extends IInput {
   type: StringConstructor | NumberConstructor;
   label: string;
   unit: string;
+  disabled?: boolean;
+}
+
+export interface IBuildingMeasureParameters {
+  measureName: IBuildingMeasureInfo;
+  refurbishmentCost: IBuildingMeasureInfo;
+  [propName: string]: any;
+}
+
+abstract class BaseBuildingMeasureParameters {
+  measureName = {
+    key: "measureName",
+    type: String,
+    label: "Measure name:",
+    unit: "",
+  };
+  refurbishmentCost = {
+    key: "refurbishmentCost",
+    type: String,
+    label: "Refurbishment cost:",
+    unit: "euro",
+  };
+  lifeTime = {
+    key: "lifeTime",
+    type: Number,
+    label: "Life time:",
+    unit: "a",
+  };
+}
+
+export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
+  uValue = {
+    key: "uValue",
+    type: Number,
+    label: "U-value:",
+    unit: "watt/m2K",
+  };
+  [key: string]: EnvelopeMeasureParameters[keyof EnvelopeMeasureParameters];
+}
+
+export class BasementMeasureParameters extends BaseBuildingMeasureParameters {
+  foundationUValue = {
+    key: "foundationUValue",
+    type: Number,
+    label: "Foundation U-value:",
+    unit: "watt/m2K",
+  };
+  basementWallUValue = {
+    key: "basementUValue",
+    type: Number,
+    label: "Basement wall U-value:",
+    unit: "watt/m2K",
+  };
+  [key: string]: BasementMeasureParameters[keyof BasementMeasureParameters];
+}
+
+export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
+  uValue = {
+    key: "uValue",
+    type: Number,
+    label: "U-value:",
+    unit: "watt/m2K",
+  };
+  gValue = {
+    key: "gValue",
+    type: Number,
+    label: "g-value:",
+    unit: "-",
+  };
+  [key: string]: WindowMeasureParameters[keyof WindowMeasureParameters];
+}
+
+// todo: a lot of data validation is needed here
+export class HvacMeasureParameters extends BaseBuildingMeasureParameters {
+  ventilationType = {
+    key: "ventilationType",
+    type: String,
+    label: "Ventilation system type:",
+    unit: "",
+  };
+  coolingType = {
+    key: "coolingType",
+    type: String,
+    label: "Cooling system type:",
+    disabled: true,
+    unit: "",
+  };
+  heatingType = {
+    key: "heatingType",
+    type: String,
+    label: "Heating system type:",
+    disabled: true,
+    unit: "",
+  };
+  energyCarrier = {
+    key: "energyCarrier",
+    type: String,
+    label: "Energy carrier:",
+    disabled: true,
+    unit: "",
+  };
+  efficiency = {
+    key: "efficiency",
+    type: Number,
+    label: "Efficiency of heating system:",
+    unit: "percent",
+  };
+  recoveryEfficiency = {
+    key: "recoveryEfficiency",
+    type: Number,
+    label: "Efficiency of heat recovery:",
+    unit: "percent",
+  };
+  coldWaterTemp = {
+    key: "coldWaterTemp",
+    type: Number,
+    label: "Cold water temperature:",
+    unit: "degC",
+  };
+  hotWaterTemp = {
+    key: "hotWaterTemp",
+    type: Number,
+    label: "Hot water temperature:",
+    unit: "degC",
+  };
+  ventilationRate = {
+    key: "ventilationRate",
+    type: Number,
+    label: "Ventilation rate:",
+    unit: "ach",
+  };
+
+  [key: string]: HvacMeasureParameters[keyof HvacMeasureParameters];
 }
 
 export interface IScenariosPanelProps extends IPanelProps {
@@ -172,20 +326,21 @@ export interface IScenariosPanelState extends IPanelState {
   scenarioOptions: IScenarioOptionsCard;
 }
 
-export type TScenarioParamCategory = "building" | "energySystem" | "buildingMeasures";
+export type TScenarioParamCategory = "building" | "economy" | "energySystem" | "buildingMeasures";
 
 export interface IScenarioOptionsCard {
-  isOpen: Record<string,boolean>;
+  isOpen: Record<string, boolean>;
   eventHandlers: IDictEventHandler;
-  paramCategories: Record<TScenarioParamCategory,IScenarioParamCategory>;
+  paramCategories: Record<TScenarioParamCategory, IScenarioParamCategory>;
 }
 
 export interface IScenarioParamCategory {
   label: string,
+  global: boolean,
   parameters: Record<string, IScenarioInfo>,
 }
 
-export interface IScenarioInfo {
+export interface IScenarioInfo extends IInput {
   type: StringConstructor | NumberConstructor;
   label: string;
 }
@@ -198,7 +353,7 @@ export interface IModelPanelProps extends IPanelProps {
 
 export interface IModelPanelState extends IPanelState {
   project: IProject;
-  modelOptions: Record<TModelOptionsCategory,IModelOptionsCard>;
+  modelOptions: Record<TModelOptionsCategory, IModelOptionsCard>;
 }
 
 export type TModelOptionsCategory = "energyDemand" | "energySystemOutput" | "energySystemCost";
@@ -206,7 +361,7 @@ export type TModelOptionsCategory = "energyDemand" | "energySystemOutput" | "ene
 export interface IModelOptionsCard {
   isOpen: boolean;
   eventHandlers: IDictEventHandler;
-  parameters: Record<string,IModelOption>;
+  parameters: Record<string, IModelOption>;
   title: string;
 }
 
@@ -215,6 +370,6 @@ export interface IModelOption {
   label: string;
 }
 
-export interface IResultsPanelProps extends IPanelProps {}
+export interface IResultsPanelProps extends IPanelProps { }
 
-export interface IResultsPanelState extends IPanelState {}
+export interface IResultsPanelState extends IPanelState { }

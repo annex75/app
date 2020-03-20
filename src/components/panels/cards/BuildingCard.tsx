@@ -1,6 +1,6 @@
 import React, { Component } from "react"
 
-import { IBuildingCardProps, IBuildingCardState, IBuildingAdvancedOptionsCard, IDictEventHandler, IBuildingInfo, IDictBuilding } from "../../../types";
+import { IBuildingCardProps, IBuildingCardState, IBuildingAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictBuilding } from "../../../types";
 import { renderInputField } from '../../../helpers'
 
 import { FormGroup, Button, InputGroup, Collapse } from "@blueprintjs/core";
@@ -174,7 +174,7 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
     this.state = {
       advancedIsOpen: false,
       buildingAdvancedOptions: buildingAdvancedOptions,
-    }
+    };
   }
 
   handleExpandClick = (e: React.MouseEvent<HTMLElement>) => {
@@ -236,7 +236,7 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
             {
               Object.keys(this.state.buildingAdvancedOptions).map(id => {
                 const card = this.state.buildingAdvancedOptions[id];
-                const data = buildings; // todo: not great that we pass all the buildings data in
+                const data = buildings; // todo: not great that we pass all the buildings data in. same issue in EnergySystemsCard
                 return (
                   <div className="building-advanced-options-wrapper" key={`${id}-div`}>
                     <Button
@@ -259,15 +259,11 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
   }
 }
 
-interface IAdvancedOptionsCardProps {
-  isOpen: boolean;
+interface IBuildingAdvancedOptionsCardProps extends IAdvancedOptionsCardProps {
   data: IDictBuilding;
-  eventHandlers: IDictEventHandler;
-  category: string;
-  parameters: Record<string,IBuildingInfo>;
 }
 
-const AdvancedOptionsCard = (props: IAdvancedOptionsCardProps) => {
+const AdvancedOptionsCard = (props: IBuildingAdvancedOptionsCardProps) => {
   const buildings = props.data;
   const category = props.category;
   return (
