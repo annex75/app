@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { IBuildingMeasuresCardProps, IBuildingMeasuresCardState, IBuildingMeasureCategoryCard, IDictEventHandler, IDictBuildingMeasure, IBuildingMeasureInfo } from '../../../types';
-import { Button, Collapse, FormGroup, InputGroup } from '@blueprintjs/core';
+import { IBuildingMeasuresCardProps, IBuildingMeasuresCardState, IBuildingMeasureCategoryCard, IDictEventHandler, IDictBuildingMeasure, IBuildingMeasureInfo, EnvelopeMeasureParameters, WindowMeasureParameters, HvacMeasureParameters, BasementMeasureParameters } from '../../../types';
+import { Button, Collapse, FormGroup } from '@blueprintjs/core';
+
+import { renderInputField, } from '../../../helpers';
 
 export class BuildingMeasuresCard extends Component<IBuildingMeasuresCardProps, IBuildingMeasuresCardState> {
   
   constructor(props: IBuildingMeasuresCardProps) {
-    super(props);
-
+    super(props);   
     const buildingMeasureCategories: Record<string,IBuildingMeasureCategoryCard> = {
       // todo: it would be neat if a factory could produce these
       roof: {
@@ -17,23 +18,7 @@ export class BuildingMeasuresCard extends Component<IBuildingMeasuresCardProps, 
           handleChange: this.props.handleChange,
           handleAddBuildingMeasureClick: this.props.addBuildingMeasure,
         },
-        parameters: {
-          measureName: {
-            type: String,
-            label: "Measure name:",
-            unit: "",
-          },
-          refurbishmentCost: {
-            type: String,
-            label: "Refurbishment cost:",
-            unit: "euro",
-          },
-          uValue: {
-            type: Number,
-            label: "New U-value:",
-            unit: "watt/m2K",
-          },
-        }
+        parameters: new EnvelopeMeasureParameters(),
       },
       facade: {
         name: "facade",
@@ -43,23 +28,7 @@ export class BuildingMeasuresCard extends Component<IBuildingMeasuresCardProps, 
           handleChange: this.props.handleChange,
           handleAddBuildingMeasureClick: this.props.addBuildingMeasure,
         },
-        parameters: {
-          measureName: {
-            type: String,
-            label: "Measure name:",
-            unit: "",
-          },
-          refurbishmentCost: {
-            type: String,
-            label: "Refurbishment cost:",
-            unit: "euro",
-          },
-          uValue: {
-            type: Number,
-            label: "New U-value:",
-            unit: "watt/m2K",
-          },
-        }
+        parameters: new EnvelopeMeasureParameters(),
       },
       foundation: {
         name: "foundation",
@@ -69,23 +38,7 @@ export class BuildingMeasuresCard extends Component<IBuildingMeasuresCardProps, 
           handleChange: this.props.handleChange,
           handleAddBuildingMeasureClick: this.props.addBuildingMeasure,
         },
-        parameters: {
-          measureName: {
-            type: String,
-            label: "Measure name:",
-            unit: "",
-          },
-          refurbishmentCost: {
-            type: String,
-            label: "Refurbishment cost:",
-            unit: "euro",
-          },
-          uValue: {
-            type: Number,
-            label: "New U-value:",
-            unit: "watt/m2K",
-          },
-        }
+        parameters: new BasementMeasureParameters(),
       },
       windows: {
         name: "windows",
@@ -95,23 +48,7 @@ export class BuildingMeasuresCard extends Component<IBuildingMeasuresCardProps, 
           handleChange: this.props.handleChange,
           handleAddBuildingMeasureClick: this.props.addBuildingMeasure,
         },
-        parameters: {
-          measureName: {
-            type: String,
-            label: "Measure name:",
-            unit: "",
-          },
-          refurbishmentCost: {
-            type: String,
-            label: "Refurbishment cost:",
-            unit: "euro",
-          },
-          uValue: {
-            type: Number,
-            label: "New U-value:",
-            unit: "watt/m2K",
-          },
-        }
+        parameters: new WindowMeasureParameters(),
       },
       hvac: {
         name: "hvac",
@@ -121,23 +58,7 @@ export class BuildingMeasuresCard extends Component<IBuildingMeasuresCardProps, 
           handleChange: this.props.handleChange,
           handleAddBuildingMeasureClick: this.props.addBuildingMeasure,
         },
-        parameters: {
-          measureName: {
-            type: String,
-            label: "Measure name:",
-            unit: "",
-          },
-          refurbishmentCost: {
-            type: String,
-            label: "Refurbishment cost:",
-            unit: "euro",
-          },
-          efficiency: {
-            type: Number,
-            label: "New efficiency",
-            unit: "percent",
-          },
-        }
+        parameters: new HvacMeasureParameters(),
       },
     };
 
@@ -193,44 +114,21 @@ const BuildingMeasureCategoryCard = (props: IBuildingMeasureCategoryCardProps) =
     <div>
       <Collapse key={`${category}-collapse`} isOpen={props.isOpen}>
         {
-          Object.keys(props.parameters).map( (param: string, i: number) => {
+          Object.keys(props.parameters).map( (paramName: string, i: number) => {
+            const param = props.parameters[paramName];
             return (
               <FormGroup
                 inline
                 className="inline-input"
-                key={`building-${param}-input`}
-                label={props.parameters[param].label}
-                labelFor={`building-${param}-input`}>
+                key={`building-measure-${paramName}-input`}
+                label={param.label}
+                labelFor={`building-measure-${paramName}-input`}>
                 {
                   Object.keys(buildingMeasures).map(id => {
-                    const c = buildingMeasures[id];
-                    if (!c.hasOwnProperty(param)) {
-                      throw Error(`Building measure ${id} does not have parameter ${param}`);
-                    }
-                    switch(props.parameters[param].type) {
-                      case Number:
-                        return (
-                          //todo: we can't handle numeric inputs here yet!
-                          <InputGroup
-                            key={`building-measure-${id}-${category}-${param}-input`}
-                            name={`buildings.${id}.${category}.${param}`}
-                            id={`building-measure-${id}-${param}-input`}
-                            onChange={props.eventHandlers.handleChange}
-                            value={c[param] as string} />
-                        )
-                      case String:
-                        return (
-                          <InputGroup
-                            key={`building-measure-${id}-${category}-${param}-input`}
-                            name={`buildingMeasures.${category}.${id}.${param}`}
-                            id={`building-measure-${id}-${param}-input`}
-                            onChange={props.eventHandlers.handleChange}
-                            value={c[param] as string} />
-                        )
-                      default:
-                        throw Error(`this data type: ${props.parameters[param].type} has not been defined`);
-                    }
-                  })              
+                    param.path = `buildingMeasures.${category}.${id}.${paramName}`;
+                    param.localPath = `${id}.${paramName}`;
+                    return renderInputField(`building-measure-${id}`, param, buildingMeasures, props.eventHandlers.handleChange)
+                  })
                 }
                 {
                   !i?  // only have an add button on the first row (i == 0)

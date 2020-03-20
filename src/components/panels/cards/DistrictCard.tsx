@@ -157,7 +157,7 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
           Object.keys(this.state.paramCategories).map(paramCategoryName => {
             const paramCategory = this.state.paramCategories[paramCategoryName];
             return (
-              <div>
+              <div key={`overview-${paramCategoryName}-div`}>
                 <h4>{paramCategory.label}</h4>
                 {
                   Object.keys(paramCategory.parameters).map(paramName => {

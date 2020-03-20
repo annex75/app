@@ -1,12 +1,12 @@
 import React, { Component, ChangeEvent } from 'react';
 
-import { set as _fpSet } from 'lodash/fp';
+import { set as _fpSet, equals as _fpEquals } from 'lodash/fp';
 import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 
 //import { CalcData } from '@annex-75/calculation-model/';
 
 import * as config from '../../config.json';
-import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, Building, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure } from '../../types';
+import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, Building, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure, BasementMeasure, WindowMeasure, EnergyCarrier } from '../../types';
 import { DistrictCard } from './cards/DistrictCard';
 import { BuildingCard } from './cards/BuildingCard';
 import { AppToaster } from '../../toaster';
@@ -47,6 +47,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
         component: EnergySystemsCard,
         eventHandlers: {
           addEnergySystem: this.addEnergySystem,
+          addEnergyCarrier: this.addEnergyCarrier,
           editCostCurve: this.editCostCurve,
           handleChange: this.handleChange,
         },
@@ -70,6 +71,12 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     }
   }
 
+  componentDidUpdate(prevProps: ICalcDataPanelProps) {
+    if (!_fpEquals(prevProps, this.props)) {
+      this.setState({ project: this.props.project, })
+    }
+  }
+
   handleClick = (e: React.MouseEvent<HTMLElement>, name: string) => {
     let newState = { ...this.state };
     newState.cards[name].isOpen = !newState.cards[name].isOpen;
@@ -77,7 +84,6 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
   }
 
   handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    console.log(e.target.name)
     const path = this.formatPath(e.target.name);
     const newState = _fpSet(path, e.target.value, this.state);
     this.setState(newState);
@@ -98,7 +104,6 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     newState.project.calcData.energySystems[activeEnergySystemId].costCurves[costCurveType][costCurveId] = costCurve;
     this.setState(newState);
     this.props.updateProject(newState.project);
-    console.log(costCurve)
   }
 
   addBuilding = () => {
@@ -109,14 +114,13 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
       return;
     }
     
-    const building = new Building();
+    let building = new Building();
     for (const scenarioId in newState.project.scenarioData.scenarios) {
       building.scenarioInfos[scenarioId] = new ScenarioInfo();
     } 
 
     newState.project.calcData.buildings[building.id] = building;
     
-
     this.setState(newState);
     this.props.updateProject(newState.project);
   }
@@ -131,6 +135,21 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     
     const energySystem = new EnergySystem();
     newState.project.calcData.energySystems[energySystem.id] = energySystem;
+    
+    this.setState(newState);
+    this.props.updateProject(newState.project);
+  }
+
+  addEnergyCarrier = () => {
+    let newState = { ...this.state };
+
+    if (Object.keys(newState.project.calcData.energyCarriers).length >= config.MAX_ENERGY_CARRIERS) {
+      AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_ENERGY_CARRIERS} energy carriers are currently allowed`});
+      return;
+    }
+    
+    const energyCarrier = new EnergyCarrier();
+    newState.project.calcData.energyCarriers[energyCarrier.id] = energyCarrier;
     
     this.setState(newState);
     this.props.updateProject(newState.project);
@@ -155,8 +174,24 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     switch(category) {
       case "hvac":
         return new HvacMeasure(category);
+      case "windows":
+        return new WindowMeasure(category);
+      case "foundation":
+        return new BasementMeasure(category);
       default:
         return new EnvelopeMeasure(category);
+    }
+  }
+
+  getData = (id: string) => {
+    switch(id) {
+      case "energySystems":
+        return { 
+          energySystems: this.state.project.calcData.energySystems,
+          energyCarriers: this.state.project.calcData.energyCarriers,
+        }
+      default:
+        return this.state.project.calcData[id as keyof CalcData]
     }
   }
 
@@ -175,7 +210,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
         {
           Object.keys(this.state.cards).map(id => {
             const card = this.state.cards[id];
-            const data = this.state.project.calcData[id as keyof CalcData];
+            const data = this.getData(id as keyof CalcData);
             return (
               <Card key={`${id}-card`} id={`${id}-card`} elevation={card.isOpen ? 2 : 0} className="panel-card">
                 <div className="panel-card-header">
