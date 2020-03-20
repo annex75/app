@@ -67,6 +67,11 @@ export class CalcData {
       [firstEnergySystemId]: new EnergySystem(firstEnergySystemId)
     };
 
+    const firstEnergyCarrierId = uuidv4();
+    this.energyCarriers = {
+      [firstEnergyCarrierId]: new EnergyCarrier(firstEnergyCarrierId)
+    };
+
     const firstRoofMeasureId = uuidv4();
     const firstFacadeMeasureId = uuidv4();
     const firstFoundationMeasureId = uuidv4();
@@ -80,10 +85,10 @@ export class CalcData {
         [firstFacadeMeasureId]: new EnvelopeMeasure("facade", firstFacadeMeasureId),
       },
       foundation: {
-        [firstFoundationMeasureId]: new EnvelopeMeasure("foundation", firstFoundationMeasureId),
+        [firstFoundationMeasureId]: new BasementMeasure("foundation", firstFoundationMeasureId),
       },
       windows: {
-        [firstWindowsMeasureId]: new EnvelopeMeasure("windows", firstWindowsMeasureId),
+        [firstWindowsMeasureId]: new WindowMeasure("windows", firstWindowsMeasureId),
       },
       hvac: {
         [firstHvacMeasureId]: new HvacMeasure("hvac", firstHvacMeasureId),
@@ -94,6 +99,7 @@ export class CalcData {
   district: District = new District();
   buildings: IDictBuilding;
   energySystems: IDictEnergySystem;
+  energyCarriers: IDictEnergyCarrier;
   buildingMeasures: Record<string,IDictBuildingMeasure>;
 }
 
@@ -212,6 +218,8 @@ export class EnergySystem {
   name: string = "";
   systemType: string = "";
   systemCategory: string = "District";
+  lifeTime: number = 0;
+  energyCarrier: string = "";
   costCurves: Record<string,CostCurveDict>;
   [key: string]: EnergySystem[keyof EnergySystem];
 }
@@ -273,6 +281,22 @@ export interface ICostCurveType {
   unit: string;
 }
 
+export interface IDictEnergyCarrier {
+  [index: string]: EnergyCarrier;
+}
+
+export class EnergyCarrier {
+  constructor(id: string = uuidv4()) {
+    this.id = id;
+  }
+  id: string;
+  name: string = "";
+  primaryEnergyFactorRe: number = 0;
+  primaryEnergyFactorNonRe: number = 0;
+  emissionFactor: number = 0;
+  currentPrice: number = 0;
+}
+
 export interface IDictBuildingMeasure {
   [index: string]: IBuildingMeasure;
 }
@@ -284,13 +308,12 @@ export interface IBuildingMeasure {
   category: TBuildingMeasureCategory;
   measureName: string;
   refurbishmentCost: number;
+  lifeTime: number;
 
   [key: string]: IBuildingMeasure[keyof IBuildingMeasure];
 }
 
-
-
-export class EnvelopeMeasure implements IBuildingMeasure {
+abstract class BaseBuildingMeasure {
   constructor(category: TBuildingMeasureCategory, id: string = uuidv4()) {
     this.id = id;
     this.category = category;
@@ -299,23 +322,39 @@ export class EnvelopeMeasure implements IBuildingMeasure {
   category: TBuildingMeasureCategory;
   measureName: string = "";
   refurbishmentCost: number = 0;
-  
-  uValue: number = 0;
+  lifeTime: number = 0;
+}
 
+export class EnvelopeMeasure extends BaseBuildingMeasure { 
+  uValue: number = 0;
+  
   [key: string]: EnvelopeMeasure[keyof EnvelopeMeasure];
 }
 
-export class HvacMeasure implements IBuildingMeasure {
-  constructor(category: TBuildingMeasureCategory, id: string = uuidv4()) {
-    this.id = id;
-    this.category = category;
-  }
-  id: string = uuidv4();
-  category: TBuildingMeasureCategory;
-  measureName: string = "";
-  refurbishmentCost: number = 0;
-  
+export class WindowMeasure extends BaseBuildingMeasure {  
+  uValue: number = 0;
+  gValue: number = 0;
+
+  [key: string]: WindowMeasure[keyof WindowMeasure];
+}
+
+export class BasementMeasure extends BaseBuildingMeasure {
+  foundationUValue: number = 0;
+  basementWallUValue: number = 0;
+
+  [key: string]: WindowMeasure[keyof WindowMeasure];
+}
+
+export class HvacMeasure extends BaseBuildingMeasure {  
+  ventilationType: string = "";
+  coolingType: string = "None";
+  heatingType: string = "None";
+  energyCarrier: string = "";
   efficiency: number = 0;
+  recoveryEfficiency: number = 0;
+  coldWaterTemp: number = 15;
+  hotWaterTemp: number = 80;
+  ventilationRate: number = 0.5;
 
   [key: string]: EnvelopeMeasure[keyof EnvelopeMeasure];
 }
@@ -335,7 +374,17 @@ export class Scenario {
 export class ScenarioInfo {
   building: IScenarioBuildingData = {
     numberOfBuildings: 0,
+    occupancy: "",
+    occupants: 0,
+    setPointTemp: 0,
+    appliancesElectricityUsage: 0,
+    domesticHotWaterUsage: 0,
   };
+  economy: IScenarioEconomyData = {
+    interestRate: 0,
+    energyPriceIncrease: 0,
+    calculationPeriod: 0,
+  }
   energySystem: Record<string,string> = {
     energySystem: "",
   };
@@ -351,5 +400,16 @@ export class ScenarioInfo {
 
 export interface IScenarioBuildingData {
   numberOfBuildings: number;
+  occupancy: string;
+  occupants: number;
+  setPointTemp: number;
+  appliancesElectricityUsage: number;
+  domesticHotWaterUsage: number;
+}
+
+export interface IScenarioEconomyData {
+  interestRate: number;
+  energyPriceIncrease: number;
+  calculationPeriod: number;
 }
   

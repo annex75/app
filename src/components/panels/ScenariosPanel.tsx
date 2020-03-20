@@ -1,10 +1,11 @@
 import React, { Component, ChangeEvent } from 'react';
-import { set as _fpSet } from 'lodash/fp';
+import { set as _fpSet, equals as _fpEquals } from 'lodash/fp';
 
 import * as config from '../../config.json';
 import { IScenariosPanelProps, IScenariosPanelState, Scenario, IScenarioOptionsCard, ScenarioInfo, TScenarioParamCategory } from '../../types';
 import { InputGroup, FormGroup, Button, Intent, Collapse } from '@blueprintjs/core';
 import { AppToaster } from '../../toaster';
+import { renderInputField, } from '../../helpers';
 
 export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPanelState> {
   constructor(props: IScenariosPanelProps) {
@@ -20,43 +21,115 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
       paramCategories: {
         building: {
           label: "Building options",
+          global: false,
           parameters: {
             numberOfBuildings: {
+              key: "numberOfBuildings",
               type: Number,
+              rootPath: "calcData.buildings",
               label: "Number of buildings:",
-            }
+            },
+            occupancy: {
+              key: "occupancy",
+              type: String,
+              rootPath: "calcData.buildings",
+              label: "Occupancy:"
+            },
+            occupants: {
+              key: "occupants",
+              type: Number,
+              rootPath: "calcData.buildings",
+              label: "Number of occupants:",
+            },
+            setPointTemp: {
+              key: "setPointTemp",
+              type: Number,
+              rootPath: "calcData.buildings",
+              label: "Set point temperature (heating):",
+            },
+            appliancesElectricityUsage: {
+              key: "appliancesElectricityUsage",
+              type: Number,
+              rootPath: "calcData.buildings",
+              label: "Domestic electricity usage:",
+            },
+            domesticHotWaterUsage: {
+              key: "domesticHotWaterUsage",
+              type: Number,
+              rootPath: "calcData.buildings",
+              label: "Domestic hot water usage:",
+            },
+
+          }
+        },
+        economy: {
+          label: "Economic parameters",
+          global: true,
+          parameters: {
+            interestRate: {
+              key: "interestRate",
+              type: Number,
+              rootPath: "scenarioData.scenarios",
+              label: "Interest rate:",
+            },
+            energyPriceIncrease: {
+              key: "energyPriceIncrease",
+              type: Number,
+              rootPath: "scenarioData.scenarios",
+              label: "Annual energy price increase:",
+            },
+            calculationPeriod: {
+              key: "calculationPeriod",
+              type: Number,
+              rootPath: "scenarioData.scenarios",
+              label: "Calculation period:"
+            },
           }
         },
         energySystem: {
           label: "Energy system options",
+          global: false,
           parameters: {
             energySystem: {
+              key: "energySystem",
               type: String,
+              rootPath: "calcData.buildings",
               label: "Energy system:",
             }
           }
         },
         buildingMeasures: {
           label: "Building renovation measures",
+          global: false,
           parameters: {
             roof: {
+              key: "roof",
               type: String,
+              rootPath: "calcData.buildings",
               label: "Roof:",
             },
             facade: {
+              key: "facade",
               type: String,
+              rootPath: "calcData.buildings",
               label: "Facade:",
             },
             foundation: {
+              key: "foundation",
               type: String,
+              rootPath: "calcData.buildings",
               label: "Foundation:"
             },
             windows: {
+              key: "windows",
               type: String,
+              rootPath: "calcData.buildings",
               label: "Windows:",
             },
             hvac: {
+              key: "hvac",
               type: String,
+              rootPath: "calcData.buildings",
               label: "HVAC system:"
             }
           }
@@ -71,8 +144,8 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
   }
 
   componentDidUpdate(prevProps: IScenariosPanelProps) {
-    if (this.props.project !== prevProps.project) {
-      this.setState({ project: this.props.project });
+    if (!_fpEquals(prevProps, this.props)) {
+      this.setState({ project: this.props.project, });
     }
   }
 
@@ -155,6 +228,40 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               onClick={this.handleAddScenarioClick} />
           </div>
           {
+            // for each parameter category
+            Object.keys(this.state.scenarioOptions.paramCategories).map(paramCategoryName => {
+              const paramCategory = this.state.scenarioOptions.paramCategories[paramCategoryName as TScenarioParamCategory];
+              return !paramCategory.global? (null) : (
+                <div key={`scenario-global-${paramCategoryName}-div`}>
+                <h3>{paramCategory.label}</h3>
+                {
+                  Object.keys(paramCategory.parameters).map(paramName => {
+                    const param = paramCategory.parameters[paramName];
+                    return (
+                      <div key={`scenario-global-${paramName}-div`} className="panel-list-row">
+                        <FormGroup
+                          inline
+                          className="inline-input"
+                          key={`scenario-global-${paramName}-input`}
+                          label={param.label}
+                          labelFor={`scenario-global-${paramName}-input`}>
+                          {
+                            Object.keys(scenarios).map(id => {
+                              param.localPath = `${id}.${paramCategoryName}.${paramName}`;
+                              return renderInputField(`scenario-global-${id}`, param, scenarios, this.handleChange)
+                            })
+                          }
+                          <span className="empty-button"/>
+                        </FormGroup>
+                      </div>
+                    )
+                  })
+                }
+                </div>
+              )
+            })
+          }
+          {
             // for each building
             Object.keys(buildings).map((buildingId: string) => {
               return (
@@ -171,7 +278,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                       // for each parameter category
                       Object.keys(this.state.scenarioOptions.paramCategories).map(paramCategoryName => {
                         const paramCategory = this.state.scenarioOptions.paramCategories[paramCategoryName as TScenarioParamCategory];
-                        return (
+                        return paramCategory.global? (null) : (
                           <div key={`scenario-${buildingId}-${paramCategoryName}-div`}>
                           <h3>{paramCategory.label}</h3>
                           {
@@ -186,35 +293,10 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                                     label={param.label}
                                     labelFor={`scenario-${buildingId}-${paramName}-input`}>
                                     {
-                                      Object.keys(scenarios).map(scenarioId => {
-                                        //const b = ;
-                                        const c = buildings[buildingId].scenarioInfos[scenarioId][paramCategoryName] as any;
-                                        if (!c.hasOwnProperty(paramName)) {
-                                          throw Error(`Scenario ${scenarioId} does not have parameter ${paramName}`);
-                                        }
-                                        switch(param.type) {
-                                          case Number:
-                                            return (
-                                              //todo: we can't handle numeric inputs here yet!
-                                              <InputGroup
-                                                key={`scenario-${scenarioId}-${buildingId}-${paramCategoryName}-${paramName}-input`}
-                                                name={`calcData.buildings.${buildingId}.scenarioInfos.${scenarioId}.${paramCategoryName}.${paramName}`}
-                                                id={`scenario-${scenarioId}-${buildingId}-${paramCategoryName}-${paramName}-input`}
-                                                onChange={this.handleChange}
-                                                value={c[paramName] as string} />
-                                            )
-                                          case String:
-                                            return (
-                                              <InputGroup
-                                                key={`scenario-${scenarioId}-${buildingId}-${paramCategoryName}-${paramName}-input`}
-                                                name={`calcData.buildings.${buildingId}.scenarioInfos.${scenarioId}.${paramCategoryName}.${paramName}`}
-                                                id={`scenario-${scenarioId}-${buildingId}-${paramCategoryName}-${paramName}-input`}
-                                                onChange={this.handleChange}
-                                                value={c[paramName] as string} />
-                                            )
-                                          default:
-                                            throw Error(`this data type: ${param.type} has not been defined`);
-                                        }
+                                      Object.keys(scenarios).map(id => {
+                                        param.path = `calcData.buildings.${buildingId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
+                                        param.localPath = `${buildingId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
+                                        return renderInputField(`scenario-${buildingId}-${id}`, param, buildings, this.handleChange)
                                       })
                                     }
                                     <span className="empty-button"/>
@@ -225,20 +307,6 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                           }
                           </div>
                         )
-                        /* const data = buildings; // todo: not great that we pass all the buildings data in
-                        return (
-                          <div className="building-advanced-options-wrapper" key={`${id}-div`}>
-                            <Button
-                              minimal
-                              className="bp3-button"
-                              name={card.name}
-                              icon={card.isOpen ? "arrow-up" : "arrow-down"}
-                              onClick={(e: React.MouseEvent<HTMLElement>) => this.handleExpandAdvancedOptionsClick(e, id)}>
-                              {card.title}
-                            </Button>
-                            <AdvancedOptionsCard key={id} isOpen={card.isOpen} data={data} eventHandlers={card.eventHandlers} category={id} parameters={card.parameters} />
-                          </div>
-                        )*/
                       })
                     }
                   </Collapse>
