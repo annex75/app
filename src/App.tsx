@@ -7,7 +7,7 @@ import { Logout } from './components/Logout';
 import { Workspace } from './components/Workspace';
 import { IProject, IAppProps, IAppState, OverviewData, CalcData, ScenarioData, Scenario, ScenarioInfo } from './types';
 
-import './style/stylesheet.css'
+import './style/stylesheet.css';
 
 import { Firebase } from './base';
 import { RebaseBinding } from 're-base';

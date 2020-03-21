@@ -99,6 +99,7 @@ export interface IDistrictCardProps extends ICalcDataCardProps {
 
 export interface IDistrictCardState extends ICalcDataCardState {
   paramCategories: Record<string, IDistrictParamCategory>;
+  mapBoxState: IMapBoxState;
 }
 
 export interface IDistrictParamCategory {
@@ -107,6 +108,14 @@ export interface IDistrictParamCategory {
 }
 
 export interface IDistrictInfo extends IInput {
+
+}
+
+export interface IMapBoxState {
+  zoom: number;
+  center: any[];
+  markCenter: boolean;
+  disableScroll: boolean;
 
 }
 

@@ -1,7 +1,13 @@
+// external
 import React, { Component } from "react"
 import { FormGroup } from "@blueprintjs/core";
+import 'mapbox-gl/dist/mapbox-gl.css';
 
-import { IDistrictCardProps, IDistrictCardState, IDistrictParamCategory } from "../../../types";
+// bim-energy
+import { default as Mapbox } from '@bimenergy/map';
+
+// internal
+import { IDistrictCardProps, IDistrictCardState, IDistrictParamCategory, IMapBoxState } from "../../../types";
 import { renderInputField, } from '../../../helpers';
 
 // using fully controlled (stateless) components for now (hopefully this won't break when we add functionality)
@@ -86,36 +92,6 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
           }
         },
       },
-      /* done in scenarios
-      economy: {
-        label: "Economic assumptions",
-        parameters: {
-          interestRate: {
-            key: "interestRate",
-            type: String,
-            label: "Interest rate:",
-            localPath: "economy.interestRate",
-            rootPath: "district",
-            handleChange: this.props.handleChange,
-          },
-          energyPriceIncrease: {
-            key: "energyPriceIncrease",
-            type: String,
-            label: "Energy price increase:",
-            localPath: "economy.energyPriceIncrease",
-            rootPath: "district",
-            handleChange: this.props.handleChange,
-          },
-          calculationPeriod: {
-            key: "calculationPeriod",
-            type: String,
-            label: "Calculation period:",
-            localPath: "economy.energyPriceIncrease",
-            rootPath: "district",
-            handleChange: this.props.handleChange,
-          }
-        },
-      }, */
       renewables: {
         label: "Renewables",
         parameters: {
@@ -146,7 +122,41 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
         },
       }
     };
-    this.state = { paramCategories };
+
+    const mapBoxState: IMapBoxState = {
+      zoom: 1,
+      center: [0,0],
+      markCenter: false,
+      disableScroll: false,
+    }
+
+    this.state = { paramCategories, mapBoxState };
+  }
+
+  renderMap = (handleChange: void) => {
+    return (
+      <div className="map-container">
+        <Mapbox
+          disableScroll={this.state.mapBoxState.disableScroll}
+          // eslint-disable-next-line
+          style="streets"
+          id="overview-map-input"
+          zoom={this.state.mapBoxState.zoom}
+          center={this.state.mapBoxState.center}
+          markCenter={this.state.mapBoxState.markCenter}
+          token="pk.eyJ1IjoiamFrZWJiIiwiYSI6ImNqZWg1bzg1aDIxbGEyd2t0ZmozdzZyaDIifQ._yufSSs01XE-16Bc1qosXQ" // where does this come from?
+          onClick={this.generateClimateSchedule}
+        />
+      </div>
+    )
+  }
+
+  generateClimateSchedule = () => {
+
+  }
+
+  handleMapChange = () => {
+    console.log("map changed!");
   }
   
   render() {
@@ -157,25 +167,42 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
           Object.keys(this.state.paramCategories).map(paramCategoryName => {
             const paramCategory = this.state.paramCategories[paramCategoryName];
             return (
-              <div key={`overview-${paramCategoryName}-div`}>
+              <div id={`overview-${paramCategoryName}-div`} key={`overview-${paramCategoryName}-div`}>
                 <h4>{paramCategory.label}</h4>
-                {
-                  Object.keys(paramCategory.parameters).map(paramName => {
-                    const param = paramCategory.parameters[paramName];
-                    return (
-                      <FormGroup
-                        inline
-                        className="inline-input"
-                        key={`overview-${paramName}-input`}
-                        label={param.label}
-                        labelFor={`overview-${paramName}-input`}>
-                        {
-                          renderInputField("district", param, district)
-                        }
-                      </FormGroup>
-                    )
-                  })
-                }
+                <div className="district-card-columns">
+                  <div className="district-card-left-column">
+                    {
+                      Object.keys(paramCategory.parameters).map(paramName => {
+                        const param = paramCategory.parameters[paramName];
+                        return (
+                          <FormGroup
+                            inline
+                            className="inline-input"
+                            key={`overview-${paramName}-input`}
+                            label={param.label}
+                            labelFor={`overview-${paramName}-input`}>
+                            {
+                              renderInputField("district",param, district)
+                            }
+                          </FormGroup>
+                        )
+                      })
+                    }
+                  </div>
+                  
+                  {
+                    paramCategoryName !== "general"
+                      ? (null)
+                      : (
+                        <div className="district-card-right-column">
+                          {
+                            this.renderMap()
+                          }
+                        </div>
+                      )
+                    
+                  }
+                </div>
               </div>
             )
               

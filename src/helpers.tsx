@@ -1,7 +1,9 @@
+// external
 import React, { ChangeEvent } from 'react'
 import { InputGroup, FileInput } from "@blueprintjs/core";
-
 import { get as _fpGet } from 'lodash/fp';
+
+// internal
 import { IInput } from './types';
 
 export const renderInputField = (parent: string, param: IInput, obj: any, handleChange?: (e: ChangeEvent<HTMLInputElement>) => void ) => {
@@ -37,6 +39,8 @@ export const renderInputField = (parent: string, param: IInput, obj: any, handle
           text={param.buttonLabel}
           onInputChange={param.handleChange || handleChange} />
       )
+    case "map":
+      throw Error(`map cannot be rendered by this helper function`);
     default:
       throw Error(`this data type: ${param.type} has not been defined`);
   }
