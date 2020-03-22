@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { IBuildingMeasuresCardProps, IBuildingMeasuresCardState, IBuildingMeasureCategoryCard, IDictEventHandler, IDictBuildingMeasure, IBuildingMeasureInfo, EnvelopeMeasureParameters, WindowMeasureParameters, HvacMeasureParameters, BasementMeasureParameters } from '../../../types';
+import { IBuildingMeasuresCardProps, IBuildingMeasuresCardState, IBuildingMeasureCategoryCard, IDictEventHandler, IDictBuildingMeasure, IBuildingMeasureInfo, EnvelopeMeasureParameters, WindowMeasureParameters, HvacMeasureParameters, BasementMeasureParameters, TBuildingMeasureCategory } from '../../../types';
 import { Button, Collapse, FormGroup } from '@blueprintjs/core';
 
 import { renderInputField, } from '../../../helpers';
@@ -65,7 +65,7 @@ export class BuildingMeasuresCard extends Component<IBuildingMeasuresCardProps, 
     this.state = { buildingMeasureCategories };
   }
 
-  handleExpandBuildingMeasuresCategoryClick = (e: React.MouseEvent<HTMLElement>, name: string) => {
+  handleExpandBuildingMeasuresCategoryClick = (name: TBuildingMeasureCategory) => {
     let newState = { ...this.state };
     newState.buildingMeasureCategories[name].isOpen = !newState.buildingMeasureCategories[name].isOpen;
     this.setState(newState);
@@ -86,7 +86,7 @@ export class BuildingMeasuresCard extends Component<IBuildingMeasuresCardProps, 
                   className="bp3-button"
                   name={card.name}
                   icon={card.isOpen ? "arrow-up" : "arrow-down"}
-                  onClick={(e: React.MouseEvent<HTMLElement>) => this.handleExpandBuildingMeasuresCategoryClick(e, id)}>
+                  onClick={(e: React.MouseEvent<HTMLElement>) => this.handleExpandBuildingMeasuresCategoryClick(id as TBuildingMeasureCategory)}>
                   <h4>{card.title}</h4>
                 </Button>
                 <BuildingMeasureCategoryCard key={id} isOpen={card.isOpen} data={data} eventHandlers={card.eventHandlers} category={id} parameters={card.parameters} />
@@ -127,7 +127,7 @@ const BuildingMeasureCategoryCard = (props: IBuildingMeasureCategoryCardProps) =
                   Object.keys(buildingMeasures).map(id => {
                     param.path = `buildingMeasures.${category}.${id}.${paramName}`;
                     param.localPath = `${id}.${paramName}`;
-                    return renderInputField(`building-measure-${id}`, param, buildingMeasures, props.eventHandlers.handleChange)
+                    return renderInputField(`building-measure-${id}`, param, buildingMeasures, props.eventHandlers.handleChange as ((e: React.ChangeEvent<HTMLInputElement>) => void))
                   })
                 }
                 {
@@ -136,7 +136,10 @@ const BuildingMeasureCategoryCard = (props: IBuildingMeasureCategoryCardProps) =
                     minimal
                     className="bp3-button add-energy-system-button"
                     icon="add"
-                    onClick={(e: React.MouseEvent<HTMLElement>) => props.eventHandlers.handleAddBuildingMeasureClick(category)} />
+                    onClick={(e: React.MouseEvent<HTMLElement>) => { 
+                      const eventHandler = props.eventHandlers.handleAddBuildingMeasureClick as ((category: string) => void);
+                      eventHandler(category);
+                    }} />
                   : <span className="empty-button"/>
                 }
               </FormGroup>

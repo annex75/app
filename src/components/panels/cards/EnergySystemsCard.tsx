@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, ChangeEvent } from 'react';
 import { IEnergySystemsCardProps, IEnergySystemParameter, IEnergySystemsCardState, ICalcDataAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictEnergyCarrier } from "../../../types";
 import { Button, FormGroup, Collapse } from '@blueprintjs/core';
 
@@ -123,7 +123,8 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
                   Object.keys(energySystems).map(id => {
                     param.path = `energySystems.${id}.${paramName}`;
                     param.localPath = `${id}.${paramName}`;
-                    return renderInputField(`energy-system-${id}`, param, energySystems, this.props.handleChange)
+                    const eventHandler = this.props.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
+                    return renderInputField(`energy-system-${id}`, param, energySystems, eventHandler )
                   })
                 }
                 {
@@ -198,26 +199,31 @@ const AdvancedOptionsCard = (props: IEnergySystemsAdvancedOptionsCardProps) => {
           Object.keys(props.parameters).map( (paramName: string, i: number) => {
             const param = props.parameters[paramName];
             return (
-              <div className={"panel-list-row"} key={`energy-systems-${paramName}-div`}>
+              <div className={"panel-list-row"} key={`energy-carriers-${paramName}-div`}>
                 <FormGroup
                   inline
                   className="inline-input"
-                  key={`energy-systems-${paramName}-input`}
+                  key={`energy-carriers-${paramName}-input`}
                   label={param.label}
-                  labelFor={`energy-systems-${paramName}-input`}>
+                  labelFor={`energy-carriers-${paramName}-input`}>
                   {
                     Object.keys(energyCarriers).map(id => {
                       param.localPath = `${id}.${category}.${paramName}`;
-                      return renderInputField(`energy-systems-${id}`, param, energyCarriers, props.eventHandlers.handleChange)
+                      const eventHandler = props.eventHandlers.handleChange as ((e: React.ChangeEvent<HTMLInputElement>) => void);
+                      return renderInputField(`energy-carriers-${id}`, param, energyCarriers, eventHandler)
                     })
                   }
                   {
                   !i?  // only have an add button on the first row (i == 0)
                     <Button
                       minimal
-                      className="bp3-button add-energy-system-button"
+                      className="bp3-button add-energy-carrier-button"
                       icon="add"
-                      onClick={props.eventHandlers.handleAddEnergyCarrierClick} />
+                      onClick={(e: React.MouseEvent<HTMLElement>) => { 
+                        const eventHandler = props.eventHandlers.handleAddBuildingMeasureClick as ((e: React.MouseEvent<HTMLElement>) => void);
+                        eventHandler(e);
+                      }
+                    }/>
                     : <span className="empty-button"/>
                   }
                 </FormGroup>

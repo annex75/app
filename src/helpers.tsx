@@ -1,6 +1,6 @@
 // external
 import React, { ChangeEvent } from 'react'
-import { InputGroup, FileInput } from "@blueprintjs/core";
+import { InputGroup } from "@blueprintjs/core";
 import { get as _fpGet } from 'lodash/fp';
 
 // internal
@@ -32,16 +32,7 @@ export const renderInputField = (parent: string, param: IInput, obj: any, handle
           onChange={param.handleChange || handleChange}
           value={val} />
       )
-    case "file": 
-      return (
-        <FileInput disabled
-          id={`${parent}-${param.key}-input`}
-          text={param.buttonLabel}
-          onInputChange={param.handleChange || handleChange} />
-      )
-    case "map":
-      throw Error(`map cannot be rendered by this helper function`);
     default:
-      throw Error(`this data type: ${param.type} has not been defined`);
+      throw Error(`this data type: ${param.type} cannot be rendered by this helper function`);
   }
 }

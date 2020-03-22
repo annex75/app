@@ -12,11 +12,6 @@ export interface IDictBool {
   [index: string]: boolean;
 }
 
-// todo: a bit ugly that we are not type checking here. but it was the only way I managed to allow both events and string as arguments
-export interface IDictEventHandler {
-  [index: string]: (e: any) => void;
-}
-
 export interface IProject {
   appVersion: string | undefined;
   id: string;

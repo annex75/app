@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, { Component, ChangeEvent } from "react"
 
 import { IBuildingCardProps, IBuildingCardState, IBuildingAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictBuilding } from "../../../types";
 import { renderInputField } from '../../../helpers'
@@ -283,7 +283,8 @@ const AdvancedOptionsCard = (props: IBuildingAdvancedOptionsCardProps) => {
                   {
                     Object.keys(buildings).map(id => {
                       param.localPath = `${id}.${category}.${paramName}`;
-                      return renderInputField(`building-${id}`, param, buildings, props.eventHandlers.handleChange)
+                      const eventHandler = props.eventHandlers.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
+                      return renderInputField(`building-${id}`, param, buildings, eventHandler)
                     })
                   }
                   <span className="empty-button"/>

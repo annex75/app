@@ -2,17 +2,17 @@
 import React, { Component } from "react"
 import { FormGroup } from "@blueprintjs/core";
 import 'mapbox-gl/dist/mapbox-gl.css';
+// @ts-ignore
+import FileUploader from "react-firebase-file-uploader";
+import firebase from "firebase";
 
 // bim-energy
 import { default as Mapbox } from '@bimenergy/map';
 
 // internal
-import { IDistrictCardProps, IDistrictCardState, IDistrictParamCategory, IMapBoxState } from "../../../types";
+import { IDistrictCardProps, IDistrictCardState, IDistrictParamCategory, IMapBoxState, IMapClickEvent } from "../../../types";
 import { renderInputField, } from '../../../helpers';
 
-// using fully controlled (stateless) components for now (hopefully this won't break when we add functionality)
-// https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#recommendation-fully-uncontrolled-component-with-a-key
-// this component will need state; refactor similar to BuildingCard later
 export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardState> {
   constructor(props: IDistrictCardProps) {
     super(props);
@@ -133,6 +133,47 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
     this.state = { paramCategories, mapBoxState };
   }
 
+  renderInputField = (param: any, data: any) => {
+    switch (param.type) {
+      case "file":
+        return this.renderFileUploader();
+      default:
+        return renderInputField("district", param, data);
+    }
+  }
+
+  renderFileUploader = () => {
+    return (
+      <FileUploader
+        accept="image/*"
+        name="image-uploader-multiple"
+        randomizeFilename
+        storageRef={firebase.storage().ref("images")}
+        onUploadStart={this.handleUploadStart}
+        onUploadError={this.handleUploadError}
+        onUploadSuccess={this.handleUploadSuccess}
+        onProgress={this.handleProgress}
+        multiple
+      />
+    )
+  }
+
+  handleUploadStart = (e: any) => {
+
+  }
+
+  handleUploadError = (e: any) => {
+    
+  }
+
+  handleUploadSuccess = (e: any) => {
+    
+  }
+
+  handleProgress = (e: any) => {
+    
+  }
+
   renderMap = (handleChange: void) => {
     return (
       <div className="map-container">
@@ -145,18 +186,17 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
           center={this.state.mapBoxState.center}
           markCenter={this.state.mapBoxState.markCenter}
           token="pk.eyJ1IjoiamFrZWJiIiwiYSI6ImNqZWg1bzg1aDIxbGEyd2t0ZmozdzZyaDIifQ._yufSSs01XE-16Bc1qosXQ" // where does this come from?
-          onClick={this.generateClimateSchedule}
+          onClick={this.onMapClick}
         />
       </div>
     )
   }
 
-  generateClimateSchedule = () => {
-
-  }
-
-  handleMapChange = () => {
-    console.log("map changed!");
+  // todo: unfortunate that we hardcode the path in this location
+  onMapClick = (e: IMapClickEvent) => {
+    const [ lon, lat ] = e.lngLat;
+    this.props.handleChangePath("project.calcData.district.location.lon", lon);
+    this.props.handleChangePath("project.calcData.district.location.lat", lat);
   }
   
   render() {
@@ -178,14 +218,15 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
                           <FormGroup
                             inline
                             className="inline-input"
-                            key={`overview-${paramName}-input`}
+                            key={`overview-${param.key}-input`}
                             label={param.label}
-                            labelFor={`overview-${paramName}-input`}>
+                            labelFor={`overview-${param.key}-input`}>
                             {
-                              renderInputField("district",param, district)
+                              this.renderInputField(param, district)
                             }
                           </FormGroup>
                         )
+                          
                       })
                     }
                   </div>
@@ -214,3 +255,4 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
 
   }
 }
+

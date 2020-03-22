@@ -26,7 +26,8 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
         isOpen: false,
         component: DistrictCard,
         eventHandlers: {
-          handleChange: this.handleChange,
+          handleChange: this.handleChangeEvent,
+          handleChangePath: this.handleChange,
           handleFileInput: this.handleFileInput,
         },
       },
@@ -36,7 +37,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
         isOpen: false,
         component: BuildingCard,
         eventHandlers: {
-          handleChange: this.handleChange,
+          handleChange: this.handleChangeEvent,
           addBuilding: this.addBuilding,
         },
       },
@@ -49,7 +50,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
           addEnergySystem: this.addEnergySystem,
           addEnergyCarrier: this.addEnergyCarrier,
           editCostCurve: this.editCostCurve,
-          handleChange: this.handleChange,
+          handleChange: this.handleChangeEvent,
         },
       },
       "buildingMeasures": {
@@ -58,7 +59,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
         isOpen: false,
         component: BuildingMeasuresCard,
         eventHandlers: {
-          handleChange: this.handleChange,
+          handleChange: this.handleChangeEvent,
           addBuildingMeasure: this.addBuildingMeasure,
         },
       },
@@ -83,9 +84,16 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     this.setState(newState);
   }
 
-  handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  handleChangeEvent = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const path = this.formatPath(e.target.name);
-    const newState = _fpSet(path, e.target.value, this.state);
+    const value = e.target.value;
+    this.handleChange(path, value);
+  }
+
+  // todo: this function should be able to tell if a local or root path is provided and act accordingly
+  // todo: it's also inappropriately named
+  handleChange = (path: string, value: any) => {
+    const newState = _fpSet(path, value, this.state);
     this.setState(newState);
     this.props.updateProject(newState.project);
   }

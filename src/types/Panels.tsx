@@ -1,4 +1,4 @@
-import { IProject, District, IDictBuilding, IDictEventHandler, IDictEnergySystem, ICostCurveType, ICostCurve, IDictBuildingMeasure, IDictEnergyCarrier } from "./Data";
+import { IProject, District, IDictBuilding, IDictEnergySystem, ICostCurveType, ICostCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory } from "./Data";
 import { ChangeEvent, ComponentType } from "react";
 
 /* Panels */
@@ -44,6 +44,17 @@ export interface IInput {
 
 export interface IOverviewInfo extends IInput {
 
+}
+
+type TEventHandler = 
+  ((e: React.ChangeEvent<HTMLInputElement>) => void)
+  | ((path: string, value: any) => void)
+  | ((category: TBuildingMeasureCategory) => void)
+  | ((e: React.MouseEvent<HTMLElement>) => void)
+
+// todo: a bit ugly that we are not type checking here. but it was the only way I managed to allow both events and string as arguments
+export interface IDictEventHandler {
+  [index: string]: TEventHandler;
 }
 
 export interface ICalcDataPanelProps extends IPanelProps {
@@ -94,6 +105,7 @@ export interface IAdvancedOptionsCardProps {
 export interface IDistrictCardProps extends ICalcDataCardProps {
   handleFileInput(e: ChangeEvent<HTMLInputElement>): void;
   handleChange(e: ChangeEvent<HTMLInputElement>): void;
+  handleChangePath(path: string, value: any): void;
   data: District;
 }
 
@@ -117,6 +129,13 @@ export interface IMapBoxState {
   markCenter: boolean;
   disableScroll: boolean;
 
+}
+
+// this is the object returned from the MapBox onClick event  
+export interface IMapClickEvent {
+  lngLat: [number, number];
+  zoom: number;
+  features: any[];
 }
 
 export interface IBuildingCardProps extends ICalcDataCardProps {
