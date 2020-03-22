@@ -7,7 +7,7 @@ import { Logout } from './components/Logout';
 import { Workspace } from './components/Workspace';
 import { IProject, IAppProps, IAppState, OverviewData, CalcData, ScenarioData, Scenario, ScenarioInfo } from './types';
 
-import './style/stylesheet.css'
+import './style/stylesheet.css';
 
 import { Firebase } from './base';
 import { RebaseBinding } from 're-base';
@@ -131,7 +131,7 @@ class App extends Component<IAppProps, IAppState> {
     } else {
       const projects = { ...this.state.projects }
       for (const id in projects) {
-        if (id !== projectId && !projects[id].deleted && projects[id].name === projectName) {
+        if (id !== projectId && !projects[id].deleted && projects[id].appVersion === APP_VERSION && projects[id].name === projectName) {
           valid = false;
           break;
         }

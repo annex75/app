@@ -1,5 +1,8 @@
-import React, { Component } from "react"
-import { IBuildingCardProps, IBuildingCardState, IBuildingAdvancedOptionsCard, IDictEventHandler, IBuildingInfo, IDictBuilding, BuildingGeometry, BuildingInformation, BuildingOccupancy } from "../../../types";
+import React, { Component, ChangeEvent } from "react"
+
+import { IBuildingCardProps, IBuildingCardState, IBuildingAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictBuilding } from "../../../types";
+import { renderInputField } from '../../../helpers'
+
 import { FormGroup, Button, InputGroup, Collapse } from "@blueprintjs/core";
 
 export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardState> {
@@ -17,12 +20,28 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
         },
         parameters: {
           constructionYear: {
+            key: "constructionYear",
             type: Number,
             label: "Construction year:",
+            rootPath: "buildings",
+          },
+          buildingClass: {
+            key: "buildingClass",
+            type: Number,
+            label: "Building class:",
+            rootPath: "buildings",
           },
           energyPerformanceCertificate: {
+            key: "energyPerformanceCertificate",
             type: String,
             label: "Energy performance certificates:",
+            rootPath: "buildings",
+          },
+          ownership: {
+            key: "ownership",
+            type: String,
+            label: "Ownership:",
+            rootPath: "buildings",
           }
         }
       },
@@ -35,11 +54,98 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
         },
         parameters: {
           grossFloorArea: {
+            key: "grossFloorArea",
             type: Number,
-            label: "Gross heated floor area:"
-          }
+            label: "Gross heated floor area:",
+            rootPath: "buildings",
+          },
+          heatedVolume: {
+            key: "heatedVolume",
+            type: Number,
+            label: "Heated volume:",
+            rootPath: "buildings",
+          },
+          facadeAreaN: {
+            key: "facadeAreaN",
+            type: Number,
+            label: "Façade area to the North:",
+            rootPath: "buildings",
+          },
+          facadeAreaE: {
+            key: "facadeAreaE",
+            type: Number,
+            label: "Façade area to the East:",
+            rootPath: "buildings",
+          },
+          facadeAreaS: {
+            key: "facadeAreaS",
+            type: Number,
+            label: "Façade area to the South:",
+            rootPath: "buildings",
+          },
+          facadeAreaW: {
+            key: "facadeAreaW",
+            type: Number,
+            label: "Façade area to the West:",
+            rootPath: "buildings",
+          },
+          roofArea: {
+            key: "roofArea",
+            type: Number,
+            label: "Roof area:",
+            rootPath: "buildings",
+          },
+          windowAreaN: {
+            key: "windowAreaN",
+            type: Number,
+            label: "Window area to the North:",
+            rootPath: "buildings",
+          },
+          windowAreaE: {
+            key: "windowAreaE",
+            type: Number,
+            label: "Window area to the East:",
+            rootPath: "buildings",
+          },
+          windowAreaS: {
+            key: "windowAreaS",
+            type: Number,
+            label: "Window area to the South:",
+            rootPath: "buildings",
+          },
+          windowAreaW: {
+            key: "windowAreaW",
+            type: Number,
+            label: "Window area to the West:",
+            rootPath: "buildings",
+          },
+          foundationArea: {
+            key: "foundationArea",
+            type: Number,
+            label: "Foundation area:",
+            rootPath: "buildings",
+          },
+          numberOfFloorsAbove: {
+            key: "numberOfFloorsAbove",
+            type: Number,
+            label: "Number of floors above ground:",
+            rootPath: "buildings",
+          },
+          numberOfFloorsBelow: {
+            key: "numberOfFloorsBelow",
+            type: Number,
+            label: "Number of floors below ground:",
+            rootPath: "buildings",
+          },
+          floorHeight: {
+            key: "floorHeight",
+            type: Number,
+            label: "Average floor height:",
+            rootPath: "buildings",
+          },
         }
       },
+      /* modify in scenarios
       "buildingOccupancy": {
         name: "buildingOccupancy",
         title: "Occupancy and usage",
@@ -48,18 +154,27 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
           handleChange: this.props.handleChange,
         },
         parameters: {
+          occupancy: {
+            key: "occupancy",
+            type: String,
+            label: "Occupancy:",
+            rootPath: "buildings",
+          },
           occupants: {
+            key: "occupants",
             type: Number,
             label: "Occupants:",
+            rootPath: "buildings",
           }
         }
       },
+      */
     }
 
     this.state = {
       advancedIsOpen: false,
       buildingAdvancedOptions: buildingAdvancedOptions,
-    }
+    };
   }
 
   handleExpandClick = (e: React.MouseEvent<HTMLElement>) => {
@@ -115,13 +230,13 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
             className="bp3-button"
             icon={this.state.advancedIsOpen ? "arrow-up" : "arrow-down"}
             onClick={this.handleExpandClick}>
-            <h3>Advanced</h3>
+            <h4>Advanced</h4>
           </Button>
           <Collapse key="building-advanced-collapse" isOpen={this.state.advancedIsOpen}>
             {
               Object.keys(this.state.buildingAdvancedOptions).map(id => {
                 const card = this.state.buildingAdvancedOptions[id];
-                const data = buildings; // todo: not great that we pass all the buildings data in
+                const data = buildings; // todo: not great that we pass all the buildings data in. same issue in EnergySystemsCard
                 return (
                   <div className="building-advanced-options-wrapper" key={`${id}-div`}>
                     <Button
@@ -130,7 +245,7 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
                       name={card.name}
                       icon={card.isOpen ? "arrow-up" : "arrow-down"}
                       onClick={(e: React.MouseEvent<HTMLElement>) => this.handleExpandAdvancedOptionsClick(e, id)}>
-                      <h3>{card.title}</h3>
+                      <h4>{card.title}</h4 >
                     </Button>
                     <AdvancedOptionsCard key={id} isOpen={card.isOpen} data={data} eventHandlers={card.eventHandlers} category={id} parameters={card.parameters} />
                   </div>
@@ -144,61 +259,32 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
   }
 }
 
-interface IAdvancedOptionsCardProps {
-  isOpen: boolean;
+interface IBuildingAdvancedOptionsCardProps extends IAdvancedOptionsCardProps {
   data: IDictBuilding;
-  eventHandlers: IDictEventHandler;
-  category: string;
-  parameters: Record<string,IBuildingInfo>;
 }
 
-type AdvancedBuildingOptionsCategory = BuildingGeometry | BuildingInformation | BuildingOccupancy;
-
-const AdvancedOptionsCard = (props: IAdvancedOptionsCardProps) => {
+const AdvancedOptionsCard = (props: IBuildingAdvancedOptionsCardProps) => {
   const buildings = props.data;
   const category = props.category;
   return (
     <div>
       <Collapse key={`${category}-collapse`} isOpen={props.isOpen}>
         {
-          Object.keys(props.parameters).map( (param: string) => {
+          Object.keys(props.parameters).map( (paramName: string) => {
+            const param = props.parameters[paramName];
             return (
-              <div className={"panel-list-row"} key={`building-${param}-div`}>
+              <div className={"panel-list-row"} key={`building-${paramName}-div`}>
                 <FormGroup
                   inline
                   className="inline-input"
-                  key={`building-${param}-input`}
-                  label={props.parameters[param].label}
-                  labelFor={`building-${param}-input`}>
+                  key={`building-${paramName}-input`}
+                  label={param.label}
+                  labelFor={`building-${paramName}-input`}>
                   {
                     Object.keys(buildings).map(id => {
-                      const c = buildings[id][category] as AdvancedBuildingOptionsCategory;
-                      if (!c.hasOwnProperty(param)) {
-                        throw Error(`Building ${id} does not have parameter ${param}`);
-                      }
-                      switch(props.parameters[param].type) {
-                        case Number:
-                          return (
-                            //todo: we can't handle numeric inputs here yet!
-                            <InputGroup
-                              key={`building-${id}-${category}-${param}-input`}
-                              name={`buildings.${id}.${category}.${param}`}
-                              id={`building-${id}-${param}-input`}
-                              onChange={props.eventHandlers.handleChange}
-                              value={c[param] as string} />
-                          )
-                        case String:
-                          return (
-                            <InputGroup
-                              key={`building-${id}-${category}-${param}-input`}
-                              name={`buildings.${id}.${category}.${param}`}
-                              id={`building-${id}-${param}-input`}
-                              onChange={props.eventHandlers.handleChange}
-                              value={c[param] as string} />
-                          )
-                        default:
-                          throw Error(`this data type: ${props.parameters[param].type} has not been defined`);
-                      }
+                      param.localPath = `${id}.${category}.${paramName}`;
+                      const eventHandler = props.eventHandlers.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
+                      return renderInputField(`building-${id}`, param, buildings, eventHandler)
                     })
                   }
                   <span className="empty-button"/>

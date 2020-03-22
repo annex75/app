@@ -42,6 +42,7 @@ ul {
   flex-direction: row;
   min-height: 50vh;
 }
+
 .panel {
   flex: 1;
   margin: 5px;
@@ -86,7 +87,29 @@ ul {
 }
 
 .bp3-form-group .bp3-label {
-  width: 200px;
+  width: 250px;
+}
+
+#overview-general-div .district-card-columns {
+  display: flex;
+  flex-direction: row;
+}
+
+#overview-general-div .bp3-form-group .bp3-label { 
+  width: 100px; /* to make room for map */
+}
+
+.district-card-right-column {
+  flex: 1;
+  display: flex;
+}
+
+.map-container {
+  margin-left: 20px;
+  margin-right: 20px;
+  padding-bottom: 15px;
+  display: flex;
+  flex: 1;
 }
 
 .inline-input {
@@ -138,10 +161,12 @@ ul {
   border-spacing: 0;
   border-collapse: collapse;
 }
+
 .bp3-inline .bp3-label {
   min-width: 80px;
   text-align: right;
 }
+
 input {
   min-width: 250px;
 }
