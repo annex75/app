@@ -131,9 +131,15 @@ export interface IMapBoxState {
 
 }
 
+export interface ICoord {
+  lon: number;
+  lat: number;
+  [key: string]: ICoord[keyof ICoord];
+}
+
 // this is the object returned from the MapBox onClick event  
 export interface IMapClickEvent {
-  lngLat: [number, number];
+  lngLat: [ number, number ];
   zoom: number;
   features: any[];
 }

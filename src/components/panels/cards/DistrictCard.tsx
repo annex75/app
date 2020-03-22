@@ -1,17 +1,18 @@
 // external
 import React, { Component } from "react"
-import { FormGroup, FileInput } from "@blueprintjs/core";
+import { FormGroup, Intent } from "@blueprintjs/core";
 import 'mapbox-gl/dist/mapbox-gl.css';
 // @ts-ignore
 import FileUploader from "react-firebase-file-uploader";
-import firebase from "firebase";
+import firebase, { FirebaseError } from "firebase";
 
 // bim-energy
 import { default as Mapbox } from '@bimenergy/map';
 
 // internal
-import { IDistrictCardProps, IDistrictCardState, IDistrictParamCategory, IMapBoxState, IMapClickEvent } from "../../../types";
+import { IDistrictCardProps, IDistrictCardState, IDistrictParamCategory, IMapBoxState, IMapClickEvent, ICoord } from "../../../types";
 import { renderInputField, } from '../../../helpers';
+import { AppToaster } from '../../../toaster';
 
 export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardState> {
   constructor(props: IDistrictCardProps) {
@@ -37,6 +38,7 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
             handleChange: this.props.handleChange,
           },
           latitude: {
+            disabled: true,
             key: "latitude",
             type: String,
             label: "Latitude:",
@@ -45,6 +47,7 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
             handleChange: this.props.handleChange,
           },
           longitude: {
+            disabled: true,
             key: "longitude",
             type: String,
             label: "Longitude:",
@@ -143,23 +146,17 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
   }
 
   renderFileUploader = () => {
-    return (
-      <FileInput disabled
-        text={"Upload .epw file"}
-        onInputChange={() => {}} />
-      
-      /*
+    return (    
       <FileUploader
-        accept="image/*"
-        name="image-uploader-multiple"
-        randomizeFilename
-        storageRef={firebase.storage().ref("images")}
+        accept=".epw"
+        name="epw-uploader"
+        disabled
+        storageRef={firebase.storage().ref("epw")}
         onUploadStart={this.handleUploadStart}
         onUploadError={this.handleUploadError}
         onUploadSuccess={this.handleUploadSuccess}
         onProgress={this.handleProgress}
-        multiple
-      />*/
+      />
     )
   }
 
@@ -167,8 +164,8 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
 
   }
 
-  handleUploadError = (e: any) => {
-    
+  handleUploadError = (e: FirebaseError) => {
+    AppToaster.show({ intent: Intent.DANGER, message: "File could not be uploaded." });
   }
 
   handleUploadSuccess = (e: any) => {
@@ -199,9 +196,17 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
 
   // todo: unfortunate that we hardcode the path in this location
   onMapClick = (e: IMapClickEvent) => {
-    const [ lon, lat ] = e.lngLat;
-    this.props.handleChangePath("project.calcData.district.location.lon", lon);
-    this.props.handleChangePath("project.calcData.district.location.lat", lat);
+    const coord: ICoord = {
+      lon: e.lngLat[0],
+      lat: e.lngLat[1],
+    }
+    for (const key in coord) {
+      this.props.handleChangePath(`project.calcData.district.location.${key}`, this.formatCoordinate(coord[key]));
+    }
+  }
+
+  formatCoordinate = (value: number) => {
+    return value.toFixed(2);
   }
   
   render() {
