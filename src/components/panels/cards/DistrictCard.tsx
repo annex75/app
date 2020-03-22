@@ -1,6 +1,6 @@
 // external
 import React, { Component } from "react"
-import { FormGroup } from "@blueprintjs/core";
+import { FormGroup, FileInput } from "@blueprintjs/core";
 import 'mapbox-gl/dist/mapbox-gl.css';
 // @ts-ignore
 import FileUploader from "react-firebase-file-uploader";
@@ -144,6 +144,11 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
 
   renderFileUploader = () => {
     return (
+      <FileInput disabled
+        text={"Upload .epw file"}
+        onInputChange={() => {}} />
+      
+      /*
       <FileUploader
         accept="image/*"
         name="image-uploader-multiple"
@@ -154,7 +159,7 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
         onUploadSuccess={this.handleUploadSuccess}
         onProgress={this.handleProgress}
         multiple
-      />
+      />*/
     )
   }
 
