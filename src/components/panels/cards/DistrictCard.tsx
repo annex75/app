@@ -1,10 +1,7 @@
 // external
 import React, { Component } from "react"
-import { FormGroup, Intent } from "@blueprintjs/core";
+import { FormGroup, Callout } from "@blueprintjs/core";
 import 'mapbox-gl/dist/mapbox-gl.css';
-// @ts-ignore
-import FileUploader from "react-firebase-file-uploader";
-import firebase, { FirebaseError } from "firebase";
 
 // bim-energy
 import { default as Mapbox } from '@bimenergy/map';
@@ -12,7 +9,6 @@ import { default as Mapbox } from '@bimenergy/map';
 // internal
 import { IDistrictCardProps, IDistrictCardState, IDistrictParamCategory, IMapBoxState, IMapClickEvent, ICoord } from "../../../types";
 import { renderInputField, } from '../../../helpers';
-import { AppToaster } from '../../../toaster';
 
 export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardState> {
   constructor(props: IDistrictCardProps) {
@@ -70,7 +66,7 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
             buttonLabel: "Upload .epw file",
             disabled: true,
             path: "district.climate.filename",
-            handleChange: this.props.handleFileInput,
+            handleChange: this.props.handleChange,
           }
         }
       },
@@ -133,47 +129,26 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
       disableScroll: false,
     }
 
-    this.state = { paramCategories, mapBoxState };
+    this.state = { 
+      paramCategories, 
+      mapBoxState,
+    };
   }
 
   renderInputField = (param: any, data: any) => {
     switch (param.type) {
       case "file":
-        return this.renderFileUploader();
+        const district = this.props.data;
+        return (
+          <Callout>
+            {
+              this.props.renderFileUploader()
+            }
+          </Callout>
+        )
       default:
         return renderInputField("district", param, data);
     }
-  }
-
-  renderFileUploader = () => {
-    return (    
-      <FileUploader
-        accept=".epw"
-        name="epw-uploader"
-        disabled
-        storageRef={firebase.storage().ref("epw")}
-        onUploadStart={this.handleUploadStart}
-        onUploadError={this.handleUploadError}
-        onUploadSuccess={this.handleUploadSuccess}
-        onProgress={this.handleProgress}
-      />
-    )
-  }
-
-  handleUploadStart = (e: any) => {
-
-  }
-
-  handleUploadError = (e: FirebaseError) => {
-    AppToaster.show({ intent: Intent.DANGER, message: "File could not be uploaded." });
-  }
-
-  handleUploadSuccess = (e: any) => {
-    
-  }
-
-  handleProgress = (e: any) => {
-    
   }
 
   renderMap = (handleChange: void) => {

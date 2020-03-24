@@ -1,26 +1,24 @@
+// external
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Redirect } from 'react-router-dom';
+import { RebaseBinding } from 're-base';
+import firebase, { Unsubscribe } from 'firebase';
+import _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
+import { Spinner } from '@blueprintjs/core';
+import { Intent } from '@blueprintjs/core';
+
+// internal
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { Login } from './components/Login';
 import { Logout } from './components/Logout';
 import { Workspace } from './components/Workspace';
 import { IProject, IAppProps, IAppState, OverviewData, CalcData, ScenarioData, Scenario, ScenarioInfo } from './types';
-
 import './style/stylesheet.css';
-
 import { Firebase } from './base';
-import { RebaseBinding } from 're-base';
-import { Unsubscribe } from 'firebase';
-
-import _ from 'lodash';
-
-import { v4 as uuidv4 } from 'uuid';
 import { ProjectList } from './components/ProjectList';
-import { Spinner } from '@blueprintjs/core';
-import { Intent } from '@blueprintjs/core';
 import { AppToaster } from './toaster';
-
 import { APP_VERSION } from './constants'
 
 // todo: not really typescript, no type safety but couldn't get it to work
@@ -71,6 +69,40 @@ class App extends Component<IAppProps, IAppState> {
       currentUser: null,
     };
     this.fb = new Firebase();
+  }
+
+  componentDidMount() {
+    this.removeAuthListener = this.fb.app.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.setState({
+          currentUser: user,
+          authenticated: true,
+        });
+        this.dataRef = this.fb.base.syncState(`projects/${user.uid}`, {
+          context: this,
+          state: 'projects',
+          then: () => {
+            this.setState({
+              loading: false,
+            });
+          },
+        });
+      } else {
+        this.setState({
+          authenticated: false,
+          currentUser: null,
+          loading: false,
+        });
+        this.fb.base.removeBinding(this.dataRef);
+      }
+
+    });
+
+  }
+
+  componentWillUnmount() {
+    this.removeAuthListener();
+    this.fb.base.removeBinding(this.dataRef);
   }
 
   addProject = (name: string) => {
@@ -178,40 +210,6 @@ class App extends Component<IAppProps, IAppState> {
     }
   }
 
-  componentDidMount() {
-    this.removeAuthListener = this.fb.app.auth().onAuthStateChanged((user) => {
-      if (user) {
-        this.setState({
-          currentUser: user,
-          authenticated: true,
-        });
-        this.dataRef = this.fb.base.syncState(`projects/${user.uid}`, {
-          context: this,
-          state: 'projects',
-          then: () => {
-            this.setState({
-              loading: false,
-            });
-          },
-        });
-      } else {
-        this.setState({
-          authenticated: false,
-          currentUser: null,
-          loading: false,
-        });
-        this.fb.base.removeBinding(this.dataRef);
-      }
-
-    });
-
-  }
-
-  componentWillUnmount() {
-    this.removeAuthListener();
-    this.fb.base.removeBinding(this.dataRef);
-  }
-
   render() {
     if (this.state.loading) {
       return (
@@ -256,6 +254,7 @@ class App extends Component<IAppProps, IAppState> {
                   param="projectId"
                   items={this.state.projects}
                   updateProject={this.updateProject}
+                  currentUser={this.state.currentUser}
                 />
               </div>
             </div>

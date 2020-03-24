@@ -1,5 +1,5 @@
 import { IProject, District, IDictBuilding, IDictEnergySystem, ICostCurveType, ICostCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory } from "./Data";
-import { ChangeEvent, ComponentType } from "react";
+import { ChangeEvent, ComponentType, ReactNode } from "react";
 
 /* Panels */
 
@@ -57,8 +57,13 @@ export interface IDictEventHandler {
   [index: string]: TEventHandler;
 }
 
+export interface IDictVoid {
+  [index:string]: (() => void);
+}
+
 export interface ICalcDataPanelProps extends IPanelProps {
   updateProject(project: IProject): void;
+  renderFileUploader: (() => ReactNode);
   title: string;
   project: IProject;
 }
@@ -76,6 +81,7 @@ export interface ICalcDataPanelCard {
   isOpen: boolean;
   component: ComponentType<any>;
   eventHandlers: IDictEventHandler;
+  functions?: IDictVoid;
 }
 
 export interface ICalcDataCardProps {
@@ -103,9 +109,10 @@ export interface IAdvancedOptionsCardProps {
 }
 
 export interface IDistrictCardProps extends ICalcDataCardProps {
-  handleFileInput(e: ChangeEvent<HTMLInputElement>): void;
+  handleFileUpload(fileName: string, task: any): (() => void);
   handleChange(e: ChangeEvent<HTMLInputElement>): void;
   handleChangePath(path: string, value: any): void;
+  renderFileUploader: (() => ReactNode);
   data: District;
 }
 

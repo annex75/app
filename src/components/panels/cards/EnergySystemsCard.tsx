@@ -109,57 +109,59 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
     const { energySystems, energyCarriers } = this.props.data;
     return (
       <div>
-        {
-          Object.keys(this.energySystemParameters).map((paramName: string, i: number) => {
-            const param = this.energySystemParameters[paramName];
-            return (
-              <FormGroup
-                inline
-                className="inline-input"
-                key={`energy-system-${paramName}-input`}
-                label={param.label}
-                labelFor={`energy-system-${paramName}-input`}>
-                {
-                  Object.keys(energySystems).map(id => {
-                    param.path = `energySystems.${id}.${paramName}`;
-                    param.localPath = `${id}.${paramName}`;
-                    const eventHandler = this.props.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
-                    return renderInputField(`energy-system-${id}`, param, energySystems, eventHandler )
-                  })
-                }
-                {
-                !i?  // only have an add button on the first row (i == 0)
-                  <Button
-                    minimal
-                    className="bp3-button add-energy-system-button"
-                    icon="add"
-                    onClick={this.handleAddEnergySystemClick} />
-                  : <span className="empty-button"/>
-                }
-              </FormGroup>
-            )
-          })
-        }
-        <FormGroup
-          inline
-          className="inline-input"
-          label=" "
-          labelFor=""
-          key={`edit-cost-curve-button-form`}>
+        <div className="scrollable-panel-content">
           {
-            Object.keys(energySystems).map(id => {
+            Object.keys(this.energySystemParameters).map((paramName: string, i: number) => {
+              const param = this.energySystemParameters[paramName];
               return (
-                <Button
-                  className="bp3-button edit-cost-curve-button bp3-minimal"
-                  key={`energy-system-${id}-edit-cost-curve-button`}
-                  onClick={(e: React.MouseEvent<HTMLElement>) => this.handleEditCostCurveClick(e, id)}>
-                  Edit cost curve
-                </Button>
+                <FormGroup
+                  inline
+                  className="inline-input"
+                  key={`energy-system-${paramName}-input`}
+                  label={param.label}
+                  labelFor={`energy-system-${paramName}-input`}>
+                  {
+                    Object.keys(energySystems).map(id => {
+                      param.path = `energySystems.${id}.${paramName}`;
+                      param.localPath = `${id}.${paramName}`;
+                      const eventHandler = this.props.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
+                      return renderInputField(`energy-system-${id}`, param, energySystems, eventHandler )
+                    })
+                  }
+                  {
+                  !i?  // only have an add button on the first row (i == 0)
+                    <Button
+                      minimal
+                      className="bp3-button add-energy-system-button"
+                      icon="add"
+                      onClick={this.handleAddEnergySystemClick} />
+                    : <span className="empty-button"/>
+                  }
+                </FormGroup>
               )
             })
           }
-          <span className="empty-button"/>
-        </FormGroup>
+          <FormGroup
+            inline
+            className="inline-input"
+            label=" "
+            labelFor=""
+            key={`edit-cost-curve-button-form`}>
+            {
+              Object.keys(energySystems).map(id => {
+                return (
+                  <Button
+                    className="bp3-button edit-cost-curve-button bp3-minimal"
+                    key={`energy-system-${id}-edit-cost-curve-button`}
+                    onClick={(e: React.MouseEvent<HTMLElement>) => this.handleEditCostCurveClick(e, id)}>
+                    Edit cost curve
+                  </Button>
+                )
+              })
+            }
+            <span className="empty-button"/>
+          </FormGroup>
+        </div>
 
         {
           Object.keys(this.state.energySystemsAdvancedOptions).map(id => {
@@ -193,45 +195,45 @@ const AdvancedOptionsCard = (props: IEnergySystemsAdvancedOptionsCardProps) => {
   const energyCarriers = props.data;
   const category = props.category;
   return (
-    <div>
-      <Collapse key={`${category}-collapse`} isOpen={props.isOpen}>
-        {
-          Object.keys(props.parameters).map( (paramName: string, i: number) => {
-            const param = props.parameters[paramName];
-            return (
-              <div className={"panel-list-row"} key={`energy-carriers-${paramName}-div`}>
-                <FormGroup
-                  inline
-                  className="inline-input"
-                  key={`energy-carriers-${paramName}-input`}
-                  label={param.label}
-                  labelFor={`energy-carriers-${paramName}-input`}>
-                  {
-                    Object.keys(energyCarriers).map(id => {
-                      param.localPath = `${id}.${category}.${paramName}`;
-                      const eventHandler = props.eventHandlers.handleChange as ((e: React.ChangeEvent<HTMLInputElement>) => void);
-                      return renderInputField(`energy-carriers-${id}`, param, energyCarriers, eventHandler)
-                    })
-                  }
-                  {
-                  !i?  // only have an add button on the first row (i == 0)
-                    <Button
-                      minimal
-                      className="bp3-button add-energy-carrier-button"
-                      icon="add"
-                      onClick={(e: React.MouseEvent<HTMLElement>) => { 
-                        const eventHandler = props.eventHandlers.handleAddBuildingMeasureClick as ((e: React.MouseEvent<HTMLElement>) => void);
-                        eventHandler(e);
-                      }
-                    }/>
-                    : <span className="empty-button"/>
-                  }
-                </FormGroup>
-              </div>
-            )
-          })
-        }
-      </Collapse>
-    </div>
+    <Collapse key={`${category}-collapse`} isOpen={props.isOpen}>
+      <div className="scrollable-panel-content">
+      {
+        Object.keys(props.parameters).map( (paramName: string, i: number) => {
+          const param = props.parameters[paramName];
+          return (
+            <div className={"panel-list-row"} key={`energy-carriers-${paramName}-div`}>
+              <FormGroup
+                inline
+                className="inline-input"
+                key={`energy-carriers-${paramName}-input`}
+                label={param.label}
+                labelFor={`energy-carriers-${paramName}-input`}>
+                {
+                  Object.keys(energyCarriers).map(id => {
+                    param.localPath = `${id}.${category}.${paramName}`;
+                    const eventHandler = props.eventHandlers.handleChange as ((e: React.ChangeEvent<HTMLInputElement>) => void);
+                    return renderInputField(`energy-carriers-${id}`, param, energyCarriers, eventHandler)
+                  })
+                }
+                {
+                !i?  // only have an add button on the first row (i == 0)
+                  <Button
+                    minimal
+                    className="bp3-button add-energy-carrier-button"
+                    icon="add"
+                    onClick={(e: React.MouseEvent<HTMLElement>) => { 
+                      const eventHandler = props.eventHandlers.handleAddEnergyCarrierClick as ((e: React.MouseEvent<HTMLElement>) => void);
+                      eventHandler(e);
+                    }
+                  }/>
+                  : <span className="empty-button"/>
+                }
+              </FormGroup>
+            </div>
+          )
+        })
+      }
+      </div>
+    </Collapse>
   )
 }

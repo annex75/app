@@ -194,7 +194,7 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
   render() {
     const buildings = this.props.data;
     return (
-      <div>
+      <div className="scrollable-panel-content">
         <div className="panel-list-header">
           {
             <FormGroup
@@ -267,33 +267,31 @@ const AdvancedOptionsCard = (props: IBuildingAdvancedOptionsCardProps) => {
   const buildings = props.data;
   const category = props.category;
   return (
-    <div>
-      <Collapse key={`${category}-collapse`} isOpen={props.isOpen}>
-        {
-          Object.keys(props.parameters).map( (paramName: string) => {
-            const param = props.parameters[paramName];
-            return (
-              <div className={"panel-list-row"} key={`building-${paramName}-div`}>
-                <FormGroup
-                  inline
-                  className="inline-input"
-                  key={`building-${paramName}-input`}
-                  label={param.label}
-                  labelFor={`building-${paramName}-input`}>
-                  {
-                    Object.keys(buildings).map(id => {
-                      param.localPath = `${id}.${category}.${paramName}`;
-                      const eventHandler = props.eventHandlers.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
-                      return renderInputField(`building-${id}`, param, buildings, eventHandler)
-                    })
-                  }
-                  <span className="empty-button"/>
-                </FormGroup>
-              </div>
-            )
-          })
-        }
-      </Collapse>
-    </div>
+    <Collapse key={`${category}-collapse`} isOpen={props.isOpen}>
+      {
+        Object.keys(props.parameters).map( (paramName: string) => {
+          const param = props.parameters[paramName];
+          return (
+            <div className={"panel-list-row"} key={`building-${paramName}-div`}>
+              <FormGroup
+                inline
+                className="inline-input"
+                key={`building-${paramName}-input`}
+                label={param.label}
+                labelFor={`building-${paramName}-input`}>
+                {
+                  Object.keys(buildings).map(id => {
+                    param.localPath = `${id}.${category}.${paramName}`;
+                    const eventHandler = props.eventHandlers.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
+                    return renderInputField(`building-${id}`, param, buildings, eventHandler)
+                  })
+                }
+                <span className="empty-button"/>
+              </FormGroup>
+            </div>
+          )
+        })
+      }
+    </Collapse>
   )
 }

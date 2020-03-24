@@ -199,121 +199,123 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
       <div>
         <h1>{this.props.title}</h1>
         <div id="scenarios-card" className="bp3-card panel-card">
-          <div className="panel-list-header">
+          <div className="scrollable-panel-content">
+            <div className="panel-list-header">
+              {
+                <FormGroup
+                  inline
+                  className="inline-input"
+                  key={`building-name-input`}
+                  label="Scenario name:"
+                  labelFor="building-name-input">
+                  {
+                    Object.keys(scenarios).map(id => {
+                      return (
+                        <InputGroup
+                          key={`scenario-${id}-name-input`}
+                          name={`scenarioData.scenarios.${id}.name`}
+                          id={`scenario-${id}-name-input`}
+                          onChange={this.handleChange}
+                          value={scenarios[id].name} />
+                      )
+                    })
+                  }
+                </FormGroup>
+              }
+              <Button
+                minimal
+                className="bp3-button add-building-button"
+                icon="add"
+                onClick={this.handleAddScenarioClick} />
+            </div>
             {
-              <FormGroup
-                inline
-                className="inline-input"
-                key={`building-name-input`}
-                label="Scenario name:"
-                labelFor="building-name-input">
-                {
-                  Object.keys(scenarios).map(id => {
-                    return (
-                      <InputGroup
-                        key={`scenario-${id}-name-input`}
-                        name={`scenarioData.scenarios.${id}.name`}
-                        id={`scenario-${id}-name-input`}
-                        onChange={this.handleChange}
-                        value={scenarios[id].name} />
-                    )
-                  })
-                }
-              </FormGroup>
+              // for each parameter category
+              Object.keys(this.state.scenarioOptions.paramCategories).map(paramCategoryName => {
+                const paramCategory = this.state.scenarioOptions.paramCategories[paramCategoryName as TScenarioParamCategory];
+                return !paramCategory.global? (null) : (
+                  <div key={`scenario-global-${paramCategoryName}-div`}>
+                  <h3>{paramCategory.label}</h3>
+                  {
+                    Object.keys(paramCategory.parameters).map(paramName => {
+                      const param = paramCategory.parameters[paramName];
+                      return (
+                        <div key={`scenario-global-${paramName}-div`} className="panel-list-row">
+                          <FormGroup
+                            inline
+                            className="inline-input"
+                            key={`scenario-global-${paramName}-input`}
+                            label={param.label}
+                            labelFor={`scenario-global-${paramName}-input`}>
+                            {
+                              Object.keys(scenarios).map(id => {
+                                param.localPath = `${id}.${paramCategoryName}.${paramName}`;
+                                return renderInputField(`scenario-global-${id}`, param, scenarios, this.handleChange)
+                              })
+                            }
+                            <span className="empty-button"/>
+                          </FormGroup>
+                        </div>
+                      )
+                    })
+                  }
+                  </div>
+                )
+              })
             }
-            <Button
-              minimal
-              className="bp3-button add-building-button"
-              icon="add"
-              onClick={this.handleAddScenarioClick} />
+            {
+              // for each building
+              Object.keys(buildings).map((buildingId: string) => {
+                return (
+                  <div key={`scenario-${buildingId}-div`} style={{display: "flex", flexDirection: "column", justifyContent: "space-around"}}>
+                    <Button
+                      minimal
+                      className="bp3-button"
+                      icon={this.state.scenarioOptions.isOpen[buildingId] ? "arrow-up" : "arrow-down"}
+                      onClick={() => this.handleExpandClick(buildingId)}>
+                      <h4>{project.calcData.buildings[buildingId].name}</h4>
+                    </Button>
+                    <Collapse key={`scenario-${buildingId}-collapse`} isOpen={this.state.scenarioOptions.isOpen[buildingId]}>
+                      {
+                        // for each parameter category
+                        Object.keys(this.state.scenarioOptions.paramCategories).map(paramCategoryName => {
+                          const paramCategory = this.state.scenarioOptions.paramCategories[paramCategoryName as TScenarioParamCategory];
+                          return paramCategory.global? (null) : (
+                            <div key={`scenario-${buildingId}-${paramCategoryName}-div`}>
+                            <h3>{paramCategory.label}</h3>
+                            {
+                              Object.keys(paramCategory.parameters).map(paramName => {
+                                const param = paramCategory.parameters[paramName];
+                                return (
+                                  <div key={`scenario-${buildingId}-${paramName}-div`} className="panel-list-row">
+                                    <FormGroup
+                                      inline
+                                      className="inline-input"
+                                      key={`scenario-${buildingId}-${paramName}-input`}
+                                      label={param.label}
+                                      labelFor={`scenario-${buildingId}-${paramName}-input`}>
+                                      {
+                                        Object.keys(scenarios).map(id => {
+                                          param.path = `calcData.buildings.${buildingId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
+                                          param.localPath = `${buildingId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
+                                          return renderInputField(`scenario-${buildingId}-${id}`, param, buildings, this.handleChange)
+                                        })
+                                      }
+                                      <span className="empty-button"/>
+                                    </FormGroup>
+                                  </div>
+                                )
+                              })
+                            }
+                            </div>
+                          )
+                        })
+                      }
+                    </Collapse>
+                  </div>
+                )
+              })
+            }
           </div>
-          {
-            // for each parameter category
-            Object.keys(this.state.scenarioOptions.paramCategories).map(paramCategoryName => {
-              const paramCategory = this.state.scenarioOptions.paramCategories[paramCategoryName as TScenarioParamCategory];
-              return !paramCategory.global? (null) : (
-                <div key={`scenario-global-${paramCategoryName}-div`}>
-                <h3>{paramCategory.label}</h3>
-                {
-                  Object.keys(paramCategory.parameters).map(paramName => {
-                    const param = paramCategory.parameters[paramName];
-                    return (
-                      <div key={`scenario-global-${paramName}-div`} className="panel-list-row">
-                        <FormGroup
-                          inline
-                          className="inline-input"
-                          key={`scenario-global-${paramName}-input`}
-                          label={param.label}
-                          labelFor={`scenario-global-${paramName}-input`}>
-                          {
-                            Object.keys(scenarios).map(id => {
-                              param.localPath = `${id}.${paramCategoryName}.${paramName}`;
-                              return renderInputField(`scenario-global-${id}`, param, scenarios, this.handleChange)
-                            })
-                          }
-                          <span className="empty-button"/>
-                        </FormGroup>
-                      </div>
-                    )
-                  })
-                }
-                </div>
-              )
-            })
-          }
-          {
-            // for each building
-            Object.keys(buildings).map((buildingId: string) => {
-              return (
-                <div key={`scenario-${buildingId}-div`} style={{display: "flex", flexDirection: "column", justifyContent: "space-around"}}>
-                  <Button
-                    minimal
-                    className="bp3-button"
-                    icon={this.state.scenarioOptions.isOpen[buildingId] ? "arrow-up" : "arrow-down"}
-                    onClick={() => this.handleExpandClick(buildingId)}>
-                    <h4>{project.calcData.buildings[buildingId].name}</h4>
-                  </Button>
-                  <Collapse key={`scenario-${buildingId}-collapse`} isOpen={this.state.scenarioOptions.isOpen[buildingId]}>
-                    {
-                      // for each parameter category
-                      Object.keys(this.state.scenarioOptions.paramCategories).map(paramCategoryName => {
-                        const paramCategory = this.state.scenarioOptions.paramCategories[paramCategoryName as TScenarioParamCategory];
-                        return paramCategory.global? (null) : (
-                          <div key={`scenario-${buildingId}-${paramCategoryName}-div`}>
-                          <h3>{paramCategory.label}</h3>
-                          {
-                            Object.keys(paramCategory.parameters).map(paramName => {
-                              const param = paramCategory.parameters[paramName];
-                              return (
-                                <div key={`scenario-${buildingId}-${paramName}-div`} className="panel-list-row">
-                                  <FormGroup
-                                    inline
-                                    className="inline-input"
-                                    key={`scenario-${buildingId}-${paramName}-input`}
-                                    label={param.label}
-                                    labelFor={`scenario-${buildingId}-${paramName}-input`}>
-                                    {
-                                      Object.keys(scenarios).map(id => {
-                                        param.path = `calcData.buildings.${buildingId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
-                                        param.localPath = `${buildingId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
-                                        return renderInputField(`scenario-${buildingId}-${id}`, param, buildings, this.handleChange)
-                                      })
-                                    }
-                                    <span className="empty-button"/>
-                                  </FormGroup>
-                                </div>
-                              )
-                            })
-                          }
-                          </div>
-                        )
-                      })
-                    }
-                  </Collapse>
-                </div>
-              )
-            })
-          }
         </div>
       </div>
     )

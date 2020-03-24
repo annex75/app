@@ -1,12 +1,12 @@
+// external
 import React, { Component, ChangeEvent, FormEvent } from 'react';
-
-import { IOverviewPanelProps, IOverviewPanelState, IOverviewDataCard } from '../../types';
-import { renderInputField, } from '../../helpers';
-
+import { set as _fpSet, equals as _fpEquals } from 'lodash/fp';
+import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter } from 'recharts';
 import { FormGroup, Tooltip } from '@blueprintjs/core';
 
-import { set as _fpSet } from 'lodash/fp';
-import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter } from 'recharts';
+// internal
+import { IOverviewPanelProps, IOverviewPanelState, IOverviewDataCard } from '../../types';
+import { renderInputField, } from '../../helpers';
 import { strings } from '../../constants/textData';
 
 export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanelState> {
@@ -93,6 +93,12 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
     this.state = {
       project: props.project,
       overviewDataCards
+    }
+  }
+
+  componentDidUpdate(prevProps: IOverviewPanelProps) {
+    if (!_fpEquals(prevProps, this.props)) {
+      this.setState({ project: this.props.project, })
     }
   }
 

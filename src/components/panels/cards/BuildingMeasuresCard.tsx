@@ -111,12 +111,13 @@ const BuildingMeasureCategoryCard = (props: IBuildingMeasureCategoryCardProps) =
   const buildingMeasures = props.data;
   const category = props.category;
   return (
-    <div>
-      <Collapse key={`${category}-collapse`} isOpen={props.isOpen}>
-        {
-          Object.keys(props.parameters).map( (paramName: string, i: number) => {
-            const param = props.parameters[paramName];
-            return (
+    <Collapse key={`${category}-collapse`} isOpen={props.isOpen}>
+      <div className="scrollable-panel-content">
+      {
+        Object.keys(props.parameters).map( (paramName: string, i: number) => {
+          const param = props.parameters[paramName];
+          return (
+            <div>
               <FormGroup
                 inline
                 className="inline-input"
@@ -143,11 +144,12 @@ const BuildingMeasureCategoryCard = (props: IBuildingMeasureCategoryCardProps) =
                   : <span className="empty-button"/>
                 }
               </FormGroup>
-            )
-            
-          })
-        }
-      </Collapse>
-    </div>
+            </div>
+          )
+          
+        })
+      }
+      </div>
+    </Collapse>
   )
 }

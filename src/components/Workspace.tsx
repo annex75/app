@@ -1,15 +1,27 @@
-import React, { Component, ChangeEvent, ReactText } from 'react';
-import { Breadcrumb } from '@blueprintjs/core';
-import { Tab, Tabs } from "@blueprintjs/core";
+// external
+import React, { Component, ReactText, useRef, FormEvent } from 'react';
+import classNames from 'classnames'
+// @ts-ignore
+import { Breadcrumb, Classes, ProgressBar, Tab, Tabs, Intent, FileInput, IToastProps } from '@blueprintjs/core';
+import firebase from 'firebase';
+import { set as _fpSet } from 'lodash/fp';
+
+// internal
 import { IWorkspaceState, IWorkspaceProps } from '../types/index';
 import { OverviewPanel, CalcDataPanel, ScenariosPanel, ModelPanel, ResultsPanel } from './Panels';
+import { MAX_EPW_FILE_SIZE } from '../constants'
+import { AppToaster } from '../toaster';
+
 
 export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
+  progressToaster: string = "";
+  
   constructor(props: IWorkspaceProps) {
     super(props);
     this.state = {
       project: props.item,
       tabId: "overview",
+      uploadProgress: 0,
     }
   }
 
@@ -19,18 +31,97 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
     }
   }
 
-  handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    const project = { ...this.props.item };
-    project.name = e.target.value;
-    this.props.updateProject(project);
-  }
-
   handleTabChange = (tabId: ReactText, oldTab: ReactText, e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     this.setState({ tabId });
   }
 
   formatValue = () => {
     return { __html: `The value in the text box is "${this.props.item.name}"` };
+  }
+
+  // todo: this is currently hardcoded to only accept .epw files for the district card. do we need more fileuploaders?
+  renderFileUploader = () => {
+    return (  
+      <div>
+        <FileInput
+          text={this.state.project.calcData.district.climate.filename || "Choose file..." }
+          onInputChange={(e) => { this.handleFileInput(e) }} />
+      </div>  
+    )
+  }
+
+  handleFileInput = (e: FormEvent<HTMLInputElement>) => {
+    const input = e.target as HTMLInputElement;
+    if(input && input.files && input.files.length) {
+      this.startUpload(input.files[0]);
+    }
+  }
+
+  startUpload = (f: File) => {
+    console.log(f);
+    this.handleUploadStart();
+    const storageRef = firebase.storage().ref(`epw/${this.props.currentUser!.uid}`);
+    const fileRef = storageRef.child(f.name)
+    const uploadTask = fileRef.put(f);
+    uploadTask.on('state_changed', (snapshot: firebase.storage.UploadTaskSnapshot) => {
+        const progress = snapshot.bytesTransferred / snapshot.totalBytes * 100;
+        this.handleProgress(progress);
+      }, (err: Error) => {
+        this.handleUploadError(err);
+      }, () => {  
+        this.handleUploadSuccess(uploadTask.snapshot);
+      }
+    );
+  }
+
+  handleUploadStart = () => {
+    this.progressToaster = AppToaster.show(this.renderProgress(0));  
+  }
+
+  renderProgress = (p: number, success: boolean = true) => {
+    const toast: IToastProps = { 
+      icon: "cloud-upload",
+      message: (
+        <div>
+          <ProgressBar
+            className={classNames({ [Classes.PROGRESS_NO_STRIPES]: p >= 100 })}
+            intent={ p < 100 ? Intent.PRIMARY : (success? Intent.SUCCESS : Intent.DANGER)}
+            value={ p / 100 }
+          />
+        </div>
+      ),
+      timeout: p < 100 ? 0 : 2000,
+    }
+    return toast;
+  }
+
+  handleUploadError = (e: Error) => {
+    this.handleUploadEnded(false);
+    AppToaster.show({ intent: Intent.DANGER, message: `File could not be uploaded. Maximum file size is ${MAX_EPW_FILE_SIZE}.` });
+  }
+
+  handleUploadSuccess = (snapshot: firebase.storage.UploadTaskSnapshot) => {
+    this.handleUploadEnded(true);
+    const fileName = snapshot.metadata.name;
+    
+    // todo: it's annoying that this happens here as we have this functionality in CalcDataPanel
+    // but we don't want the CalcDataPanel to know about the user, either.
+    const path = "project.calcData.district.climate.filename";
+    const newState = _fpSet(path, fileName, this.state);
+    this.setState(newState);
+    this.props.updateProject(newState.project);
+    
+  }
+
+  handleUploadEnded = (success: boolean) => {
+    AppToaster.show(this.renderProgress(100, success), this.progressToaster);
+    this.setState({ uploadProgress: 0 }); 
+  }
+
+  handleProgress = (p: number) => {
+    console.log(p);
+    this.setState({ uploadProgress: p })
+    AppToaster.show(this.renderProgress(p), this.progressToaster);
   }
 
   render() {
@@ -53,6 +144,7 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
             <CalcDataPanel
               title="Calculation data"
               updateProject={this.props.updateProject}
+              renderFileUploader={this.renderFileUploader}
               project={this.state.project}/>
           } />
           <Tab id="scenarios" title={"Scenarios"} panel={
@@ -69,25 +161,6 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
           } />
           <Tab disabled id="results" title={"Results"} panel={<ResultsPanel title="Results" />} />
         </Tabs>
-        {/*
-                <h2 style={{margin: "0.5em 0"}}>{project.name}</h2>
-                <div className="workspace">
-                    <div className="panel">
-                        <h3>Input</h3>
-                        <textarea
-                            style={{width: "100%", height:"100%"}}
-                            onChange={this.handleChange}
-                            value={project.name} />
-                    </div>
-                    <div className="panel">
-                        <h3>Output</h3>
-                        <div
-                            style={{width: "100%", height:"100%", fontFamily: "monospace"}}
-                            className="workspace-output"
-                            dangerouslySetInnerHTML={this.formatValue()}/>
-                    </div>
-                </div>
-                */}
       </div>
     );
   }

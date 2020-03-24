@@ -28,8 +28,11 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
         eventHandlers: {
           handleChange: this.handleChangeEvent,
           handleChangePath: this.handleChange,
-          handleFileInput: this.handleFileInput,
+          handleFileUpload: this.handleFileUpload,
         },
+        functions: {
+          renderFileUploader: this.props.renderFileUploader,
+        }
       },
       "buildings": {
         name: "buildings",
@@ -103,7 +106,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     return `project.calcData.${childPath}`;
   }
 
-  handleFileInput = (e: ChangeEvent<HTMLInputElement>) => {
+  handleFileUpload = (fileName: string, task: any) => {
     // todo: handle file input
   }
 
@@ -226,7 +229,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
                   <Button minimal className="bp3-button" icon={card.isOpen ? "arrow-up" : "arrow-down"} onClick={(e: React.MouseEvent<HTMLElement>) => this.handleClick(e, id)}/>
                 </div>
                 <Collapse key={`${id}-collapse`} isOpen={card.isOpen}>
-                  <PanelCard component={card.component} data={data} {...card.eventHandlers} />
+                  <PanelCard component={card.component} data={data} {...card.eventHandlers} {...card.functions} />
                 </Collapse>
               </Card>
             )
