@@ -1,5 +1,5 @@
 // external
-import React, { Component, ReactText, useRef, FormEvent } from 'react';
+import React, { Component, ReactText, FormEvent } from 'react';
 import classNames from 'classnames'
 // @ts-ignore
 import { Breadcrumb, Classes, ProgressBar, Tab, Tabs, Intent, FileInput, IToastProps } from '@blueprintjs/core';

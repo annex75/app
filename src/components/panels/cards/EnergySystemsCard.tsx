@@ -118,7 +118,17 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
                   inline
                   className="inline-input"
                   key={`energy-system-${paramName}-input`}
-                  label={param.label}
+                  label={i? param.label : (
+                    <div className="label-with-add-button">
+                      <p>{param.label}</p>
+                      <Button
+                        minimal
+                        className="bp3-button add-button"
+                        icon="add"
+                        onClick={this.handleAddEnergySystemClick} />
+                      
+                    </div>
+                  )}
                   labelFor={`energy-system-${paramName}-input`}>
                   {
                     Object.keys(energySystems).map(id => {
@@ -132,7 +142,7 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
                   !i?  // only have an add button on the first row (i == 0)
                     <Button
                       minimal
-                      className="bp3-button add-energy-system-button"
+                      className="bp3-button add-system-button"
                       icon="add"
                       onClick={this.handleAddEnergySystemClick} />
                     : <span className="empty-button"/>
@@ -166,9 +176,9 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
         {
           Object.keys(this.state.energySystemsAdvancedOptions).map(id => {
             const card = this.state.energySystemsAdvancedOptions[id];
-            const data = energyCarriers as IDictEnergyCarrier; // todo: not great that we pass all the energySystems data in. samme issue in BuildingCard
+            const data = energyCarriers as IDictEnergyCarrier; // todo: not great that we pass all the energySystems data in. samme issue in BuildingTypeCard
             return (
-              <div className="building-advanced-options-wrapper" key={`${id}-div`}>
+              <div className="advanced-options-wrapper" key={`${id}-div`}>
                 <Button
                   minimal
                   className="bp3-button"
@@ -206,7 +216,20 @@ const AdvancedOptionsCard = (props: IEnergySystemsAdvancedOptionsCardProps) => {
                 inline
                 className="inline-input"
                 key={`energy-carriers-${paramName}-input`}
-                label={param.label}
+                label={i? param.label : (
+                  <div className="label-with-add-button">
+                    <p>{param.label}</p>
+                    <Button
+                      minimal
+                      className="bp3-button add-button"
+                      icon="add"
+                      onClick={(e: React.MouseEvent<HTMLElement>) => { 
+                        const eventHandler = props.eventHandlers.handleAddEnergyCarrierClick as ((e: React.MouseEvent<HTMLElement>) => void);
+                        eventHandler(e);
+                      }}/>
+                    
+                  </div>
+                )}
                 labelFor={`energy-carriers-${paramName}-input`}>
                 {
                   Object.keys(energyCarriers).map(id => {
@@ -219,13 +242,12 @@ const AdvancedOptionsCard = (props: IEnergySystemsAdvancedOptionsCardProps) => {
                 !i?  // only have an add button on the first row (i == 0)
                   <Button
                     minimal
-                    className="bp3-button add-energy-carrier-button"
+                    className="bp3-button add-button"
                     icon="add"
                     onClick={(e: React.MouseEvent<HTMLElement>) => { 
                       const eventHandler = props.eventHandlers.handleAddEnergyCarrierClick as ((e: React.MouseEvent<HTMLElement>) => void);
                       eventHandler(e);
-                    }
-                  }/>
+                    }}/>
                   : <span className="empty-button"/>
                 }
               </FormGroup>

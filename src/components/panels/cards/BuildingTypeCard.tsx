@@ -1,13 +1,13 @@
 import React, { Component, ChangeEvent } from "react"
 
-import { IBuildingCardProps, IBuildingCardState, IBuildingAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictBuilding } from "../../../types";
+import { IBuildingTypeCardProps, IBuildingTypeCardState, IBuildingAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictBuildingType } from "../../../types";
 import { renderInputField } from '../../../helpers'
 
 import { FormGroup, Button, InputGroup, Collapse } from "@blueprintjs/core";
 
-export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardState> {
+export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildingTypeCardState> {
 
-  constructor(props: IBuildingCardProps) {
+  constructor(props: IBuildingTypeCardProps) {
     super(props);
 
     const buildingAdvancedOptions: Record<string,IBuildingAdvancedOptionsCard> = {
@@ -23,25 +23,25 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
             key: "constructionYear",
             type: Number,
             label: "Construction year:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           buildingClass: {
             key: "buildingClass",
             type: Number,
             label: "Building class:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           energyPerformanceCertificate: {
             key: "energyPerformanceCertificate",
             type: String,
             label: "Energy performance certificates:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           ownership: {
             key: "ownership",
             type: String,
             label: "Ownership:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           }
         }
       },
@@ -57,132 +57,103 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
             key: "grossFloorArea",
             type: Number,
             label: "Gross heated floor area:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           heatedVolume: {
             key: "heatedVolume",
             type: Number,
             label: "Heated volume:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           facadeAreaN: {
             key: "facadeAreaN",
             type: Number,
             label: "Façade area to the North:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           facadeAreaE: {
             key: "facadeAreaE",
             type: Number,
             label: "Façade area to the East:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           facadeAreaS: {
             key: "facadeAreaS",
             type: Number,
             label: "Façade area to the South:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           facadeAreaW: {
             key: "facadeAreaW",
             type: Number,
             label: "Façade area to the West:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           roofArea: {
             key: "roofArea",
             type: Number,
             label: "Roof area:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           windowAreaN: {
             key: "windowAreaN",
             type: Number,
             label: "Window area to the North:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           windowAreaE: {
             key: "windowAreaE",
             type: Number,
             label: "Window area to the East:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           windowAreaS: {
             key: "windowAreaS",
             type: Number,
             label: "Window area to the South:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           windowAreaW: {
             key: "windowAreaW",
             type: Number,
             label: "Window area to the West:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           foundationArea: {
             key: "foundationArea",
             type: Number,
             label: "Foundation area:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           numberOfFloorsAbove: {
             key: "numberOfFloorsAbove",
             type: Number,
             label: "Number of floors above ground:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           numberOfFloorsBelow: {
             key: "numberOfFloorsBelow",
             type: Number,
             label: "Number of floors below ground:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
           floorHeight: {
             key: "floorHeight",
             type: Number,
             label: "Average floor height:",
-            rootPath: "buildings",
+            rootPath: "buildingTypes",
           },
         }
       },
-      /* modify in scenarios
-      "buildingOccupancy": {
-        name: "buildingOccupancy",
-        title: "Occupancy and usage",
-        isOpen: false,
-        eventHandlers: {
-          handleChange: this.props.handleChange,
-        },
-        parameters: {
-          occupancy: {
-            key: "occupancy",
-            type: String,
-            label: "Occupancy:",
-            rootPath: "buildings",
-          },
-          occupants: {
-            key: "occupants",
-            type: Number,
-            label: "Occupants:",
-            rootPath: "buildings",
-          }
-        }
-      },
-      */
     }
 
     this.state = {
-      advancedIsOpen: false,
       buildingAdvancedOptions: buildingAdvancedOptions,
     };
   }
 
-  handleExpandClick = (e: React.MouseEvent<HTMLElement>) => {
-    this.setState({ advancedIsOpen: !this.state.advancedIsOpen });
-  }
-
-  handleAddBuildingClick = (e: React.MouseEvent<HTMLElement>) => {
-    this.props.addBuilding();
+  handleAddBuildingTypeClick = (e: React.MouseEvent<HTMLElement>) => {
+    this.props.addBuildingType();
   }
 
   handleExpandAdvancedOptionsClick = (e: React.MouseEvent<HTMLElement>, name: string) => {
@@ -192,7 +163,7 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
   }
 
   render() {
-    const buildings = this.props.data;
+    const buildingTypes = this.props.data;
     return (
       <div className="scrollable-panel-content">
         <div className="panel-list-header">
@@ -200,45 +171,48 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
             <FormGroup
               inline
               className="inline-input"
-              key={`building-name-input`}
-              label="Building name:"
-              labelFor="building-name-input">
+              key={`building-type-name-input`}
+              label={(
+                <div className="label-with-add-button">
+                  <p>Building type name:</p>
+                  <Button
+                    minimal
+                    className="bp3-button add-button"
+                    icon="add"
+                    onClick={this.handleAddBuildingTypeClick} />
+                  
+                </div>
+              )}
+              labelFor="building-type-name-input">
               {
-                Object.keys(buildings).map(id => {
+                Object.keys(buildingTypes).map(id => {
                   return (
                     <InputGroup
-                      key={`building-${id}-name-input`}
-                      name={`buildings.${id}.name`}
-                      id={`building-${id}-name-input`}
+                      key={`building-type-${id}-name-input`}
+                      name={`buildingTypes.${id}.name`}
+                      id={`building-type-${id}-name-input`}
                       onChange={this.props.handleChange}
-                      value={buildings[id].name} />
+                      value={buildingTypes[id].name} />
                   )
                 })
               }
+              <Button
+                minimal
+                className="bp3-button add-button"
+                icon="add"
+                onClick={this.handleAddBuildingTypeClick} />
             </FormGroup>
           }
-          <Button
-            minimal
-            className="bp3-button add-building-button"
-            icon="add"
-            onClick={this.handleAddBuildingClick} />
+          
         </div>
         
         <div style={{display: "flex", flexDirection: "column", justifyContent: "space-around"}}>
-          <Button
-            minimal
-            className="bp3-button"
-            icon={this.state.advancedIsOpen ? "arrow-up" : "arrow-down"}
-            onClick={this.handleExpandClick}>
-            <h4>Advanced</h4>
-          </Button>
-          <Collapse key="building-advanced-collapse" isOpen={this.state.advancedIsOpen}>
             {
               Object.keys(this.state.buildingAdvancedOptions).map(id => {
                 const card = this.state.buildingAdvancedOptions[id];
-                const data = buildings; // todo: not great that we pass all the buildings data in. same issue in EnergySystemsCard
+                const data = buildingTypes; // todo: not great that we pass all the buildingTypes data in. same issue in EnergySystemsCard
                 return (
-                  <div className="building-advanced-options-wrapper" key={`${id}-div`}>
+                  <div className="advanced-options-wrapper" key={`${id}-div`}>
                     <Button
                       minimal
                       className="bp3-button"
@@ -252,7 +226,6 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
                 )
               })
             }
-          </Collapse>
         </div>
       </div>
     )
@@ -260,11 +233,11 @@ export class BuildingCard extends Component<IBuildingCardProps, IBuildingCardSta
 }
 
 interface IBuildingAdvancedOptionsCardProps extends IAdvancedOptionsCardProps {
-  data: IDictBuilding;
+  data: IDictBuildingType;
 }
 
 const AdvancedOptionsCard = (props: IBuildingAdvancedOptionsCardProps) => {
-  const buildings = props.data;
+  const buildingTypes = props.data;
   const category = props.category;
   return (
     <Collapse key={`${category}-collapse`} isOpen={props.isOpen}>
@@ -272,18 +245,18 @@ const AdvancedOptionsCard = (props: IBuildingAdvancedOptionsCardProps) => {
         Object.keys(props.parameters).map( (paramName: string) => {
           const param = props.parameters[paramName];
           return (
-            <div className={"panel-list-row"} key={`building-${paramName}-div`}>
+            <div className={"panel-list-row"} key={`building-type-${paramName}-div`}>
               <FormGroup
                 inline
                 className="inline-input"
-                key={`building-${paramName}-input`}
+                key={`building-type-${paramName}-input`}
                 label={param.label}
-                labelFor={`building-${paramName}-input`}>
+                labelFor={`building-type-${paramName}-input`}>
                 {
-                  Object.keys(buildings).map(id => {
+                  Object.keys(buildingTypes).map(id => {
                     param.localPath = `${id}.${category}.${paramName}`;
                     const eventHandler = props.eventHandlers.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
-                    return renderInputField(`building-${id}`, param, buildings, eventHandler)
+                    return renderInputField(`building-type-${id}`, param, buildingTypes, eventHandler)
                   })
                 }
                 <span className="empty-button"/>

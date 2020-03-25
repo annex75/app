@@ -138,7 +138,6 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
   renderInputField = (param: any, data: any) => {
     switch (param.type) {
       case "file":
-        const district = this.props.data;
         return (
           <Callout>
             {

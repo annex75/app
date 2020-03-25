@@ -80,7 +80,7 @@ export class BuildingMeasuresCard extends Component<IBuildingMeasuresCardProps, 
             const card = this.state.buildingMeasureCategories[id];
             const data = buildingMeasures[id];
             return (
-              <div className="building-advanced-options-wrapper" key={`${id}-div`}>
+              <div className="advanced-options-wrapper" key={`${id}-div`}>
                 <Button
                   minimal
                   className="bp3-button"
@@ -135,7 +135,7 @@ const BuildingMeasureCategoryCard = (props: IBuildingMeasureCategoryCardProps) =
                   !i?  // only have an add button on the first row (i == 0)
                   <Button
                     minimal
-                    className="bp3-button add-energy-system-button"
+                    className="bp3-button add-button"
                     icon="add"
                     onClick={(e: React.MouseEvent<HTMLElement>) => { 
                       const eventHandler = props.eventHandlers.handleAddBuildingMeasureClick as ((category: string) => void);

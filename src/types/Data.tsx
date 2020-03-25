@@ -52,9 +52,9 @@ export class ResultOverview {
 export class CalcData {
 
   constructor() {
-    const firstBuildingId = uuidv4();
-    this.buildings = {
-      [firstBuildingId]: new Building(firstBuildingId)
+    const firstBuildingTypeId = uuidv4();
+    this.buildingTypes = {
+      [firstBuildingTypeId]: new BuildingType(firstBuildingTypeId)
     };
 
     const firstEnergySystemId = uuidv4();
@@ -92,7 +92,7 @@ export class CalcData {
   }
 
   district: District = new District();
-  buildings: IDictBuilding;
+  buildingTypes: IDictBuildingType;
   energySystems: IDictEnergySystem;
   energyCarriers: IDictEnergyCarrier;
   buildingMeasures: Record<string,IDictBuildingMeasure>;
@@ -141,12 +141,11 @@ export class DistrictEconomy {
 }
 */
 
-export interface IDictBuilding {
-  [index: string]: Building;
+export interface IDictBuildingType {
+  [index: string]: BuildingType;
 }
 
-// really is a building type/building typology
-export class Building {
+export class BuildingType {
   constructor(id: string = uuidv4()) {
     this.id = id;
   }
@@ -156,7 +155,7 @@ export class Building {
   buildingGeometry = new BuildingGeometry();
   //buildingOccupancy = new BuildingOccupancy(); // modify in scenarios?
   scenarioInfos: Record<string,ScenarioInfo> = {};
-  [key: string]: Building[keyof Building];
+  [key: string]: BuildingType[keyof BuildingType];
 }
 
 export class BuildingInformation {
@@ -367,7 +366,7 @@ export class Scenario {
 }
 
 export class ScenarioInfo {
-  building: IScenarioBuildingData = {
+  buildingType: IScenarioBuildingData = {
     numberOfBuildings: 0,
     occupancy: "",
     occupants: 0,

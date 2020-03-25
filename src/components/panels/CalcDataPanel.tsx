@@ -6,9 +6,9 @@ import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 //import { CalcData } from '@annex-75/calculation-model/';
 
 import * as config from '../../config.json';
-import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, Building, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure, BasementMeasure, WindowMeasure, EnergyCarrier } from '../../types';
+import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure, BasementMeasure, WindowMeasure, EnergyCarrier } from '../../types';
 import { DistrictCard } from './cards/DistrictCard';
-import { BuildingCard } from './cards/BuildingCard';
+import { BuildingTypeCard } from './cards/BuildingTypeCard';
 import { AppToaster } from '../../toaster';
 import { EnergySystemsCard } from './cards/EnergySystemsCard';
 import { CostCurveEditor } from './dialogs/CostCurveEditor';
@@ -34,14 +34,14 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
           renderFileUploader: this.props.renderFileUploader,
         }
       },
-      "buildings": {
-        name: "buildings",
+      "buildingTypes": {
+        name: "buildingTypes",
         title: "Building types",
         isOpen: false,
-        component: BuildingCard,
+        component: BuildingTypeCard,
         eventHandlers: {
           handleChange: this.handleChangeEvent,
-          addBuilding: this.addBuilding,
+          addBuildingType: this.addBuildingType,
         },
       },
       "energySystems": {
@@ -117,20 +117,20 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     this.props.updateProject(newState.project);
   }
 
-  addBuilding = () => {
+  addBuildingType = () => {
     let newState = { ...this.state };
 
-    if (Object.keys(newState.project.calcData.buildings).length >= config.MAX_BUILDINGS) {
-      AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_BUILDINGS} building types are currently allowed`});
+    if (Object.keys(newState.project.calcData.buildingTypes).length >= config.MAX_BUILDING_TYPES) {
+      AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_BUILDING_TYPES} building types are currently allowed`});
       return;
     }
     
-    let building = new Building();
+    let buildingType = new BuildingType();
     for (const scenarioId in newState.project.scenarioData.scenarios) {
-      building.scenarioInfos[scenarioId] = new ScenarioInfo();
+      buildingType.scenarioInfos[scenarioId] = new ScenarioInfo();
     } 
 
-    newState.project.calcData.buildings[building.id] = building;
+    newState.project.calcData.buildingTypes[buildingType.id] = buildingType;
     
     this.setState(newState);
     this.props.updateProject(newState.project);

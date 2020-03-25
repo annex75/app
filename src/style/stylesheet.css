@@ -74,12 +74,9 @@ ul {
   height: 30px;
 }
 
-.add-building-button {
+.add-button {
   height: 30px;
-}
-
-.add-energy-system-button {
-  height: 30px;
+  margin-left: 5px;
 }
 
 .panel-list-header {
@@ -103,6 +100,12 @@ ul {
 
 #overview-general-div .bp3-form-group .bp3-label { 
   width: 100px; /* to make room for map */
+}
+
+.label-with-add-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
 }
 
 .district-card-right-column {
@@ -151,12 +154,12 @@ ul {
   min-width: 100%;
 }
 
-.building-advanced-options-wrapper {
+.advanced-options-wrapper {
   display: flex;
   flex-direction: column;
 }
 
-.building-advanced-options-wrapper div {
+.advanced-options-wrapper div {
   margin-top: 2px;
   margin-bottom: 2px;
 }
@@ -167,7 +170,7 @@ ul {
 }
 
 .bp3-inline .bp3-label {
-  min-width: 150px;
+  width: 250px;
   text-align: right;
 }
 

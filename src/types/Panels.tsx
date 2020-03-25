@@ -1,4 +1,4 @@
-import { IProject, District, IDictBuilding, IDictEnergySystem, ICostCurveType, ICostCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory } from "./Data";
+import { IProject, District, IDictBuildingType, IDictEnergySystem, ICostCurveType, ICostCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory } from "./Data";
 import { ChangeEvent, ComponentType, ReactNode } from "react";
 
 /* Panels */
@@ -151,15 +151,14 @@ export interface IMapClickEvent {
   features: any[];
 }
 
-export interface IBuildingCardProps extends ICalcDataCardProps {
+export interface IBuildingTypeCardProps extends ICalcDataCardProps {
   handleChange(e: ChangeEvent<HTMLInputElement>): void;
-  addBuilding(): void;
-  data: IDictBuilding;
+  addBuildingType(): void;
+  data: IDictBuildingType;
 }
 
 
-export interface IBuildingCardState extends ICalcDataCardState {
-  advancedIsOpen: boolean;
+export interface IBuildingTypeCardState extends ICalcDataCardState {
   buildingAdvancedOptions: Record<string, IBuildingAdvancedOptionsCard>;
 }
 
@@ -367,7 +366,7 @@ export interface IScenariosPanelState extends IPanelState {
   scenarioOptions: IScenarioOptionsCard;
 }
 
-export type TScenarioParamCategory = "building" | "economy" | "energySystem" | "buildingMeasures";
+export type TScenarioParamCategory = "buildingType" | "economy" | "energySystem" | "buildingMeasures";
 
 export interface IScenarioOptionsCard {
   isOpen: Record<string, boolean>;

@@ -126,9 +126,9 @@ class App extends Component<IAppProps, IAppState> {
       }
       
       const scenarioId = uuidv4();
-      for (const buildingId in projects[id].calcData.buildings) {
-        let building = projects[id].calcData.buildings[buildingId];
-        building.scenarioInfos[scenarioId] = new ScenarioInfo();
+      for (const buildingTypeId in projects[id].calcData.buildingTypes) {
+        let buildingType = projects[id].calcData.buildingTypes[buildingTypeId];
+        buildingType.scenarioInfos[scenarioId] = new ScenarioInfo();
       } 
       projects[id].scenarioData.scenarios[scenarioId] = new Scenario(scenarioId);
 
