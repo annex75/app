@@ -45,14 +45,15 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
       <div>
         <FileInput
           text={this.state.project.calcData.district.climate.filename || "Choose file..." }
-          onInputChange={(e) => { this.handleFileInput(e) }} />
+          onInputChange={(e) => { this.handleFileInput(e) }} 
+          inputProps={{ accept: ".epw" }}/>
       </div>  
     )
   }
 
   handleFileInput = (e: FormEvent<HTMLInputElement>) => {
     const input = e.target as HTMLInputElement;
-    if(input && input.files && input.files.length) {
+    if (input && input.files && input.files.length) {
       this.startUpload(input.files[0]);
     }
   }

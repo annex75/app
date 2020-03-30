@@ -37,6 +37,21 @@ ul {
   flex-shrink: 0;
 }
 
+.new-project-div label {
+  margin-bottom: 5px;
+}
+
+.new-project-form {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.add-project-input {
+  width: 100%;
+}
+
 .workspace {
   display: flex;
   flex-direction: row;

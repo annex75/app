@@ -7,6 +7,7 @@ import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { Spinner } from '@blueprintjs/core';
 import { Intent } from '@blueprintjs/core';
+import xlsx from 'xlsx';
 
 // internal
 import { Header } from './components/Header';
@@ -14,12 +15,12 @@ import { Footer } from './components/Footer';
 import { Login } from './components/Login';
 import { Logout } from './components/Logout';
 import { Workspace } from './components/Workspace';
-import { IProject, IAppProps, IAppState, OverviewData, CalcData, ScenarioData, Scenario, ScenarioInfo } from './types';
+import { IProject, IAppProps, IAppState, Project } from './types';
 import './style/stylesheet.css';
 import { Firebase } from './base';
 import { ProjectList } from './components/ProjectList';
 import { AppToaster } from './toaster';
-import { APP_VERSION } from './constants'
+import { APP_VERSION } from './constants';
 
 // todo: not really typescript, no type safety but couldn't get it to work
 // cf: https://stackoverflow.com/questions/47747754/how-to-rewrite-the-protected-router-using-typescript-and-react-router-4-and-5/47754325#47754325
@@ -105,33 +106,23 @@ class App extends Component<IAppProps, IAppState> {
     this.fb.base.removeBinding(this.dataRef);
   }
 
-  addProject = (name: string) => {
+  addProject = (name: string, workbook: xlsx.WorkBook | null) => {
     if (!this.state.currentUser) {
       AppToaster.show({ intent: Intent.DANGER, message: "Project could not be added: no user signed in" });
     } else if (!this.validProjectName(name)) {
       // todo: save warning messages somewhere
       AppToaster.show({ intent: Intent.DANGER, message: "Project could not be added: project name is empty or is not unique" });
     } else {
-      const projects = { ...this.state.projects };
-      const id = uuidv4();
-      projects[id] = {
-        appVersion: APP_VERSION,
-        id: id,
-        name: name,
-        owner: this.state.currentUser!.uid,
-        overviewData: new OverviewData(),
-        calcData: new CalcData(),
-        scenarioData: new ScenarioData(),
-        deleted: false,
+      let project = new Project(name, this.state.currentUser!.uid);
+      if ( workbook ) try {
+        project.updateFromWorkbook(workbook);
+      } catch (err) {
+        AppToaster.show({ intent: Intent.DANGER, message: err.message });
+        return;
       }
       
-      const scenarioId = uuidv4();
-      for (const buildingTypeId in projects[id].calcData.buildingTypes) {
-        let buildingType = projects[id].calcData.buildingTypes[buildingTypeId];
-        buildingType.scenarioInfos[scenarioId] = new ScenarioInfo();
-      } 
-      projects[id].scenarioData.scenarios[scenarioId] = new Scenario(scenarioId);
-
+      const projects = { ...this.state.projects };
+      projects[project.id] = project.jsonData;
       this.setState({ projects });
     }
   }
@@ -223,7 +214,10 @@ class App extends Component<IAppProps, IAppState> {
       <div className="app-body">
         <BrowserRouter>
           <div className="app-container">
-            <Header userData={this.state.currentUser} addProject={this.addProject} authenticated={this.state.authenticated} />
+            <Header
+              userData={this.state.currentUser}
+              addProject={this.addProject}
+              authenticated={this.state.authenticated} />
             <div className="main-content">
               <div className="workspace-wrapper">
                 <Route exact path="/login" render={(props) => {

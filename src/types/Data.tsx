@@ -1,5 +1,10 @@
-//import { ChangeEvent } from 'react';
+// external
 import { v4 as uuidv4 } from 'uuid';
+import xlsx from 'xlsx';
+
+// internal
+import { APP_VERSION } from '../constants';
+import { updateFromWorkbook } from '../WorkbookImport';
 
 // this module defines data containers
 
@@ -13,7 +18,7 @@ export interface IDictBool {
 }
 
 export interface IProject {
-  appVersion: string | undefined;
+  appVersion: string | null;
   id: string;
   name: string;
   owner: string;
@@ -22,6 +27,40 @@ export interface IProject {
   scenarioData: ScenarioData;
   deleted: boolean;
   test?: string;
+}
+
+export class Project implements IProject {
+  appVersion = APP_VERSION;
+  id: string = uuidv4();
+  name: string;
+  owner: string;
+  overviewData = new OverviewData();
+  calcData = new CalcData();
+  scenarioData = new ScenarioData();
+  deleted = false;
+
+  constructor(name: string, owner: string) {
+    this.name = name;
+    this.owner = owner;
+
+    // create scenarios
+    const scenarioId = uuidv4();
+    for (const buildingTypeId in this.calcData.buildingTypes) {
+      let buildingType = this.calcData.buildingTypes[buildingTypeId];
+      buildingType.scenarioInfos[scenarioId] = new ScenarioInfo();
+    } 
+    this.scenarioData.scenarios[scenarioId] = new Scenario(scenarioId);
+  }
+
+  get jsonData(): IProject {
+    return JSON.parse(JSON.stringify(this));
+  }
+
+  updateFromWorkbook = (workbook: xlsx.WorkBook) => {
+    updateFromWorkbook(this, workbook);
+    console.log(this);
+  }
+
 }
 
 export class OverviewData {

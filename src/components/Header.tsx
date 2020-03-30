@@ -44,7 +44,10 @@ export class Header extends Component<IHeaderProps, IHeaderState> {
               <div className="bp3-navbar-group bp3-align-right">
                 <Link className="bp3-button bp3-minimal bp3-icon-database" to="/projects">Projects</Link>
                 <Popover
-                  content={(<NewProjectForm addProject={this.props.addProject} postSubmitHandler={this.closeProjectPopover} />)}
+                  content={(
+                    <NewProjectForm
+                      addProject={this.props.addProject}
+                      postSubmitHandler={this.closeProjectPopover} />)}
                   interactionKind={PopoverInteractionKind.CLICK}
                   isOpen={this.state.projectPopoverOpen}
                   onInteraction={(state) => this.setState({ projectPopoverOpen: state })}

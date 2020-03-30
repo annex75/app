@@ -1,6 +1,10 @@
+// external
+import { ReactText } from "react";
+import xlsx from 'xlsx';
+
+// internal
 import { IDictProject, IProject } from "./Data";
 import { Firebase } from "../base";
-import { ReactText } from "react";
 
 /* App */
 export interface IAppState {
@@ -11,7 +15,6 @@ export interface IAppState {
 }
 
 export interface IAppProps { }
-
 
 /* Project list */
 export interface IProjectListProps {
@@ -43,10 +46,9 @@ export interface IProjectSettingsState {
   project: IProject;
 }
 
-
 /* Header */
 export interface IHeaderProps {
-  addProject(value: string): void;
+  addProject(value: string, workbook: xlsx.WorkBook | null): void;
   userData: firebase.UserInfo | null;
   authenticated: boolean;
 }
@@ -62,13 +64,16 @@ export interface IUserInfoProps {
 
 export interface IUserInfoState { }
 
-export interface INewProjectFormState { }
-
-export interface INewProjectFormProps {
-  addProject(value: string): void;
-  postSubmitHandler: any;
+export interface INewProjectFormState {
+  workbook: xlsx.WorkBook | null;
+  xlsxFile: string;
+  uploading: boolean;
 }
 
+export interface INewProjectFormProps {
+  addProject(value: string, workbook: xlsx.WorkBook | null): void;
+  postSubmitHandler: any;
+}
 
 /* Footer */
 export interface IFooterProps { }
@@ -76,7 +81,6 @@ export interface IFooterProps { }
 export interface IFooterState {
   year: number;
 }
-
 
 /* Login/Logout */
 export interface ILogInOutState {
