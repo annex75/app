@@ -3,7 +3,7 @@ import { WorkBook } from 'xlsx';
 import _ from 'lodash';//{ set as _fpSet } from 'lodash/fp';
 
 // internal
-import { Project } from "./types";
+import { Project, BuildingType } from "./types";
 
 interface IWorkbookEntry {
   sheet: string;
@@ -13,11 +13,29 @@ interface IWorkbookEntry {
   path?: string;
 }
 
+interface IBuildingTypeWorkbookEntry {
+  row: number;
+  key: string;
+  localPath: string;
+}
+
+const charToInt = (c: string) => {
+  return c.toLowerCase().charCodeAt(0) - 96;
+}
+
+const intToChar = (i: number) => {
+  return String.fromCharCode(i+96).toUpperCase();
+}
+
 const supportedAppVersions = [ "0.2.6-0", ];
 
+const buildingTypeSheet = "04_building_typology";
+const buildingTypeKeyCol = "A";
+const buildingTypeFirstValueCol = "E";
+const firstValueColIndex = charToInt(buildingTypeFirstValueCol);
+const buildingTypeMandatoryRow = 6;
+
 export const updateFromWorkbook = (project: Project, workbook: WorkBook) => {
-  console.log(project);
-  console.log(workbook);
   if (!validateWorkbook(workbook)) {
     throw new Error( "Project could not be added from workbook: workbook is invalid");
   }
@@ -27,18 +45,55 @@ export const updateFromWorkbook = (project: Project, workbook: WorkBook) => {
   // add simple parameters
   dictionary.forEach(entry => {
     const sheet = workbook.Sheets[entry.sheet]
-    if(
-      sheet[entry.keyCell!].v === entry.key
-      && (sheet[entry.valueCell].v || sheet[entry.valueCell].v === 0)
-    ) {
+    if (sheet[entry.keyCell!].v === entry.key && sheet[entry.valueCell]) {
       _.set(project, entry.path!, String(sheet[entry.valueCell].v));
     }
   });
 
   // add buildingTypes
+  // remove placeholder building types
+  for (const key in project.calcData.buildingTypes) {
+    delete project.calcData.buildingTypes[key];
+  }
+
+  const numBuildingTypes = getNumBuildingTypes(workbook, buildingTypeSheet, buildingTypeFirstValueCol, buildingTypeMandatoryRow);
+  const bIds: string[] = [];
+  for (let i = 0; i < numBuildingTypes; i++) {
+    const b = new BuildingType();
+    bIds.push(b.id);
+    project.calcData.buildingTypes[b.id] = b;
+  }
+  console.log(bIds);
+  buildingTypeParamDictionary.forEach(entry => {
+    const sheet = workbook.Sheets[buildingTypeSheet];
+    const keyCell = `${buildingTypeKeyCol}${entry.row}`;
+    if (sheet[keyCell].v === entry.key) {
+      for (let i = 0; i < numBuildingTypes; i++) {
+        const valCell = `${intToChar(firstValueColIndex+i)}${entry.row}`
+        if (sheet[valCell]) {
+          const bId = bIds[i];
+          _.set(project.calcData.buildingTypes[bId], entry.localPath, sheet[valCell].v);
+        }
+       
+      }
+    }
+  })
 
   // add energyCarriers
 }
+
+const getNumBuildingTypes = (workbook: WorkBook, sheet: string, firstCol: string, row: number) => {
+  let i = 0;
+  while (true) {
+    const cellName = `${intToChar(firstValueColIndex+i)}${row}`;
+    if (!workbook.Sheets[sheet][cellName]) {
+      return i;
+    }
+    i++;
+  }
+}
+
+
 
 const dictionary: IWorkbookEntry[] = [
   {
@@ -125,6 +180,18 @@ const dictionary: IWorkbookEntry[] = [
     valueCell: "C21",
     key: "Possibility for ground source heat pumps",
     path: "calcData.district.energy.gshpArea",
+  }
+];
+
+const buildingTypeParamDictionary: IBuildingTypeWorkbookEntry[] = [
+  {
+    row: 4,
+    key: "Parameter ", // note space at the end!!!
+    localPath: "name",
+  },{
+    row: 7,
+    key: "Construction period",
+    localPath: "buildingInformation.constructionYear",
   }
 ]
 

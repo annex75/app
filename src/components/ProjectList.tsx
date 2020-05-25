@@ -4,21 +4,6 @@ import { IProjectListProps, IProjectListState, IProjectSettingsProps, IProjectSe
 import { Button, Popover, PopoverInteractionKind, Position, Alert, Intent } from '@blueprintjs/core';
 import { APP_VERSION } from '../constants';
 
-const projectListStyles: CSSProperties = {
-  display: "flex",
-  flexDirection: "row",
-  flexWrap: "wrap",
-  justifyContent: "center",
-}
-
-const projectCardStyles = {
-  maxWidth: "30%",
-  minWidth: "150px",
-  flex: "1",
-  margin: "5px",
-
-}
-
 export class ProjectList extends Component<IProjectListProps, IProjectListState> {
   constructor(props: any) {
     super(props);
@@ -46,12 +31,12 @@ export class ProjectList extends Component<IProjectListProps, IProjectListState>
         <h1 style={{ marginBottom: "0.5em" }}>Projects</h1>
         {
           activeProjectIds.length ?
-            (<div style={projectListStyles}>
+            (<div className="project-list">
               {
                 activeProjectIds.map(id => {
                   const project = this.props.projects[id];
                   return (
-                    <div key={id} style={projectCardStyles} className="bp3-card bp3-elevation-0 bp3-interactive">
+                    <div key={id} className="project-card bp3-card bp3-elevation-0 bp3-interactive">
                       <h5><Link to={`/projects/${id}`}>{project.name}</Link></h5>
                       <Popover
                         content={(<ProjectSettings project={project} updateProject={this.props.updateProject} copyProject={this.props.copyProject} deleteProject={this.props.deleteProject} postSubmitHandler={this.closeProjectPopover} />)}

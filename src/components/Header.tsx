@@ -29,7 +29,7 @@ export class Header extends Component<IHeaderProps, IHeaderState> {
 
   render() {
     return (
-      <nav className="bp3-navbar" style={{}}>
+      <nav className="bp3-navbar header-navbar">
         <div className="bp3-navbar-group bp3-align-left">
           <Link className="bp3-button bp3-minimal bp3-navbar-heading" to="/">Annex 75 Calculation Tool</Link>
           {

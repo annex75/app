@@ -220,12 +220,20 @@ class App extends Component<IAppProps, IAppState> {
               authenticated={this.state.authenticated} />
             <div className="main-content">
               <div className="workspace-wrapper">
-                <Route exact path="/login" render={(props) => {
+                <Route exact path="/" render={ props => {
+                  return (
+                    <div>
+                      <h1>IEA EBC Annex 75 - Cost-effective Building Renovation at District Level Combining Energy Efficiency & Renewables</h1>
+                      <p>Buildings are a major source of greenhouse gas emissions and cost-effectively reducing their energy use and associated emissions is particularly challenging for the existing building stock, mainly because of the existence of many architectural and technical hurdles. The transformation of existing buildings into low-emission and low-energy buildings is particularly challenging in cities, where many buildings continue to rely too much on heat supply by fossil fuels.</p>
+                    </div>
+                  )
+                }} />
+                <Route exact path="/login" render={ props => {
                   return (
                     <Login authenticated={this.state.authenticated} setCurrentUser={this.setCurrentUser} {...props} fb={this.fb} />
                   )
                 }} />
-                <Route exact path="/logout" render={(props) => {
+                <Route exact path="/logout" render={ props => {
                   return (
                     <Logout fb={this.fb} />
                   )

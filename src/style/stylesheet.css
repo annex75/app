@@ -31,10 +31,13 @@ ul {
   overflow-y: scroll;
   background-color: #f5f8fa;
   flex-grow: 1;
+  border-top: 20px solid #f07c21;
 }
 
 .bp3-navbar {
   flex-shrink: 0;
+  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 .new-project-div label {
@@ -50,6 +53,20 @@ ul {
 
 .add-project-input {
   width: 100%;
+}
+
+.project-card {
+  max-width: 30%;
+  min-width: 150px;
+  flex: 1;
+  margin: 5px;
+}
+
+.project-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .workspace {

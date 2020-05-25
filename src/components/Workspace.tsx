@@ -59,7 +59,6 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
   }
 
   startUpload = (f: File) => {
-    console.log(f);
     this.handleUploadStart();
     const storageRef = firebase.storage().ref(`epw/${this.props.currentUser!.uid}`);
     const fileRef = storageRef.child(f.name)
@@ -120,7 +119,6 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
   }
 
   handleProgress = (p: number) => {
-    console.log(p);
     this.setState({ uploadProgress: p })
     AppToaster.show(this.renderProgress(p), this.progressToaster);
   }

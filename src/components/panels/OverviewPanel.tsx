@@ -208,7 +208,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
         </div>
 
         <div id="about-project" className="bp3-card panel-card">
-          <h3>About Annex 75</h3>
+          <h3>About IEA EBC Annex 75</h3>
           <p>{strings.aboutAnnex75.en}</p>
         </div>
       </div>
