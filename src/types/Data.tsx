@@ -358,6 +358,20 @@ abstract class BaseBuildingMeasure {
   lifeTime: number = 0;
 }
 
+export const createRenovationMeasure = (category: TBuildingMeasureCategory, id: string = uuidv4()) => {
+  switch (category) {
+    case "roof":
+    case "facade":
+      return new EnvelopeMeasure(category, id);
+    case "windows":
+      return new WindowMeasure(category, id);
+    case "foundation":
+      return new BasementMeasure(category, id); 
+    case "hvac":
+      return new HvacMeasure(category, id);
+  }
+} 
+
 export class EnvelopeMeasure extends BaseBuildingMeasure { 
   uValue: number = 0;
   

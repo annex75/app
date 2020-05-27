@@ -3,7 +3,8 @@ import { WorkBook } from 'xlsx';
 import _ from 'lodash';//{ set as _fpSet } from 'lodash/fp';
 
 // internal
-import { Project, BuildingType } from "./types";
+import { Project, BuildingType, createRenovationMeasure, TBuildingMeasureCategory, EnergyCarrier } from "./types";
+import * as config from './config.json';
 
 interface IWorkbookEntry {
   sheet: string;
@@ -16,6 +17,13 @@ interface IWorkbookEntry {
 interface IBuildingTypeWorkbookEntry {
   row: number;
   key: string;
+  localPath: string;
+}
+
+interface IRenovationMeasureWorkbookEntry {
+  row: number;
+  key: string;
+  category: string;
   localPath: string;
 }
 
@@ -34,6 +42,17 @@ const buildingTypeKeyCol = "A";
 const buildingTypeFirstValueCol = "E";
 const firstValueColIndex = charToInt(buildingTypeFirstValueCol);
 const buildingTypeMandatoryRow = 6;
+
+const refCaseSheet = "05_reference_case_typology";
+const refCaseKeyCol = "A";
+const refCaseFirstValueCol = "C";
+const refCaseFirstValueColIndex = charToInt(refCaseFirstValueCol);
+
+const energyCarrierSheet = "08_energy_carriers";
+const energyCarrierKeyRow = 3;
+const energyCarrierFirstValueRow = 5;
+const energyCarrierNameCol = "A";
+const energyCarrierKeyAfterLastKey = "Other (specify)";
 
 export const updateFromWorkbook = (project: Project, workbook: WorkBook) => {
   if (!validateWorkbook(workbook)) {
@@ -57,17 +76,22 @@ export const updateFromWorkbook = (project: Project, workbook: WorkBook) => {
   }
 
   const numBuildingTypes = getNumBuildingTypes(workbook, buildingTypeSheet, buildingTypeFirstValueCol, buildingTypeMandatoryRow);
-  const bIds: string[] = [];
+  let bIds: string[] = [];
+  let bNames: string[] = [];
   for (let i = 0; i < numBuildingTypes; i++) {
+    const sheet = workbook.Sheets[buildingTypeSheet];
+    const valCell = `${intToChar(firstValueColIndex+i)}${buildingTypeNameCell.row}`;
     const b = new BuildingType();
+    b.name = sheet[valCell]? sheet[valCell].v || "" : "";
     bIds.push(b.id);
+    bNames.push(b.name);
     project.calcData.buildingTypes[b.id] = b;
   }
-  console.log(bIds);
+  
   buildingTypeParamDictionary.forEach(entry => {
     const sheet = workbook.Sheets[buildingTypeSheet];
     const keyCell = `${buildingTypeKeyCol}${entry.row}`;
-    if (sheet[keyCell].v === entry.key) {
+    if (sheet[keyCell] && sheet[keyCell].v === entry.key) {
       for (let i = 0; i < numBuildingTypes; i++) {
         const valCell = `${intToChar(firstValueColIndex+i)}${entry.row}`
         if (sheet[valCell]) {
@@ -77,20 +101,108 @@ export const updateFromWorkbook = (project: Project, workbook: WorkBook) => {
        
       }
     }
-  })
+  });
+  
+  // add base case renovation measures
+  // remove placeholder building measures
+  for (const category in project.calcData.buildingMeasures) {
+    for (const key in project.calcData.buildingMeasures[category]) {
+      delete project.calcData.buildingMeasures[category][key];
+      for (let i = 0; i < numBuildingTypes; i++) {
+        const measureId = `${bIds[i]}-ref`;
+        project.calcData.buildingMeasures[category][measureId] = createRenovationMeasure(category as TBuildingMeasureCategory, measureId);
+        project.calcData.buildingMeasures[category][measureId].measureName = `${bNames[i]} (reference case)`;
+      }
+    }
+  }
+
+  // add information from building type sheet
+  referenceCaseParamDictionary.forEach(entry => {
+    const sheet = workbook.Sheets[buildingTypeSheet];
+    const keyCell = `${buildingTypeKeyCol}${entry.row}`;
+    if (sheet[keyCell] && sheet[keyCell].v === entry.key) {
+      for (let i = 0; i < numBuildingTypes; i++) {
+        const valCell = `${intToChar(firstValueColIndex+i)}${entry.row}`
+        if (sheet[valCell]) {
+          const mId = `${bIds[i]}-ref`;
+          _.set(project.calcData.buildingMeasures[entry.category][mId], entry.localPath, sheet[valCell].v);
+        }
+      }
+    }
+  });
+
+  // add cost information from reference case sheet
+  refCaseCostParamDictionary.forEach(entry => {
+    const sheet = workbook.Sheets[refCaseSheet];
+    const keyCell = `${refCaseKeyCol}${entry.row}`;
+    const valCell = `${intToChar(refCaseFirstValueColIndex)}${entry.row}`;
+    if (sheet[keyCell] && sheet[keyCell].v === entry.key) {
+      for (const mId in project.calcData.buildingMeasures[entry.category]) {
+        if (sheet[valCell]) {
+          _.set(project.calcData.buildingMeasures[entry.category][mId], entry.localPath, sheet[valCell].v);
+        }
+      }
+    }
+  });
+
+  // possibly todo: add renovation scenarios from reference case sheet
 
   // add energyCarriers
+  // remove placeholder energyCarriers
+  for (const key in project.calcData.energyCarriers) {
+    delete project.calcData.energyCarriers[key];
+  }
+
+  const numEnergyCarriers = getNumEnergyCarriers(workbook, energyCarrierSheet, energyCarrierFirstValueRow, energyCarrierNameCol, energyCarrierKeyAfterLastKey);
+  let ecIds: string[] = [];
+  for (let i = 0; i < numEnergyCarriers; i++) {
+    const sheet = workbook.Sheets[energyCarrierSheet];
+    const valCell = `${energyCarrierNameCol}${energyCarrierFirstValueRow+i}`;
+    const ec = new EnergyCarrier();
+    ec.name = sheet[valCell]? sheet[valCell].v || "" : "";
+    ecIds.push(ec.id);
+    project.calcData.energyCarriers[ec.id] = ec;
+  }
+
+  energyCarrierParamDictionary.forEach(entry => {
+    const sheet = workbook.Sheets[energyCarrierSheet];
+    const keyCell = `${entry.col}${energyCarrierKeyRow}`;
+    if (sheet[keyCell] && sheet[keyCell].v === entry.key) {
+      for (let i = 0; i < numEnergyCarriers; i++) {
+        const valCell = `${entry.col}${energyCarrierFirstValueRow+i}`
+        if (sheet[valCell]) {
+          const ecId = ecIds[i];
+          _.set(project.calcData.energyCarriers[ecId], entry.localPath, sheet[valCell].v);
+        }
+      }
+    }
+  });
+  console.log(project);
 }
 
 const getNumBuildingTypes = (workbook: WorkBook, sheet: string, firstCol: string, row: number) => {
   let i = 0;
-  while (true) {
+  while (i < config.MAX_BUILDING_TYPES) {
     const cellName = `${intToChar(firstValueColIndex+i)}${row}`;
     if (!workbook.Sheets[sheet][cellName]) {
       return i;
     }
     i++;
   }
+  throw new Error(`Project could not be added from workbook: max ${config.MAX_BUILDING_TYPES} building types is allowed`);
+}
+
+// goes through values in the column until the value is === last
+const getNumEnergyCarriers = (workbook: WorkBook, sheet: string, firstRow: number, col: string, last: string) => {
+  let i = 0;
+  while (i < config.MAX_ENERGY_CARRIERS) {
+    const cellName = `${col}${firstRow+i}`;
+    if (workbook.Sheets[sheet][cellName] && workbook.Sheets[sheet][cellName].v === last) {
+      return i;
+    }
+    i++;
+  }
+  throw new Error(`Project could not be added from workbook: max ${config.MAX_ENERGY_CARRIERS} energy carriers is allowed`);
 }
 
 
@@ -183,17 +295,215 @@ const dictionary: IWorkbookEntry[] = [
   }
 ];
 
+const buildingTypeNameCell = {
+  row: 4,
+  key: "Parameter ", // note space at the end!!!
+  localPath: "name",
+}
+
 const buildingTypeParamDictionary: IBuildingTypeWorkbookEntry[] = [
   {
-    row: 4,
-    key: "Parameter ", // note space at the end!!!
-    localPath: "name",
-  },{
     row: 7,
     key: "Construction period",
     localPath: "buildingInformation.constructionYear",
-  }
+  },{
+    row: 8,
+    key: "Energy performance certificate",
+    localPath: "buildingInformation.energyPerformanceCertificate",
+  },{
+    row: 9,
+    key: "Ownership",
+    localPath: "buildingInformation.ownership",
+  },{
+    row: 12,
+    key: "Gross heated floor area (GHFA)",
+    localPath: "buildingGeometry.grossFloorArea",
+  },{
+    row: 13,
+    key: "Heated volume",
+    localPath: "buildingGeometry.heatedVolume",
+  },{
+    row: 14,
+    key: "Façade area to North",
+    localPath: "buildingGeometry.facadeAreaN",
+  },{
+    row: 15,
+    key: "Façade area to east",
+    localPath: "buildingGeometry.facadeAreaE",
+  },{
+    row: 16,
+    key: "Façade area to South",
+    localPath: "buildingGeometry.facadeAreaS",
+  },{
+    row: 17,
+    key: "Façade area to West",
+    localPath: "buildingGeometry.facadeAreaW",
+  },{
+    row: 19,
+    key: "Roof area if flat roof",
+    localPath: "buildingGeometry.roofArea",
+  },{
+    row: 23,
+    key: "Area of windows to North",
+    localPath: "buildingGeometry.windowAreaN",
+  },{
+    row: 24,
+    key: "Area of windows to East",
+    localPath: "buildingGeometry.windowAreaE",
+  },{
+    row: 25,
+    key: "Area of windows to South",
+    localPath: "buildingGeometry.windowAreaS",
+  },{
+    row: 26,
+    key: "Area of windows to West",
+    localPath: "buildingGeometry.windowAreaW",
+  },{
+    row: 27,
+    key: "Area of basement ceiling",
+    localPath: "buildingGeometry.foundationArea",
+  },{
+    row: 34,
+    key: "Average room height",
+    localPath: "buildingGeometry.floorHeight",
+  },{
+    row: 35,
+    key: "Number of floors above ground",
+    localPath: "buildingGeometry.numberOfFloorsAbove",
+  },{
+    row: 36,
+    key: "Number of floors below ground",
+    localPath: "buildingGeometry.numberOfFloorsBelow",
+  },{
+    row: 43,
+    key: "Building class (light, medium, heavy, etc.)",
+    localPath: "buildingInformation.buildingClass",
+  },
 ]
+
+const referenceCaseParamDictionary: IRenovationMeasureWorkbookEntry[] = [
+  {
+    row: 44,
+    key: "U-value façade",
+    category: "facade",
+    localPath: "uValue",
+  },{
+    row: 45,
+    key: "U-value roof",
+    category: "roof",
+    localPath: "uValue",
+  },{
+    row: 46,
+    key: "U-value windows",
+    category: "windows",
+    localPath: "uValue",
+  },{
+    row: 47,
+    key: "g-value windows",
+    category: "windows",
+    localPath: "gValue",
+  },{
+    row: 48,
+    key: "U-value foundation",
+    category: "foundation",
+    localPath: "foundationUValue",
+  },{
+    row: 50,
+    key: "U-value basement wall",
+    category: "foundation",
+    localPath: "basementWallUValue",
+  },{
+    row: 55,
+    key: "Efficiency of heat recovery ", // note space at end!!
+    category: "hvac",
+    localPath: "recoveryEfficiency",
+  },{
+    row: 57,
+    key: "Cold water temperature",
+    category: "hvac",
+    localPath: "coldWaterTemp",
+  },{
+    row: 58,
+    key: "Hot water temperature",
+    category: "hvac",
+    localPath: "hotWaterTemp",
+  },{
+    row: 60,
+    key: "Ventilation rate",
+    category: "hvac",
+    localPath: "ventilationRate",
+  },{
+    row: 61,
+    key: "Type of heating system (boiler, heat pump, etc.)",
+    category: "hvac",
+    localPath: "heatingType",
+  },{
+    row: 62,
+    key: "Energy carrier (Gas, Electricity, etc.)",
+    category: "hvac",
+    localPath: "energyCarrier",
+  },{
+    row: 64,
+    key: "Efficiency of heating system ", // note space at end!!
+    category: "hvac",
+    localPath: "efficiency",
+  },
+];
+
+const refCaseCostParamDictionary: IRenovationMeasureWorkbookEntry[] = [
+  {
+    row: 6,
+    key: "Façade refurbishment without energy performance improvement",
+    category: "facade",
+    localPath: "refurbishmentCost",
+  },{
+    row: 8,
+    key: "Flat roof refurbishment, without energy performance improvement",
+    category: "roof",
+    localPath: "refurbishmentCost",
+  },{
+    row: 11,
+    key: "Windows (repainting and repairing only, without energy performance improvement",
+    category: "windows",
+    localPath: "refurbishmentCost",
+  },{
+    row: 17,
+    key: "Cellar ceiling refurbishment",
+    category: "foundation",
+    localPath: "refurbishmentCost",
+  },{
+    row: 19,
+    key: "Replacement of energy system",
+    category: "hvac",
+    localPath: "refurbishmentCost",
+  },
+];
+
+interface IEnergyCarrierParamWorkbookEntry {
+  col: string;
+  key: string;
+  localPath: string;
+}
+
+const energyCarrierParamDictionary: IEnergyCarrierParamWorkbookEntry[] = [
+  {
+    col: "B",
+    key: "Greenhouse gas emissions",
+    localPath: "emissionFactor",
+  },{
+    col: "C",
+    key: "Primary energy (Non-RE)",
+    localPath: "primaryEnergyFactorNonRe",
+  },{
+    col: "D",
+    key: "Primary energy (RE)",
+    localPath: "primaryEnergyFactorRe",
+  },{
+    col: "E",
+    key: "Current price for end consumers with taxation ",
+    localPath: "currentPrice",
+  },
+];
 
 // these are the sheet names we expect to find
 const sheets = [
@@ -202,7 +512,7 @@ const sheets = [
   "04_building_typology",
   "05_reference_case_typology",
   "08_energy_carriers",
-]
+];
 
 const SUPPORTED_VERSIONS = [ "1.0.0" ];
 const versionCell: IWorkbookEntry = {
@@ -210,7 +520,7 @@ const versionCell: IWorkbookEntry = {
   valueCell: "B24",
 }
 
-// todo: implement
+// todo: implement further validation
 const validateWorkbook = (workbook: WorkBook) => {
   const requiredSheets = sheets.every(i => workbook.SheetNames.includes(i));
   const supportedVersion = SUPPORTED_VERSIONS.includes(workbook.Sheets[versionCell.sheet][versionCell.valueCell].v);

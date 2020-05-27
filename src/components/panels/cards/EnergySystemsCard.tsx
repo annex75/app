@@ -22,31 +22,31 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
             key: "name",
             type: String,
             label: "Energy carrier name:",
-            rootPath: "energyCarriers",
+            rootPath: "",
           },
           primaryEnergyFactorRe: {
             key: "primaryEnergyFactorRe",
             type: Number,
             label: "Primary energy factor (renewables):",
-            rootPath: "energyCarriers",
+            rootPath: "",
           },
           primaryEnergyFactorNonRe: {
             key: "primaryEnergyFactorNonRe",
             type: Number,
             label: "Primary energy factor (non-renewables):",
-            rootPath: "energyCarriers",
+            rootPath: "",
           },
           emissionFactor: {
             key: "emissionFactor",
             type: String,
             label: "Emission factor:",
-            rootPath: "energyCarriers",
+            rootPath: "",
           },
           currentPrice: {
             key: "currentPrice",
             type: Number,
             label: "Current price:",
-            rootPath: "energyCarriers",
+            rootPath: "",
           }
         }
       },
@@ -233,7 +233,7 @@ const AdvancedOptionsCard = (props: IEnergySystemsAdvancedOptionsCardProps) => {
                 labelFor={`energy-carriers-${paramName}-input`}>
                 {
                   Object.keys(energyCarriers).map(id => {
-                    param.localPath = `${id}.${category}.${paramName}`;
+                    param.localPath = `${id}.${paramName}`;
                     const eventHandler = props.eventHandlers.handleChange as ((e: React.ChangeEvent<HTMLInputElement>) => void);
                     return renderInputField(`energy-carriers-${id}`, param, energyCarriers, eventHandler)
                   })

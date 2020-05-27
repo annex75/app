@@ -8,7 +8,6 @@ import { Firebase } from "../base";
 
 /* App */
 export interface IAppState {
-  authenticated: boolean;
   loading: boolean;
   projects: IDictProject;
   currentUser: firebase.UserInfo | null;

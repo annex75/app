@@ -65,7 +65,6 @@ class App extends Component<IAppProps, IAppState> {
     super(props);
     this.state = {
       projects: {},
-      authenticated: false,
       loading: true,
       currentUser: null,
     };
@@ -77,7 +76,6 @@ class App extends Component<IAppProps, IAppState> {
       if (user) {
         this.setState({
           currentUser: user,
-          authenticated: true,
         });
         this.dataRef = this.fb.base.syncState(`projects/${user.uid}`, {
           context: this,
@@ -90,7 +88,6 @@ class App extends Component<IAppProps, IAppState> {
         });
       } else {
         this.setState({
-          authenticated: false,
           currentUser: null,
           loading: false,
         });
@@ -189,12 +186,10 @@ class App extends Component<IAppProps, IAppState> {
     if (userCred) {
       this.setState({
         currentUser: userCred.user,
-        authenticated: true,
         loading: false,
       });
     } else {
       this.setState({
-        authenticated: false,
         currentUser: null,
         loading: false,
       });
@@ -217,7 +212,7 @@ class App extends Component<IAppProps, IAppState> {
             <Header
               userData={this.state.currentUser}
               addProject={this.addProject}
-              authenticated={this.state.authenticated} />
+              authenticated={!!this.fb.app.auth().currentUser} />
             <div className="main-content">
               <div className="workspace-wrapper">
                 <Route exact path="/" render={ props => {
@@ -230,7 +225,7 @@ class App extends Component<IAppProps, IAppState> {
                 }} />
                 <Route exact path="/login" render={ props => {
                   return (
-                    <Login authenticated={this.state.authenticated} setCurrentUser={this.setCurrentUser} {...props} fb={this.fb} />
+                    <Login authenticated={!!this.fb.app.auth().currentUser} setCurrentUser={this.setCurrentUser} {...props} fb={this.fb} />
                   )
                 }} />
                 <Route exact path="/logout" render={ props => {
@@ -241,7 +236,7 @@ class App extends Component<IAppProps, IAppState> {
                 <AuthenticatedRoute
                   exact={true}
                   path="/projects"
-                  authenticated={this.state.authenticated}
+                  authenticated={!!this.fb.app.auth().currentUser}
                   component={ProjectList}
                   projects={this.state.projects}
                   updateProject={this.updateProject}
@@ -251,7 +246,7 @@ class App extends Component<IAppProps, IAppState> {
                 <AuthenticatedRouteMulti
                   path="/projects/:projectId"
                   component={Workspace}
-                  authenticated={this.state.authenticated}
+                  authenticated={!!this.fb.app.auth().currentUser}
                   requireAuth={true}
                   param="projectId"
                   items={this.state.projects}
