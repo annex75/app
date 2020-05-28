@@ -1,8 +1,9 @@
-import React, { Component, CSSProperties } from 'react';
+import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { IProjectListProps, IProjectListState, IProjectSettingsProps, IProjectSettingsState, IProject } from '../types';
 import { Button, Popover, PopoverInteractionKind, Position, Alert, Intent } from '@blueprintjs/core';
 import { APP_VERSION } from '../constants';
+import { NewProjectForm } from './NewProjectForm';
 
 export class ProjectList extends Component<IProjectListProps, IProjectListState> {
   constructor(props: any) {
@@ -15,6 +16,7 @@ export class ProjectList extends Component<IProjectListProps, IProjectListState>
     this.state = {
       projects: props.projects,
       projectPopoverOpen: popovers,
+      addProjectPopoverOpen: false,
     }
   }
 
@@ -23,12 +25,20 @@ export class ProjectList extends Component<IProjectListProps, IProjectListState>
 
   }
 
+  closeAddProjectPopover = () => {
+    this.setState({
+      addProjectPopoverOpen: false,
+    });
+  }
+
   render() {
     const activeProjectIds = Object.keys(this.props.projects).filter(id => isActive(this.props.projects[id]));
 
     return (
       <div>
-        <h1 style={{ marginBottom: "0.5em" }}>Projects</h1>
+        <div className="project-list-header">
+          <h1 style={{ marginBottom: "0.5em" }}>Projects</h1>
+        </div>
         {
           activeProjectIds.length ?
             (<div className="project-list">
@@ -57,6 +67,20 @@ export class ProjectList extends Component<IProjectListProps, IProjectListState>
             </div>)
             : <div><h2>No projects have been created.</h2></div>
         }
+        <div className="project-list-footer">
+          <Popover
+            content={(
+              <NewProjectForm
+                addProject={this.props.addProject}
+                postSubmitHandler={this.closeAddProjectPopover} />)}
+            interactionKind={PopoverInteractionKind.CLICK}
+            isOpen={this.state.addProjectPopoverOpen}
+            onInteraction={(state) => this.setState({ addProjectPopoverOpen: state })}
+            position={Position.BOTTOM}>
+            <button className="bp3-button bp3-icon-add add-project-button" aria-label="add new project">Add new project</button>
+          </Popover>
+        </div>
+        
       </div>
     )
   }

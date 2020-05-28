@@ -167,10 +167,23 @@ class App extends Component<IAppProps, IAppState> {
     } else {
       
       const projects = { ...this.state.projects };
+
+      this.issueDuplicateWarnings(project);
       
       projects[project.id] = project;
       this.setState({ projects });
     }
+  }
+
+  // todo: implement
+  issueDuplicateWarnings = (project: IProject) => {
+    // check building types
+
+    // check energy systems
+
+    // check energy carriers
+
+    // check renovation measures
   }
 
   // todo: update this to actually remove the project from db
@@ -211,7 +224,6 @@ class App extends Component<IAppProps, IAppState> {
           <div className="app-container">
             <Header
               userData={this.state.currentUser}
-              addProject={this.addProject}
               authenticated={!!this.fb.app.auth().currentUser} />
             <div className="main-content">
               <div className="workspace-wrapper">
@@ -239,6 +251,7 @@ class App extends Component<IAppProps, IAppState> {
                   authenticated={!!this.fb.app.auth().currentUser}
                   component={ProjectList}
                   projects={this.state.projects}
+                  addProject={this.addProject}
                   updateProject={this.updateProject}
                   copyProject={this.copyProject}
                   deleteProject={this.deleteProject}

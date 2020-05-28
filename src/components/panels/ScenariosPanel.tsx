@@ -1,5 +1,6 @@
 import React, { Component, ChangeEvent } from 'react';
 import { set as _fpSet, equals as _fpEquals } from 'lodash/fp';
+import { pickBy as _pickBy } from 'lodash';
 
 import * as config from '../../config.json';
 import { IScenariosPanelProps, IScenariosPanelState, Scenario, IScenarioOptionsCard, ScenarioInfo, TScenarioParamCategory } from '../../types';
@@ -95,8 +96,9 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               type: String,
               rootPath: "calcData.buildingTypes",
               label: "Energy system:",
-            }
-          }
+              validator: this.createValidator(project.calcData.energySystems, "energy system", "name"),
+            },
+          },
         },
         buildingMeasures: {
           label: "Building renovation measures",
@@ -107,30 +109,35 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               type: String,
               rootPath: "calcData.buildingTypes",
               label: "Roof:",
+              validator: this.createValidator(project.calcData.buildingMeasures.roof, "roof renovation measure", "measureName"),
             },
             facade: {
               key: "facade",
               type: String,
               rootPath: "calcData.buildingTypes",
-              label: "Facade:",
+              label: "Façade:",
+              validator: this.createValidator(project.calcData.buildingMeasures.facade, "façade renovation measure", "measureName"),
             },
             foundation: {
               key: "foundation",
               type: String,
               rootPath: "calcData.buildingTypes",
-              label: "Foundation:"
+              label: "Foundation:",
+              validator: this.createValidator(project.calcData.buildingMeasures.foundation, "foundation renovation measure", "measureName"),
             },
             windows: {
               key: "windows",
               type: String,
               rootPath: "calcData.buildingTypes",
               label: "Windows:",
+              validator: this.createValidator(project.calcData.buildingMeasures.windows, "windows renovation measure", "measureName"),
             },
             hvac: {
               key: "hvac",
               type: String,
               rootPath: "calcData.buildingTypes",
-              label: "HVAC system:"
+              label: "HVAC system:",
+              validator: this.createValidator(project.calcData.buildingMeasures.hvac, "hvac renovation measure", "measureName"),
             }
           }
         },
@@ -189,6 +196,15 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
     newState.scenarioOptions.isOpen[buildingId] = !newState.scenarioOptions.isOpen[buildingId];
 
     this.setState(newState);
+  }
+
+  createValidator = (obj: any, name: string, key: string) => {
+    return (val: string) => {
+      return {
+        valid: Object.keys(_pickBy(obj, (e) => { return e[key] === val })).length === 1,
+        invalidMsg: `No unique ${name} with the name ${val} could be found in the project`,
+      }
+    }
   }
 
   render() {
@@ -307,7 +323,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                                         Object.keys(scenarios).map(id => {
                                           param.path = `calcData.buildingTypes.${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
                                           param.localPath = `${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
-                                          return renderInputField(`scenario-${buildingTypeId}-${id}`, param, buildingTypes, this.handleChange)
+                                          return renderInputField(`scenario-${buildingTypeId}-${id}`, param, buildingTypes, this.handleChange, param.validator)
                                         })
                                       }
                                       <span className="empty-button"/>

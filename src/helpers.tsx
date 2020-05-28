@@ -1,13 +1,16 @@
 // external
 import React, { ChangeEvent } from 'react'
-import { InputGroup } from "@blueprintjs/core";
+import { InputGroup, Intent } from "@blueprintjs/core";
 import { get as _fpGet } from 'lodash/fp';
 
 // internal
-import { IInput } from './types';
+import { IInput, IValidatorResult } from './types';
 
-export const renderInputField = (parent: string, param: IInput, obj: any, handleChange?: (e: ChangeEvent<HTMLInputElement>) => void ) => {
+export const renderInputField = (parent: string, param: IInput, obj: any, handleChange?: (e: ChangeEvent<HTMLInputElement>) => void, validator?: (val: string) => IValidatorResult ) => {
   const val = _fpGet(param.localPath || param.path!, obj) as string;
+
+  const valid = !validator? { valid: true, invalidMsg: "" } : validator(val);
+
   const path = param.rootPath && param.localPath? `${param.rootPath}.${param.localPath}`: param.path;
   switch(param.type) {
     case Number:
@@ -24,15 +27,23 @@ export const renderInputField = (parent: string, param: IInput, obj: any, handle
       // falls through
     case String: 
       return (
-        <InputGroup
-          disabled={param.disabled || false}
-          key={`${parent}-${param.key}-input`}
-          name={path}
-          id={`${parent}-${param.key}-input`}
-          onChange={param.handleChange || handleChange}
-          value={val} />
-      )
+        <div className="validated-input-group">
+          <InputGroup
+            disabled={param.disabled || false}
+            key={`${parent}-${param.key}-input`}
+            name={path}
+            id={`${parent}-${param.key}-input`}
+            onChange={param.handleChange || handleChange}
+            value={val} 
+            intent={valid.valid? Intent.NONE : Intent.WARNING}/>
+        { valid.valid? null: <div className="invalid-input-warning">{valid.invalidMsg || "Invalid value."}</div> }
+      </div>
+    )
     default:
       throw Error(`this data type: ${param.type} cannot be rendered by this helper function`);
   }
+}
+
+export const secureLink = (href: string, text: string, target: string = "_blank") => {
+  return <a href={href} target={target} rel="noopener noreferrer">{text}</a>;
 }

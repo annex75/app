@@ -1,4 +1,4 @@
-import { IProject, District, IDictBuildingType, IDictEnergySystem, ICostCurveType, ICostCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory } from "./Data";
+import { IProject, District, IDictBuildingType, IDictEnergySystem, ICostCurveType, ICostCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory, IValidatorResult } from "./Data";
 import { ChangeEvent, ComponentType, ReactNode } from "react";
 
 /* Panels */
@@ -383,6 +383,7 @@ export interface IScenarioParamCategory {
 export interface IScenarioInfo extends IInput {
   type: StringConstructor | NumberConstructor;
   label: string;
+  validator?: (val: string) => IValidatorResult;
 }
 
 export interface IModelPanelProps extends IPanelProps {

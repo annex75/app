@@ -9,6 +9,14 @@ ul {
   list-style: none;
 }
 
+.footer-ebc-logo {
+  float: right;
+  max-height: 50px;
+  width: auto;
+  padding: 0.2em;
+  padding-bottom: 0.9em;
+} 
+
 .app-body {
   max-width: 1220px;
   margin: 0 auto;
@@ -55,6 +63,14 @@ ul {
   width: 100%;
 }
 
+.user-info-content {
+  padding: 10px;
+}
+
+.help-popover-content {
+  padding: 10px;
+}
+
 .project-card {
   max-width: 30%;
   min-width: 150px;
@@ -62,11 +78,31 @@ ul {
   margin: 5px;
 }
 
+.project-list-header {
+  display: flex;
+  margin: 5px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 .project-list {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+.project-list-footer {
+  width: 100%;
+  margin: 5px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.add-project-button {
+  margin: 0.67em 0;
 }
 
 .workspace {
@@ -151,6 +187,17 @@ ul {
   padding-bottom: 15px;
   display: flex;
   flex: 1;
+}
+
+.validated-input-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.invalid-input-warning {
+  margin-left: 1em;
+  font-size: 12px;
 }
 
 .inline-input {

@@ -17,6 +17,7 @@ export interface IAppProps { }
 
 /* Project list */
 export interface IProjectListProps {
+  addProject(value: string, workbook: xlsx.WorkBook | null): void;
   updateProject(project: IProject): void;
   copyProject(project: IProject): void;
   deleteProject(id: string): void;
@@ -25,6 +26,7 @@ export interface IProjectListProps {
 
 export interface IProjectListState {
   projectPopoverOpen: IDictPopover;
+  addProjectPopoverOpen: boolean;
   projects: IDictProject;
 }
 
@@ -47,14 +49,12 @@ export interface IProjectSettingsState {
 
 /* Header */
 export interface IHeaderProps {
-  addProject(value: string, workbook: xlsx.WorkBook | null): void;
   userData: firebase.UserInfo | null;
   authenticated: boolean;
 }
 
 export interface IHeaderState {
   userPopoverOpen: boolean;
-  projectPopoverOpen: boolean;
 }
 
 export interface IUserInfoProps {
@@ -79,6 +79,7 @@ export interface IFooterProps { }
 
 export interface IFooterState {
   year: number;
+  helpPopoverOpen: boolean;
 }
 
 /* Login/Logout */

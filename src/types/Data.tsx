@@ -459,4 +459,9 @@ export interface IScenarioEconomyData {
   energyPriceIncrease: number;
   calculationPeriod: number;
 }
+
+export interface IValidatorResult {
+  valid: boolean;
+  invalidMsg: string;
+}
   
