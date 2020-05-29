@@ -3,6 +3,7 @@ import { IFooterState, IFooterProps } from '../types';
 import { Button, AnchorButton, Popover, PopoverInteractionKind, Position } from '@blueprintjs/core';
 import { strings } from '../constants/textData'
 import { secureLink } from '../helpers';
+import { APP_VERSION } from '../constants';
 
 export class Footer extends Component<IFooterProps, IFooterState> {
   constructor(props: IFooterProps) {
@@ -52,6 +53,7 @@ const HelpPopoverContent = () => {
       This application is developed as part of the IEA EBC Annex 75 project.
       <br/>The source code is available on {secureLink(strings.githubLink, "GitHub")}
       <br/>For support, please contact {secureLink(`mailto:${strings.supportEMail}`, strings.supportEMail)}
+      <br/>App version: {APP_VERSION}
     </div>
   )
 }
