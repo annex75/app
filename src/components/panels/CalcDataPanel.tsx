@@ -1,6 +1,7 @@
 import React, { Component, ChangeEvent } from 'react';
 
 import { set as _fpSet, equals as _fpEquals } from 'lodash/fp';
+import { debounce as _debounce } from 'lodash';
 import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 
 //import { CalcData } from '@annex-75/calculation-model/';
@@ -98,8 +99,10 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
   handleChange = (path: string, value: any) => {
     const newState = _fpSet(path, value, this.state);
     this.setState(newState);
-    this.props.updateProject(newState.project);
+    this.updateProjectDebounce();
   }
+  updateProject = () => this.props.updateProject(this.state.project);
+  updateProjectDebounce = _debounce(this.updateProject, 1000);
 
   // takes a subpath and returns its location in the main data structure
   formatPath = (childPath: string) => {
@@ -114,7 +117,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     let newState = { ...this.state };
     newState.project.calcData.energySystems[activeEnergySystemId].costCurves[costCurveType][costCurveId] = costCurve;
     this.setState(newState);
-    this.props.updateProject(newState.project);
+    this.updateProjectDebounce();
   }
 
   addBuildingType = () => {
@@ -133,7 +136,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     newState.project.calcData.buildingTypes[buildingType.id] = buildingType;
     
     this.setState(newState);
-    this.props.updateProject(newState.project);
+    this.updateProjectDebounce();
   }
 
   addEnergySystem = () => {
@@ -148,7 +151,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     newState.project.calcData.energySystems[energySystem.id] = energySystem;
     
     this.setState(newState);
-    this.props.updateProject(newState.project);
+    this.updateProjectDebounce();
   }
 
   addEnergyCarrier = () => {
@@ -163,7 +166,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     newState.project.calcData.energyCarriers[energyCarrier.id] = energyCarrier;
     
     this.setState(newState);
-    this.props.updateProject(newState.project);
+    this.updateProjectDebounce();
   }
 
   addBuildingMeasure = (category: TBuildingMeasureCategory) => {
@@ -178,7 +181,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     newState.project.calcData.buildingMeasures[category][buildingMeasure.id] = buildingMeasure;
     
     this.setState(newState);
-    this.props.updateProject(newState.project);
+    this.updateProjectDebounce();
   }
 
   getBuildingMeasure(category: TBuildingMeasureCategory) {

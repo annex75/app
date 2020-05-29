@@ -4,7 +4,7 @@ import xlsx from 'xlsx';
 
 // internal
 import { IDictProject, IProject } from "./Data";
-import { Firebase } from "../base";
+import { FirebaseInstance } from "../base";
 
 /* App */
 export interface IAppState {
@@ -88,7 +88,7 @@ export interface ILogInOutState {
 }
 
 export interface ILogInOutProps {
-  fb: Firebase;
+  fb: FirebaseInstance;
 }
 
 export interface ILoginState extends ILogInOutState { }

@@ -27,7 +27,7 @@ export const renderInputField = (parent: string, param: IInput, obj: any, handle
       // falls through
     case String: 
       return (
-        <div className="validated-input-group">
+        <div className="validated-input-group" key={`${parent}-${param.key}-container-div`} >
           <InputGroup
             disabled={param.disabled || false}
             key={`${parent}-${param.key}-input`}
@@ -36,7 +36,7 @@ export const renderInputField = (parent: string, param: IInput, obj: any, handle
             onChange={param.handleChange || handleChange}
             value={val} 
             intent={valid.valid? Intent.NONE : Intent.WARNING}/>
-        { valid.valid? null: <div className="invalid-input-warning">{valid.invalidMsg || "Invalid value."}</div> }
+        { valid.valid? null: <div className="invalid-input-warning" key={`${parent}-${param.key}-msg-div`}>{valid.invalidMsg || "Invalid value."}</div> }
       </div>
     )
     default:

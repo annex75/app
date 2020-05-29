@@ -1,6 +1,7 @@
 // external
 import React, { Component, ChangeEvent, FormEvent } from 'react';
 import { set as _fpSet, equals as _fpEquals } from 'lodash/fp';
+import { debounce as _debounce } from 'lodash';
 import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter } from 'recharts';
 import { FormGroup, Tooltip } from '@blueprintjs/core';
 
@@ -105,8 +106,12 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
   handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newState = _fpSet(e.target.name, e.target.value, this.state);
     this.setState(newState);
-    this.props.updateProject(newState.project);
+    this.updateProjectDebounce();
   }
+
+  updateProject = () => this.props.updateProject(this.state.project);
+
+  updateProjectDebounce = _debounce(this.updateProject, 1000);
 
   handleInput = (e: FormEvent<HTMLInputElement>) => {
     console.log(e);

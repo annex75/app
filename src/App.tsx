@@ -2,7 +2,8 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Redirect } from 'react-router-dom';
 import { RebaseBinding } from 're-base';
-import firebase, { Unsubscribe } from 'firebase';
+import { Unsubscribe } from 'firebase';
+import firebase from 'firebase/app';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { Spinner } from '@blueprintjs/core';
@@ -17,7 +18,7 @@ import { Logout } from './components/Logout';
 import { Workspace } from './components/Workspace';
 import { IProject, IAppProps, IAppState, Project } from './types';
 import './style/stylesheet.css';
-import { Firebase } from './base';
+import { FirebaseInstance } from './base';
 import { ProjectList } from './components/ProjectList';
 import { AppToaster } from './toaster';
 import { APP_VERSION } from './constants';
@@ -58,7 +59,7 @@ function AuthenticatedRouteMulti({ component: Component, items, param, ...rest }
 
 class App extends Component<IAppProps, IAppState> {
   dataRef: RebaseBinding;
-  fb: Firebase;
+  fb: FirebaseInstance;
   removeAuthListener: Unsubscribe;
 
   constructor(props: IAppProps) {
@@ -68,7 +69,7 @@ class App extends Component<IAppProps, IAppState> {
       loading: true,
       currentUser: null,
     };
-    this.fb = new Firebase();
+    this.fb = new FirebaseInstance();
   }
 
   componentDidMount() {

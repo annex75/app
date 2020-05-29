@@ -3,7 +3,7 @@ import React, { Component, ReactText, FormEvent } from 'react';
 import classNames from 'classnames'
 // @ts-ignore
 import { Breadcrumb, Classes, ProgressBar, Tab, Tabs, Intent, FileInput, IToastProps } from '@blueprintjs/core';
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 import { set as _fpSet } from 'lodash/fp';
 
 // internal

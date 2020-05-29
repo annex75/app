@@ -1,6 +1,6 @@
 import React, { Component, ChangeEvent } from 'react';
-import { set as _fpSet, equals as _fpEquals } from 'lodash/fp';
-import { pickBy as _pickBy } from 'lodash';
+import { set as _fpSet, get as _fpGet, equals as _fpEquals } from 'lodash/fp';
+import { pickBy as _pickBy, debounce as _debounce } from 'lodash';
 
 import * as config from '../../config.json';
 import { IScenariosPanelProps, IScenariosPanelState, Scenario, IScenarioOptionsCard, ScenarioInfo, TScenarioParamCategory } from '../../types';
@@ -96,7 +96,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               type: String,
               rootPath: "calcData.buildingTypes",
               label: "Energy system:",
-              validator: this.createValidator(project.calcData.energySystems, "energy system", "name"),
+              validator: this.createValidator("project.calcData.energySystems", "energy system", "name"),
             },
           },
         },
@@ -109,35 +109,35 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               type: String,
               rootPath: "calcData.buildingTypes",
               label: "Roof:",
-              validator: this.createValidator(project.calcData.buildingMeasures.roof, "roof renovation measure", "measureName"),
+              validator: this.createValidator("project.calcData.buildingMeasures.roof", "roof renovation measure", "measureName"),
             },
             facade: {
               key: "facade",
               type: String,
               rootPath: "calcData.buildingTypes",
               label: "Façade:",
-              validator: this.createValidator(project.calcData.buildingMeasures.facade, "façade renovation measure", "measureName"),
+              validator: this.createValidator("project.calcData.buildingMeasures.facade", "façade renovation measure", "measureName"),
             },
             foundation: {
               key: "foundation",
               type: String,
               rootPath: "calcData.buildingTypes",
               label: "Foundation:",
-              validator: this.createValidator(project.calcData.buildingMeasures.foundation, "foundation renovation measure", "measureName"),
+              validator: this.createValidator("project.calcData.buildingMeasures.foundation", "foundation renovation measure", "measureName"),
             },
             windows: {
               key: "windows",
               type: String,
               rootPath: "calcData.buildingTypes",
               label: "Windows:",
-              validator: this.createValidator(project.calcData.buildingMeasures.windows, "windows renovation measure", "measureName"),
+              validator: this.createValidator("project.calcData.buildingMeasures.windows", "windows renovation measure", "measureName"),
             },
             hvac: {
               key: "hvac",
               type: String,
               rootPath: "calcData.buildingTypes",
               label: "HVAC system:",
-              validator: this.createValidator(project.calcData.buildingMeasures.hvac, "hvac renovation measure", "measureName"),
+              validator: this.createValidator("project.calcData.buildingMeasures.hvac", "hvac renovation measure", "measureName"),
             }
           }
         },
@@ -160,8 +160,10 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
     const path = this.formatPath(e.target.name);
     const newState = _fpSet(path, e.target.value, this.state);
     this.setState(newState);
-    this.props.updateProject(newState.project);
+    this.updateProjectDebounce();
   }
+  updateProject = () => this.props.updateProject(this.state.project);
+  updateProjectDebounce = _debounce(this.updateProject, 1000);
 
   // takes a subpath and returns its location in the main data structure
   formatPath = (childPath: string) => {
@@ -198,8 +200,9 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
     this.setState(newState);
   }
 
-  createValidator = (obj: any, name: string, key: string) => {
+  createValidator = (path: string, name: string, key: string) => {
     return (val: string) => {
+      const obj = _fpGet(path, this.state);
       return {
         valid: Object.keys(_pickBy(obj, (e) => { return e[key] === val })).length === 1,
         invalidMsg: `No unique ${name} with the name ${val} could be found in the project`,
@@ -260,30 +263,30 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                 const paramCategory = this.state.scenarioOptions.paramCategories[paramCategoryName as TScenarioParamCategory];
                 return !paramCategory.global? (null) : (
                   <div key={`scenario-global-${paramCategoryName}-div`}>
-                  <h3>{paramCategory.label}</h3>
-                  {
-                    Object.keys(paramCategory.parameters).map(paramName => {
-                      const param = paramCategory.parameters[paramName];
-                      return (
-                        <div key={`scenario-global-${paramName}-div`} className="panel-list-row">
-                          <FormGroup
-                            inline
-                            className="inline-input"
-                            key={`scenario-global-${paramName}-input`}
-                            label={param.label}
-                            labelFor={`scenario-global-${paramName}-input`}>
-                            {
-                              Object.keys(scenarios).map(id => {
-                                param.localPath = `${id}.${paramCategoryName}.${paramName}`;
-                                return renderInputField(`scenario-global-${id}`, param, scenarios, this.handleChange)
-                              })
-                            }
-                            <span className="empty-button"/>
-                          </FormGroup>
-                        </div>
-                      )
-                    })
-                  }
+                    <h3 key={`scenario-global-${paramCategoryName}-header`}>{paramCategory.label}</h3>
+                    {
+                      Object.keys(paramCategory.parameters).map(paramName => {
+                        const param = paramCategory.parameters[paramName];
+                        return (
+                          <div key={`scenario-global-${paramName}-div`} className="panel-list-row">
+                            <FormGroup
+                              inline
+                              className="inline-input"
+                              key={`scenario-global-${paramName}-input`}
+                              label={param.label}
+                              labelFor={`scenario-global-${paramName}-input`}>
+                              {
+                                Object.keys(scenarios).map(id => {
+                                  param.localPath = `${id}.${paramCategoryName}.${paramName}`;
+                                  return renderInputField(`scenario-global-${paramName}-${id}`, param, scenarios, this.handleChange)
+                                })
+                              }
+                              <span className="empty-button"/>
+                            </FormGroup>
+                          </div>
+                        )
+                      })
+                    }
                   </div>
                 )
               })
@@ -296,6 +299,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                     <Button
                       minimal
                       className="bp3-button"
+                      key={`scenario-${buildingTypeId}-button`}
                       icon={this.state.scenarioOptions.isOpen[buildingTypeId] ? "arrow-up" : "arrow-down"}
                       onClick={() => this.handleExpandClick(buildingTypeId)}>
                       <h4>{project.calcData.buildingTypes[buildingTypeId].name}</h4>
@@ -307,7 +311,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                           const paramCategory = this.state.scenarioOptions.paramCategories[paramCategoryName as TScenarioParamCategory];
                           return paramCategory.global? (null) : (
                             <div key={`scenario-${buildingTypeId}-${paramCategoryName}-div`}>
-                            <h3>{paramCategory.label}</h3>
+                            <h3 key={`scenario-${buildingTypeId}-${paramCategoryName}-header`}>{paramCategory.label}</h3>
                             {
                               Object.keys(paramCategory.parameters).map(paramName => {
                                 const param = paramCategory.parameters[paramName];
@@ -323,7 +327,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                                         Object.keys(scenarios).map(id => {
                                           param.path = `calcData.buildingTypes.${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
                                           param.localPath = `${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
-                                          return renderInputField(`scenario-${buildingTypeId}-${id}`, param, buildingTypes, this.handleChange, param.validator)
+                                          return renderInputField(`scenario-${buildingTypeId}-${paramName}-${id}`, param, buildingTypes, this.handleChange, param.validator)
                                         })
                                       }
                                       <span className="empty-button"/>

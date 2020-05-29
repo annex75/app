@@ -1,6 +1,9 @@
+// external
 import React, { Component, ChangeEvent } from 'react';
 import { set as _fpSet } from 'lodash/fp';
+import { debounce as _debounce } from 'lodash';
 
+// internal
 import { IModelPanelProps, IModelPanelState, IModelOptionsCard, TModelOptionsCategory } from '../../types';
 
 export class ModelPanel extends Component<IModelPanelProps, IModelPanelState> {
@@ -60,8 +63,10 @@ export class ModelPanel extends Component<IModelPanelProps, IModelPanelState> {
     const path = this.formatPath(e.target.name);
     const newState = _fpSet(path, e.target.value, this.state);
     this.setState(newState);
-    this.props.updateProject(newState.project);
+    this.updateProjectDebounce();
   }
+  updateProject = () => this.props.updateProject(this.state.project);
+  updateProjectDebounce = _debounce(this.updateProject, 1000);
 
   // takes a subpath and returns its location in the main data structure
   formatPath = (childPath: string) => {
