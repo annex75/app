@@ -35,7 +35,7 @@ const intToChar = (i: number) => {
   return String.fromCharCode(i+96).toUpperCase();
 }
 
-const supportedAppVersions = [ "0.2.6-0", ];
+const deprecatedAppVersions = [ "0.2.6-0", ];
 
 const buildingTypeSheet = "04_building_typology";
 const buildingTypeKeyCol = "A";
@@ -58,9 +58,11 @@ export const updateFromWorkbook = (project: Project, workbook: WorkBook) => {
   if (!validateWorkbook(workbook)) {
     throw new Error( "Project could not be added from workbook: workbook is invalid");
   }
-  if (!supportedAppVersions.includes(project.appVersion)) {
+
+  if (deprecatedAppVersions.includes(project.appVersion)) {
     throw new Error( "Project could not be added from workbook: app version is not supported");
   }
+
   // add simple parameters
   dictionary.forEach(entry => {
     const sheet = workbook.Sheets[entry.sheet]
