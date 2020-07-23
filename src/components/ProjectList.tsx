@@ -1,11 +1,12 @@
-import React, { Component } from 'react';
+import React, { Component, RefObject } from 'react';
 import { Link } from 'react-router-dom';
-import { IProjectListProps, IProjectListState, IProjectSettingsProps, IProjectSettingsState, IProject } from '../types';
+import { IProjectListProps, IProjectListState, IProjectSettingsProps, IProjectSettingsState, IProject, IDictProject, IDictPopover } from '../types';
 import { Button, Popover, PopoverInteractionKind, Position, Alert, Intent } from '@blueprintjs/core';
 import { APP_VERSION } from '../constants';
 import { NewProjectForm } from './NewProjectForm';
 
 export class ProjectList extends Component<IProjectListProps, IProjectListState> {
+  linkElement: Link;
   constructor(props: any) {
     super(props);
     let popovers: any = {};
@@ -31,6 +32,12 @@ export class ProjectList extends Component<IProjectListProps, IProjectListState>
     });
   }
 
+  onPopoverInteraction = (popoverState: boolean, id: string) => {
+    let projectPopoverOpen = { ...this.state.projectPopoverOpen };
+    projectPopoverOpen[id] = popoverState;
+    this.setState({ projectPopoverOpen });
+  }
+
   render() {
     const activeProjectIds = Object.keys(this.props.projects).filter(id => isActive(this.props.projects[id]));
 
@@ -42,27 +49,19 @@ export class ProjectList extends Component<IProjectListProps, IProjectListState>
         {
           activeProjectIds.length ?
             (<div className="project-list">
+              <ProjectCards 
+                projects={this.props.projects}
+                popoverOpen={this.state.projectPopoverOpen}
+                onPopoverInteraction={this.onPopoverInteraction}
+                updateProject={this.props.updateProject}
+                copyProject={this.props.copyProject}
+                deleteProject={this.props.deleteProject}
+                postSubmitHandler={this.closeProjectPopover}/>
               {
-                activeProjectIds.map(id => {
-                  const project = this.props.projects[id];
-                  return (
-                    <div key={id} className="project-card bp3-card bp3-elevation-0 bp3-interactive">
-                      <h5><Link to={`/projects/${id}`}>{project.name}</Link></h5>
-                      <Popover
-                        content={(<ProjectSettings project={project} updateProject={this.props.updateProject} copyProject={this.props.copyProject} deleteProject={this.props.deleteProject} postSubmitHandler={this.closeProjectPopover} />)}
-                        interactionKind={PopoverInteractionKind.CLICK}
-                        isOpen={this.state.projectPopoverOpen[id]}
-                        onInteraction={(state) => {
-                          let projectPopoverOpen = { ...this.state.projectPopoverOpen };
-                          projectPopoverOpen[id] = state;
-                          this.setState({ projectPopoverOpen });
-                        }}
-                        position={Position.BOTTOM}>
-                        <button className="bp3-button bp3-minimal bp3-icon-cog" aria-label="project settings"></button>
-                      </Popover>
-                    </div>
-                  )
-                })
+
+                /*
+                
+                */
               }
             </div>)
             : <div><h2>No projects have been created.</h2></div>
@@ -77,13 +76,80 @@ export class ProjectList extends Component<IProjectListProps, IProjectListState>
             isOpen={this.state.addProjectPopoverOpen}
             onInteraction={(state) => this.setState({ addProjectPopoverOpen: state })}
             position={Position.BOTTOM}>
-            <button className="bp3-button bp3-icon-add add-project-button" aria-label="add new project">Add new project</button>
+            <button className="bp3-button bp3-icon-add add-project-button" aria-label="add new project">Add new Project</button>
           </Popover>
         </div>
         
       </div>
     )
   }
+}
+
+interface IProjectCardsProps {
+  projects: IDictProject;
+  popoverOpen: IDictPopover;
+  onPopoverInteraction(popoverState: boolean, id: string): void;
+  updateProject(project: IProject): void;
+  copyProject(project: IProject): void;
+  deleteProject(id: string): void;
+  postSubmitHandler(): void;
+}
+
+function useRefs<T>(length: number): RefObject<T>[]  {
+  const refsHolder = React.useRef<RefObject<T>[]>([]);
+  const refs = refsHolder.current;
+  for (let i = refs.length; i < length; i++) {
+      refs[i] = React.createRef<T>();
+  }
+  refs.length = length;
+  return refsHolder.current;
+}
+
+const ProjectCards = (props: IProjectCardsProps) => {
+
+  const ids = Object.keys(props.projects).filter(id => isActive(props.projects[id]));;
+  const refs = useRefs<HTMLButtonElement>(ids.length);
+
+  // this is a hack to allow the card (except buttons inside the card) to be the link!
+  // https://stackoverflow.com/questions/63017636/triggering-click-event-of-child-of-element-generated-from-an-array/63017829#63017829
+  const divClick = (i: number, e: any, id: string) => {
+    // if we clicked the div outside the button, click the invisible button inside the Link
+    if (e.target.id === id && refs && refs[i] && refs[i].current) {
+      refs[i].current!.click();
+    }
+  }
+
+  return (
+    <>
+    {
+      ids.map((id, i) => {
+        const project = props.projects[id];
+        return (
+          <div id={`project-card-div-${id}`} key={`project-card-div-${id}`} className="project-card bp3-card bp3-elevation-0 bp3-interactive" onClick={(e: React.MouseEvent<HTMLDivElement>) => divClick(i,e,`project-card-div-${id}`)}>
+            <Link to={`/projects/${id}`}>
+              <button ref={refs[i]} style={{display: "none"}}></button>
+              <h5>{project.name}</h5>
+            </Link>
+            <Popover
+              content={(<ProjectSettings project={project} updateProject={props.updateProject} copyProject={props.copyProject} deleteProject={props.deleteProject} postSubmitHandler={props.postSubmitHandler} />)}
+              interactionKind={PopoverInteractionKind.CLICK}
+              isOpen={props.popoverOpen[id]}
+              onInteraction={(popoverState, e) => props.onPopoverInteraction(popoverState, id)}
+              position={Position.BOTTOM}>
+              <button className="bp3-button bp3-minimal bp3-icon-cog" aria-label="project settings"/>
+            </Popover>
+          </div>
+        )
+        /*
+        return (
+          <div className="project-card bp3-card bp3-elevation-0 bp3-interactive" onClick={() => divClick(i)}id={`div-${id}`}>
+            <button onClick={(e: React.MouseEvent<HTMLElement>) => openProjectSettings(e)} ref={refs[i]} id={`btn-${id}`}/>
+          </div>
+        );*/
+      })
+    }
+    </>
+  )
 }
 
 // todo: possibly add more checks here
@@ -139,10 +205,10 @@ class ProjectSettings extends Component<IProjectSettingsProps, IProjectSettingsS
             Project name
             <input style={{ width: "100%" }} className="bp3-input" name="name" type="text" ref={(input) => { this.nameInput = input! }} placeholder={this.state.project.name}></input>
           </label>
-          <input style={{ width: "100%" }} type="submit" className="bp3-button bp3-intent-primary" value="Update Project"></input>
+          <input style={{ width: "100%" }} type="submit" className="bp3-button bp3-intent-primary" value="Update Project settings"></input>
         </form>
-        <Button minimal icon="duplicate" onClick={this.handleCopy} style={{ padding: "10px" }}>Duplicate project</Button>
-        <Button minimal icon="delete" onClick={this.handleAlertOpen} style={{ padding: "10px" }}>Delete project</Button>
+        <Button minimal icon="duplicate" onClick={this.handleCopy} style={{ padding: "10px" }}>Duplicate Project</Button>
+        <Button minimal icon="delete" onClick={this.handleAlertOpen} style={{ padding: "10px" }}>Delete Project</Button>
         <Alert
           cancelButtonText="Cancel"
           confirmButtonText="Delete project"

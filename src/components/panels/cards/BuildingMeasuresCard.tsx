@@ -117,7 +117,7 @@ const BuildingMeasureCategoryCard = (props: IBuildingMeasureCategoryCardProps) =
         Object.keys(props.parameters).map( (paramName: string, i: number) => {
           const param = props.parameters[paramName];
           return (
-            <div>
+            <div key={`building-measure-${paramName}-div`}>
               <FormGroup
                 inline
                 className="inline-input"

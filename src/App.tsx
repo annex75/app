@@ -169,6 +169,7 @@ class App extends Component<IAppProps, IAppState> {
       
       const projects = { ...this.state.projects };
 
+      // not implemented
       this.issueDuplicateWarnings(project);
       
       projects[project.id] = project;
@@ -177,6 +178,7 @@ class App extends Component<IAppProps, IAppState> {
   }
 
   // todo: implement
+  // shows a toast if there are some entries with the same name in the updated project
   issueDuplicateWarnings = (project: IProject) => {
     // check building types
 

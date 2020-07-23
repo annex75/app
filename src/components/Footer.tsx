@@ -17,7 +17,7 @@ export class Footer extends Component<IFooterProps, IFooterState> {
     return (
       <nav className="bp3-navbar bp3-align-right" style={{ display: "flex", flexDirection: "row" }}>
         <div className="bp3-navbar-group bp3-align-left">
-          <AnchorButton className="bp3-button bp3-minimal" href="http://annex75.iea-ebc.org/about" target="_blank">About IEA EBC Annex 75</AnchorButton>
+          <AnchorButton icon="link" className="bp3-button bp3-minimal" href="http://annex75.iea-ebc.org/about" target="_blank">About IEA EBC Annex 75</AnchorButton>
           <Popover
             content={
               <HelpPopoverContent/>
