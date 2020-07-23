@@ -1,9 +1,9 @@
 import React, { Component, ChangeEvent } from "react"
 
-import { IBuildingTypeCardProps, IBuildingTypeCardState, IBuildingAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictBuildingType } from "../../../types";
+import { IBuildingTypeCardProps, IBuildingTypeCardState, IBuildingAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictBuildingType, IDictBool } from "../../../types";
 import { renderInputField } from '../../../helpers'
 
-import { FormGroup, Button, InputGroup, Collapse } from "@blueprintjs/core";
+import { FormGroup, Button, InputGroup, Collapse, Tooltip, Position, Intent, Alert } from "@blueprintjs/core";
 
 export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildingTypeCardState> {
 
@@ -147,9 +147,33 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
       },
     }
 
+    let deleteBuildingTypeWarningOpen: IDictBool = {};
+    Object.keys(props.data).forEach((id: string) => {
+      deleteBuildingTypeWarningOpen[id] = false;
+    });
+
     this.state = {
-      buildingAdvancedOptions: buildingAdvancedOptions,
+      buildingAdvancedOptions,
+      deleteBuildingTypeWarningOpen,
     };
+  }
+
+  handleAlertOpen = (id: string) => {
+    let newState = { ...this.state };
+    newState.deleteBuildingTypeWarningOpen[id] = true;
+    this.setState(newState);
+  }
+  // todo: cancel and confirm could share function
+  handleAlertCancel = (id: string) => {
+    let newState = { ...this.state };
+    newState.deleteBuildingTypeWarningOpen[id] = false;
+    this.setState(newState);
+  }
+  handleAlertConfirm = (id: string) => {
+    let newState = { ...this.state };
+    newState.deleteBuildingTypeWarningOpen[id] = false;
+    this.setState(newState);
+    this.props.deleteBuildingType(id);
   }
 
   handleAddBuildingTypeClick = (e: React.MouseEvent<HTMLElement>) => {
@@ -171,6 +195,44 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             <FormGroup
               inline
               className="inline-input"
+              key={`building-type-buttons-header`}
+              label=" "
+              labelFor={`building-type-buttons-header`}>
+            {
+              Object.keys(buildingTypes).filter(id => !buildingTypes[id].deleted).map(id => {
+                return (
+                  <div key={`building-type-button-header-${id}`} className="building-type-button-header-div">
+                    <Tooltip content={`Copy building type "${buildingTypes[id].name}"`} position={Position.TOP}>
+                      <Button onClick={() => this.props.copyBuildingType(id)} className="bp3-minimal building-type-header-button bp3-icon-duplicate"></Button>
+                    </Tooltip>
+
+                    <Alert
+                      cancelButtonText="Cancel"
+                      confirmButtonText="Delete building type"
+                      intent={Intent.DANGER}
+                      isOpen={this.state.deleteBuildingTypeWarningOpen[id]}
+                      onCancel={() => this.handleAlertCancel(id)}
+                      onConfirm={() => this.handleAlertConfirm(id)}>
+                      <p>
+                        Are you sure you want to delete this building type? This action is irreversible!
+                      </p>
+                    </Alert>
+                    <Tooltip intent={Intent.WARNING} content={`Delete building type "${buildingTypes[id].name}"`} position={Position.TOP}>
+                      <Button className="bp3-minimal building-type-header-button bp3-icon-delete" onClick={() => this.handleAlertOpen(id)}></Button>
+                    </Tooltip>
+                  </div>
+                )
+              })
+            }
+            <span className="empty-button"/>
+          </FormGroup>
+          }
+        </div>
+        <div className="panel-list-header">
+          {
+            <FormGroup
+              inline
+              className="inline-input"
               key={`building-type-name-input`}
               label={(
                 <div className="label-with-add-button">
@@ -185,7 +247,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
               )}
               labelFor="building-type-name-input">
               {
-                Object.keys(buildingTypes).map(id => {
+                Object.keys(buildingTypes).filter(id => !buildingTypes[id].deleted).map(id => {
                   return (
                     <InputGroup
                       key={`building-type-${id}-name-input`}
@@ -253,7 +315,7 @@ const AdvancedOptionsCard = (props: IBuildingAdvancedOptionsCardProps) => {
                 label={param.label}
                 labelFor={`building-type-${paramName}-input`}>
                 {
-                  Object.keys(buildingTypes).map(id => {
+                  Object.keys(buildingTypes).filter(id => !buildingTypes[id].deleted).map(id => {
                     param.localPath = `${id}.${category}.${paramName}`;
                     const eventHandler = props.eventHandlers.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
                     return renderInputField(`building-type-${id}`, param, buildingTypes, eventHandler)

@@ -17,6 +17,10 @@ ul {
   padding-bottom: 0.9em;
 } 
 
+.header-reminder-text {
+  color: #888888;
+}
+
 .app-body {
   max-width: 1220px;
   margin: 0 auto;
@@ -220,6 +224,14 @@ ul {
   width: 150px;
   padding-right: 5px;
   padding-left: 5px;
+}
+
+.inline-input .bp3-form-content .building-type-button-header-div {
+  width: 150px;
+  padding-right: 5px;
+  padding-left: 5px;
+  display: flex;
+  justify-content: center;
 }
 
 .bp3-form-content .edit-cost-curve-button {

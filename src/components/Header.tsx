@@ -23,13 +23,23 @@ export class Header extends Component<IHeaderProps, IHeaderState> {
     return (
       <nav className="bp3-navbar header-navbar">
         <div className="bp3-navbar-group bp3-align-left">
-          <Link className="bp3-button bp3-minimal bp3-navbar-heading" to="/">Annex 75 Calculation Tool</Link>
-        </div>
-        {
-          this.props.authenticated ?
-            (
-              <div className="bp3-navbar-group bp3-align-right">
-                <Link className="bp3-button bp3-minimal bp3-icon-database" to="/projects">Projects</Link>
+          <Link className="bp3-button bp3-minimal bp3-navbar-heading" to="/" onClick={() => this.props.exitProject()}>Annex 75 Calculation Tool</Link>
+        </div> {
+          this.props.authenticated? (
+              <div className="bp3-navbar-group bp3-align-right"> {
+                  
+                  this.props.activeProject? (
+                    <>
+                      <h6 className="header-reminder-text">Project last saved: {(() => {
+                        const date = new Date(this.props.activeProject!.timeStamp);
+                        const dateString = date.toUTCString();
+                        return dateString;
+                      })()}</h6>
+                      <span className="bp3-navbar-divider"></span>
+                    </>
+                  ) : null
+                }
+                <Link className="bp3-button bp3-minimal bp3-icon-database" to="/projects" onClick={() => this.props.exitProject()}>Projects</Link>
                 <span className="bp3-navbar-divider"></span>
                 <Popover
                   content={(<UserInfo userData={this.props.userData} />)}
@@ -42,8 +52,7 @@ export class Header extends Component<IHeaderProps, IHeaderState> {
                 <Button minimal disabled icon="cog"></Button>
                 <Link className="bp3-button bp3-minimal bp3-icon-log-out" to="/logout" aria-label="Log Out"></Link>
               </div>
-            )
-            : (
+            ) : (
               <div className="bp3-navbar-group bp3-align-right">
                 <Link className="bp3-button bp3-intent-primary" to="/login">Register/Login</Link>
               </div>

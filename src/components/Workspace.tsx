@@ -128,7 +128,7 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
     return (
       <div>
         <ul className="bp3-breadcrumbs">
-          <li><Breadcrumb href="/projects" text="Projects" /></li>
+          <li><Breadcrumb href="/projects" text="Projects" onClick={() => this.props.exitProject()}/></li>
           <li><Breadcrumb href="#" text={project.name} /></li>
         </ul>
 

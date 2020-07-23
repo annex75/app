@@ -1,4 +1,4 @@
-import { IProject, District, IDictBuildingType, IDictEnergySystem, ICostCurveType, ICostCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory, IValidatorResult } from "./Data";
+import { IProject, District, IDictBuildingType, IDictEnergySystem, ICostCurveType, ICostCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory, IValidatorResult, IDictBool } from "./Data";
 import { ChangeEvent, ComponentType, ReactNode } from "react";
 
 /* Panels */
@@ -154,12 +154,15 @@ export interface IMapClickEvent {
 export interface IBuildingTypeCardProps extends ICalcDataCardProps {
   handleChange(e: ChangeEvent<HTMLInputElement>): void;
   addBuildingType(): void;
+  copyBuildingType(id: string): void;
+  deleteBuildingType(id: string): void;
   data: IDictBuildingType;
 }
 
 
 export interface IBuildingTypeCardState extends ICalcDataCardState {
   buildingAdvancedOptions: Record<string, IBuildingAdvancedOptionsCard>;
+  deleteBuildingTypeWarningOpen: IDictBool;
 }
 
 export interface IBuildingInfo extends IInput {

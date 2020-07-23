@@ -1,7 +1,9 @@
 import React, { Component, ChangeEvent } from 'react';
 
 import { set as _fpSet, equals as _fpEquals } from 'lodash/fp';
-import { debounce as _debounce } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
+
+import { cloneDeep as _cloneDeep, debounce as _debounce } from 'lodash';
 import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 
 //import { CalcData } from '@annex-75/calculation-model/';
@@ -42,6 +44,8 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
         component: BuildingTypeCard,
         eventHandlers: {
           handleChange: this.handleChangeEvent,
+          deleteBuildingType: this.deleteBuildingType,
+          copyBuildingType: this.copyBuildingType,
           addBuildingType: this.addBuildingType,
         },
       },
@@ -135,6 +139,47 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
 
     newState.project.calcData.buildingTypes[buildingType.id] = buildingType;
     
+    this.setState(newState);
+    this.updateProjectDebounce();
+  }
+
+  copyBuildingType = (id: string) => {
+    let newState = { ...this.state };
+    if (Object.keys(newState.project.calcData.buildingTypes).length >= config.MAX_BUILDING_TYPES) {
+      AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_BUILDING_TYPES} building types are currently allowed`});
+      return;
+    }
+    
+    const buildingType = newState.project.calcData.buildingTypes[id];
+    if (!buildingType) {
+      throw new Error(`Building type ${id} could not be found`);
+    } 
+    
+    const copyName = `${buildingType.name} - copy`;
+    
+    let buildingTypeClone = _cloneDeep(buildingType);
+    buildingTypeClone.id = uuidv4();
+    buildingTypeClone.name = copyName;
+
+    newState.project.calcData.buildingTypes[buildingTypeClone.id] = buildingTypeClone;
+
+    this.setState(newState);
+    this.updateProjectDebounce();
+  }
+
+  // todo: actually delete it from the database (similar to deleting projects)
+  deleteBuildingType = (id: string) => {
+    let newState = { ...this.state };
+    if (Object.keys(newState.project.calcData.buildingTypes).length <= 1) {
+      AppToaster.show({ intent: Intent.DANGER, message: `The last building type can not be deleted.`});
+      return;
+    }
+    
+    const buildingType = newState.project.calcData.buildingTypes[id];
+    if (!buildingType) {
+      throw new Error(`Building type ${id} could not be found`);
+    }
+    newState.project.calcData.buildingTypes[id].deleted = true;
     this.setState(newState);
     this.updateProjectDebounce();
   }

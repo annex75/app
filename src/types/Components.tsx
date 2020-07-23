@@ -9,6 +9,7 @@ import { FirebaseInstance } from "../base";
 /* App */
 export interface IAppState {
   loading: boolean;
+  activeProjectId: string;
   projects: IDictProject;
   currentUser: firebase.UserInfo | null;
 }
@@ -18,6 +19,7 @@ export interface IAppProps { }
 /* Project list */
 export interface IProjectListProps {
   addProject(value: string, workbook: xlsx.WorkBook | null): void;
+  setActiveProject(projectId: string): void;
   updateProject(project: IProject): void;
   copyProject(project: IProject): void;
   deleteProject(id: string): void;
@@ -50,6 +52,8 @@ export interface IProjectSettingsState {
 /* Header */
 export interface IHeaderProps {
   userData: firebase.UserInfo | null;
+  exitProject(): void;
+  activeProject: IProject | null;
   authenticated: boolean;
 }
 
@@ -112,6 +116,7 @@ export interface IWorkspaceState {
 }
 
 export interface IWorkspaceProps {
+  exitProject(): void;
   updateProject(project: IProject): void;
   item: IProject;
   currentUser: firebase.UserInfo;

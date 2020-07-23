@@ -67,6 +67,7 @@ class App extends Component<IAppProps, IAppState> {
     this.state = {
       projects: {},
       loading: true,
+      activeProjectId: "",
       currentUser: null,
     };
     this.fb = new FirebaseInstance();
@@ -161,18 +162,34 @@ class App extends Component<IAppProps, IAppState> {
     return valid;
   }
 
+  exitProject = () => {
+    this.setActiveProject("");
+  }
+
+  setActiveProject = (activeProjectId: string) => {
+    if (!activeProjectId) {
+      this.setState({ activeProjectId: "" });
+    } else if (this.state.projects[activeProjectId]) {
+      this.setState({ activeProjectId });
+    } else {
+      throw new Error(`Project with id ${activeProjectId} could not be found in the database`)
+    }
+  }
+
   updateProject = (project: IProject) => {
     if (!this.validProjectName(project.name, project.id)) {
       // todo: save warning messages somewhere
       AppToaster.show({ intent: Intent.DANGER, message: "Project could not be updated: project name is not unique" });
     } else {
-      
+      this.setActiveProject(project.id);
       const projects = { ...this.state.projects };
 
       // not implemented
       this.issueDuplicateWarnings(project);
+
+      const updatedProject = this.updateTimeStamp(project);
       
-      projects[project.id] = project;
+      projects[project.id] = updatedProject;
       this.setState({ projects });
     }
   }
@@ -187,6 +204,12 @@ class App extends Component<IAppProps, IAppState> {
     // check energy carriers
 
     // check renovation measures
+  }
+
+  updateTimeStamp = (project: IProject) => {
+    let outProject = _.cloneDeep(project);
+    outProject.timeStamp = Date.now();
+    return outProject;
   }
 
   // todo: update this to actually remove the project from db
@@ -227,6 +250,8 @@ class App extends Component<IAppProps, IAppState> {
           <div className="app-container">
             <Header
               userData={this.state.currentUser}
+              exitProject={this.exitProject}
+              activeProject={this.state.activeProjectId? this.state.projects[this.state.activeProjectId] : null}
               authenticated={!!this.fb.app.auth().currentUser} />
             <div className="main-content">
               <div className="workspace-wrapper">
@@ -255,6 +280,7 @@ class App extends Component<IAppProps, IAppState> {
                   component={ProjectList}
                   projects={this.state.projects}
                   addProject={this.addProject}
+                  setActiveProject={this.setActiveProject}
                   updateProject={this.updateProject}
                   copyProject={this.copyProject}
                   deleteProject={this.deleteProject}
@@ -266,6 +292,7 @@ class App extends Component<IAppProps, IAppState> {
                   requireAuth={true}
                   param="projectId"
                   items={this.state.projects}
+                  exitProject={this.exitProject}
                   updateProject={this.updateProject}
                   currentUser={this.state.currentUser}
                 />

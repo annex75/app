@@ -16,6 +16,7 @@ export const generateDefaultProject = (): IProject => {
         calcData: new CalcData(),
         scenarioData: new ScenarioData(),
         deleted: false,
+        timeStamp: Date.now(),
     };
     return defProject;
 }

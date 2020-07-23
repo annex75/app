@@ -27,6 +27,7 @@ export interface IProject {
   scenarioData: ScenarioData;
   deleted: boolean;
   test?: string;
+  timeStamp: number;
 }
 
 export class Project implements IProject {
@@ -38,6 +39,7 @@ export class Project implements IProject {
   calcData = new CalcData();
   scenarioData = new ScenarioData();
   deleted = false;
+  timeStamp: number = Date.now();
 
   constructor(name: string, owner: string) {
     this.name = name;
@@ -194,6 +196,7 @@ export class BuildingType {
   buildingGeometry = new BuildingGeometry();
   //buildingOccupancy = new BuildingOccupancy(); // modify in scenarios?
   scenarioInfos: Record<string,ScenarioInfo> = {};
+  deleted: boolean = false;
   [key: string]: BuildingType[keyof BuildingType];
 }
 

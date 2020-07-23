@@ -53,6 +53,7 @@ export class ProjectList extends Component<IProjectListProps, IProjectListState>
                 projects={this.props.projects}
                 popoverOpen={this.state.projectPopoverOpen}
                 onPopoverInteraction={this.onPopoverInteraction}
+                setActiveProject={this.props.setActiveProject}
                 updateProject={this.props.updateProject}
                 copyProject={this.props.copyProject}
                 deleteProject={this.props.deleteProject}
@@ -89,6 +90,7 @@ interface IProjectCardsProps {
   projects: IDictProject;
   popoverOpen: IDictPopover;
   onPopoverInteraction(popoverState: boolean, id: string): void;
+  setActiveProject(projectId: string): void;
   updateProject(project: IProject): void;
   copyProject(project: IProject): void;
   deleteProject(id: string): void;
@@ -126,7 +128,7 @@ const ProjectCards = (props: IProjectCardsProps) => {
         const project = props.projects[id];
         return (
           <div id={`project-card-div-${id}`} key={`project-card-div-${id}`} className="project-card bp3-card bp3-elevation-0 bp3-interactive" onClick={(e: React.MouseEvent<HTMLDivElement>) => divClick(i,e,`project-card-div-${id}`)}>
-            <Link to={`/projects/${id}`}>
+            <Link to={`/projects/${id}`} onClick={() => props.setActiveProject(id)}>
               <button ref={refs[i]} style={{display: "none"}}></button>
               <h5>{project.name}</h5>
             </Link>
