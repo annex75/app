@@ -22,6 +22,7 @@ export interface IProjectListProps {
   setActiveProject(projectId: string): void;
   updateProject(project: IProject): void;
   copyProject(project: IProject): void;
+  exportProject(id: string): void;
   deleteProject(id: string): void;
   projects: IDictProject;
 }
@@ -39,6 +40,7 @@ export interface IDictPopover {
 export interface IProjectSettingsProps {
   updateProject(project: IProject): void;
   copyProject(project: IProject): void;
+  exportProject(id: string): void;
   deleteProject(id: string): void;
   project: IProject;
   postSubmitHandler: any;

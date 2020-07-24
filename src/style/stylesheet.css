@@ -105,6 +105,16 @@ ul {
   justify-content: center;
 }
 
+.project-settings-content-div {
+  padding: 5px;
+}
+
+.project-settings-content-div button {
+  margin-left: 5px;
+  margin-right: 5px;
+  width: 150px;
+}
+
 .add-project-button {
   margin: 0.67em 0;
 }

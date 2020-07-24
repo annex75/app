@@ -22,6 +22,7 @@ import { FirebaseInstance } from './base';
 import { ProjectList } from './components/ProjectList';
 import { AppToaster } from './toaster';
 import { APP_VERSION } from './constants';
+import { exportXlsx } from './WorkbookExport';
 
 // todo: not really typescript, no type safety but couldn't get it to work
 // cf: https://stackoverflow.com/questions/47747754/how-to-rewrite-the-protected-router-using-typescript-and-react-router-4-and-5/47754325#47754325
@@ -114,7 +115,7 @@ class App extends Component<IAppProps, IAppState> {
     } else {
       let project = new Project(name, this.state.currentUser!.uid);
       if ( workbook ) try {
-        project.updateFromWorkbook(workbook);
+        project.updateFromWorkBook(workbook);
       } catch (err) {
         AppToaster.show({ intent: Intent.DANGER, message: err.message });
         return;
@@ -160,6 +161,11 @@ class App extends Component<IAppProps, IAppState> {
       }
     }
     return valid;
+  }
+
+  exportProject = (id: string) => {
+    const project = this.state.projects[id];
+    exportXlsx(project);
   }
 
   exitProject = () => {
@@ -283,6 +289,7 @@ class App extends Component<IAppProps, IAppState> {
                   setActiveProject={this.setActiveProject}
                   updateProject={this.updateProject}
                   copyProject={this.copyProject}
+                  exportProject={this.exportProject}
                   deleteProject={this.deleteProject}
                 />
                 <AuthenticatedRouteMulti

@@ -1,10 +1,7 @@
 // external
 import { v4 as uuidv4 } from 'uuid';
-import xlsx from 'xlsx';
 
 // internal
-import { APP_VERSION } from '../constants';
-import { updateFromWorkbook } from '../WorkbookImport';
 
 // this module defines data containers
 
@@ -30,39 +27,9 @@ export interface IProject {
   timeStamp: number;
 }
 
-export class Project implements IProject {
-  appVersion = APP_VERSION;
-  id: string = uuidv4();
-  name: string;
-  owner: string;
-  overviewData = new OverviewData();
-  calcData = new CalcData();
-  scenarioData = new ScenarioData();
-  deleted = false;
-  timeStamp: number = Date.now();
-
-  constructor(name: string, owner: string) {
-    this.name = name;
-    this.owner = owner;
-
-    // create scenarios
-    const scenarioId = uuidv4();
-    for (const buildingTypeId in this.calcData.buildingTypes) {
-      let buildingType = this.calcData.buildingTypes[buildingTypeId];
-      buildingType.scenarioInfos[scenarioId] = new ScenarioInfo();
-    } 
-    this.scenarioData.scenarios[scenarioId] = new Scenario(scenarioId);
-  }
-
-  get jsonData(): IProject {
-    return JSON.parse(JSON.stringify(this));
-  }
-
-  updateFromWorkbook = (workbook: xlsx.WorkBook) => {
-    updateFromWorkbook(this, workbook);
-    console.log(this);
-  }
-
+interface IXlsxData {
+  key: string;
+  value: any;
 }
 
 export class OverviewData {
@@ -75,6 +42,28 @@ export class OverviewData {
 
   // about
   aboutText: string = "";
+
+  [key: string]: any;
+}
+
+export type TXlsxable = OverviewData | BuildingType;
+
+// objKeys: data stored in nested objects
+// valKeys: data stored directly in this object
+// returns an array of { key: key, value: value } objects
+export const toXlsx = (source: TXlsxable, objKeys: string[], valKeys: string[]) => {
+  let out: IXlsxData[] = [];
+  objKeys.forEach(objKey => out.push(...(Object.keys(source[objKey] || {}).map(key => {
+    return {
+      key: key, 
+      value: source[objKey][key],
+    }
+  }))));
+  valKeys.map(valKey => out.push({
+    key: valKey,
+    value: source[valKey],
+  }))
+  return out;
 }
 
 export class ContactInfo {
@@ -82,10 +71,11 @@ export class ContactInfo {
   phone: string = "";
   name: string = "";
   affiliation: string = "";
+  [key: string]: string;
 }
 
 export class ResultOverview {
-
+  [key: string]: any;
 }
 
 // import CalcData from '@annex-75/calculation-model'

@@ -56,6 +56,7 @@ export class ProjectList extends Component<IProjectListProps, IProjectListState>
                 setActiveProject={this.props.setActiveProject}
                 updateProject={this.props.updateProject}
                 copyProject={this.props.copyProject}
+                exportProject={this.props.exportProject}
                 deleteProject={this.props.deleteProject}
                 postSubmitHandler={this.closeProjectPopover}/>
               {
@@ -93,6 +94,7 @@ interface IProjectCardsProps {
   setActiveProject(projectId: string): void;
   updateProject(project: IProject): void;
   copyProject(project: IProject): void;
+  exportProject(id:string): void;
   deleteProject(id: string): void;
   postSubmitHandler(): void;
 }
@@ -133,7 +135,15 @@ const ProjectCards = (props: IProjectCardsProps) => {
               <h5>{project.name}</h5>
             </Link>
             <Popover
-              content={(<ProjectSettings project={project} updateProject={props.updateProject} copyProject={props.copyProject} deleteProject={props.deleteProject} postSubmitHandler={props.postSubmitHandler} />)}
+              content={(
+                <ProjectSettings
+                  project={project}
+                  updateProject={props.updateProject}
+                  copyProject={props.copyProject}
+                  exportProject={props.exportProject}
+                  deleteProject={props.deleteProject}
+                  postSubmitHandler={props.postSubmitHandler}/>
+              )}
               interactionKind={PopoverInteractionKind.CLICK}
               isOpen={props.popoverOpen[id]}
               onInteraction={(popoverState, e) => props.onPopoverInteraction(popoverState, id)}
@@ -175,6 +185,10 @@ class ProjectSettings extends Component<IProjectSettingsProps, IProjectSettingsS
     this.props.copyProject(this.state.project);
   }
 
+  handleExport = () => {
+    this.props.exportProject(this.state.project.id);
+  }
+
   handleDelete = () => {
     this.props.deleteProject(this.state.project.id);
   }
@@ -190,7 +204,7 @@ class ProjectSettings extends Component<IProjectSettingsProps, IProjectSettingsS
     event.preventDefault();
 
     const name = this.nameInput.value;
-    const project = { ...this.state.project };
+    const project = { ...this.state.project };  
     project.name = name;
     this.props.updateProject(project);
     this.setState({ project });
@@ -201,29 +215,36 @@ class ProjectSettings extends Component<IProjectSettingsProps, IProjectSettingsS
   render() {
     return (
       <div style={{ padding: "10px" }}>
-
-        <form onSubmit={(event) => this.updateProject(event)} ref={(form) => this.projectForm = form!}>
-          <label className="bp3-label">
-            Project name
-            <input style={{ width: "100%" }} className="bp3-input" name="name" type="text" ref={(input) => { this.nameInput = input! }} placeholder={this.state.project.name}></input>
-          </label>
-          <input style={{ width: "100%" }} type="submit" className="bp3-button bp3-intent-primary" value="Update Project settings"></input>
-        </form>
-        <Button minimal icon="duplicate" onClick={this.handleCopy} style={{ padding: "10px" }}>Duplicate Project</Button>
-        <Button minimal icon="delete" onClick={this.handleAlertOpen} style={{ padding: "10px" }}>Delete Project</Button>
-        <Alert
-          cancelButtonText="Cancel"
-          confirmButtonText="Delete project"
-          intent={Intent.DANGER}
-          isOpen={this.state.deleteProjectWarningOpen}
-          onCancel={this.handleAlertCancel}
-          onConfirm={this.handleAlertConfirm}
-        >
-          <p>
-            Are you sure you want to delete this project? This action is irreversible!
-          </p>
-        </Alert>
+        <div className="project-settings-content-div">
+          <form onSubmit={(event) => this.updateProject(event)} ref={(form) => this.projectForm = form!}>
+            <label className="bp3-label">
+              Project name
+              <input style={{ width: "100%" }} className="bp3-input" name="name" type="text" ref={(input) => { this.nameInput = input! }} placeholder={this.state.project.name}></input>
+            </label>
+            <input style={{ width: "100%" }} type="submit" className="bp3-button bp3-intent-primary" value="Update Project settings"></input>
+          </form>
+        </div>
+        <div className="project-settings-content-div">
+          <Button minimal icon="duplicate" onClick={this.handleCopy} style={{ padding: "10px" }}>Duplicate Project</Button>
+          <Button minimal icon="export" onClick={this.handleExport} style={{ padding: "10px" }}>Export Project</Button>
+        </div>
+        <div className="project-settings-content-div">
+          <Button minimal icon="delete" onClick={this.handleAlertOpen} style={{ padding: "10px" }}>Delete Project</Button>
+          <Alert
+            cancelButtonText="Cancel"
+            confirmButtonText="Delete project"
+            intent={Intent.DANGER}
+            isOpen={this.state.deleteProjectWarningOpen}
+            onCancel={this.handleAlertCancel}
+            onConfirm={this.handleAlertConfirm}
+          >
+            <p>
+              Are you sure you want to delete this project? This action is irreversible!
+            </p>
+          </Alert>
+        </div>
       </div>
+      
     )
   }
 }
