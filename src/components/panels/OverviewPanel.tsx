@@ -105,7 +105,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
 
   handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newState = _fpSet(e.target.name, e.target.value, this.state);
-    this.setState(newState);
+    this.setState(newState, () => {});
     this.updateProjectDebounce();
   }
 

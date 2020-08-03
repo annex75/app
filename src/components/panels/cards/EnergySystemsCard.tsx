@@ -233,6 +233,7 @@ const AdvancedOptionsCard = (props: IEnergySystemsAdvancedOptionsCardProps) => {
                 labelFor={`energy-carriers-${paramName}-input`}>
                 {
                   Object.keys(energyCarriers).map(id => {
+                    param.path = `energyCarriers.${id}.${paramName}`;
                     param.localPath = `${id}.${paramName}`;
                     const eventHandler = props.eventHandlers.handleChange as ((e: React.ChangeEvent<HTMLInputElement>) => void);
                     return renderInputField(`energy-carriers-${id}`, param, energyCarriers, eventHandler)

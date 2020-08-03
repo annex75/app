@@ -321,6 +321,8 @@ export class EnergyCarrier {
   primaryEnergyFactorNonRe: number = 0;
   emissionFactor: number = 0;
   currentPrice: number = 0;
+  deleted: boolean = false;
+  [key: string]: EnergyCarrier[keyof EnergyCarrier];
 }
 
 export interface IDictBuildingMeasure {

@@ -7,7 +7,7 @@ import { get as _fpGet } from 'lodash/fp';
 import { IInput, IValidatorResult } from './types';
 
 export const renderInputField = (parent: string, param: IInput, obj: any, handleChange?: (e: ChangeEvent<HTMLInputElement>) => void, validator?: (val: string) => IValidatorResult ) => {
-  const val = _fpGet(param.localPath || param.path!, obj) as string;
+  const val = _fpGet(param.localPath || param.path!, obj) as string || '';
 
   const valid = !validator? { valid: true, invalidMsg: "" } : validator(val);
 

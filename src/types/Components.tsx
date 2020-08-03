@@ -9,6 +9,7 @@ import { FirebaseInstance } from "../base";
 /* App */
 export interface IAppState {
   loading: boolean;
+  updating: boolean;
   activeProjectId: string;
   projects: IDictProject;
   currentUser: firebase.UserInfo | null;

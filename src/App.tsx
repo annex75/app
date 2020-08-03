@@ -6,7 +6,7 @@ import { Unsubscribe } from 'firebase';
 import firebase from 'firebase/app';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { Spinner } from '@blueprintjs/core';
+import { Spinner, Overlay } from '@blueprintjs/core';
 import { Intent } from '@blueprintjs/core';
 import xlsx from 'xlsx';
 
@@ -68,6 +68,7 @@ class App extends Component<IAppProps, IAppState> {
     this.state = {
       projects: {},
       loading: true,
+      updating: false,
       activeProjectId: "",
       currentUser: null,
     };
@@ -187,6 +188,7 @@ class App extends Component<IAppProps, IAppState> {
       // todo: save warning messages somewhere
       AppToaster.show({ intent: Intent.DANGER, message: "Project could not be updated: project name is not unique" });
     } else {
+      this.setState({ updating: true });
       this.setActiveProject(project.id);
       const projects = { ...this.state.projects };
 
@@ -194,9 +196,12 @@ class App extends Component<IAppProps, IAppState> {
       this.issueDuplicateWarnings(project);
 
       const updatedProject = this.updateTimeStamp(project);
-      
       projects[project.id] = updatedProject;
-      this.setState({ projects });
+      
+      this.setState({ projects }, () => {
+        this.setState({ updating: false });
+      });
+      
     }
   }
 
@@ -242,6 +247,7 @@ class App extends Component<IAppProps, IAppState> {
   }
 
   render() {
+    console.time();
     if (this.state.loading) {
       return (
         <div style={{ textAlign: "center", position: "absolute", top: "25%", left: "50%" }}>
@@ -252,6 +258,12 @@ class App extends Component<IAppProps, IAppState> {
     }
     return (
       <div className="app-body">
+        <Overlay isOpen={this.state.updating}>
+          <div style={{ textAlign: "center", position: "absolute", top: "25%", left: "50%" }}>
+            <h3>Updating project</h3>
+            <Spinner />
+          </div>
+        </Overlay>
         <BrowserRouter>
           <div className="app-container">
             <Header

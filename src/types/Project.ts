@@ -50,6 +50,7 @@ export class Project implements IProject {
   }
 
   // takes an empty workbook and fills it with this project in parsed form
+  // todo: this function is a complete mess and will be hard to keep up to date if we change the data format
   generateWorkbook = (workBook: xlsx.WorkBook) => {
     if (workBook.Sheets.length) {
       throw new Error("Target workbook must be empty")
@@ -61,6 +62,7 @@ export class Project implements IProject {
     const wsDataOverview = toXlsx(this.overviewData, objKeysOverview, valKeysOverview);
     const wsOverview = xlsx.utils.json_to_sheet(wsDataOverview, { header: ["key", "value"] });
     xlsx.utils.book_append_sheet(workBook, wsOverview, "Overview data");
+
 
     // calc data
     // building types
@@ -91,13 +93,175 @@ export class Project implements IProject {
           wsDataBuildingTypes[i].push(a[key]);
           i++;
         });
-      })
+      });
     });
-    
+
     const wsBuildingTypes = xlsx.utils.aoa_to_sheet(wsDataBuildingTypes);
     xlsx.utils.book_append_sheet(workBook, wsBuildingTypes, "Building types");
     
+
     // energy systems
+    const valKeysEnergySystems = [ "energyCarrier", "lifeTime", "systemCategory", "systemType", ];
+
+    const energySystemNames = Object.keys(this.calcData.energySystems)
+      .filter(key => !this.calcData.energySystems[key].deleted)
+      .map(key => {
+        return this.calcData.energySystems[key].name;
+      });
+    let wsDataEnergySystems : any[][] = [ ["key"].concat(energySystemNames) ];
+    valKeysEnergySystems.forEach(key => {
+      wsDataEnergySystems.push([key]);
+    })
+
+    Object.keys(this.calcData.energySystems).forEach(energySystemKey => {
+      const energySystem = this.calcData.energySystems[energySystemKey];
+      if (energySystem.deleted) {
+        return;
+      }
+      let i = 1;
+      valKeysEnergySystems.forEach(key => {
+        wsDataEnergySystems[i].push(energySystem[key]);
+        i++;
+      });
+    });
+
+    const wsEnergySystems = xlsx.utils.aoa_to_sheet(wsDataEnergySystems);
+    xlsx.utils.book_append_sheet(workBook, wsEnergySystems, "Energy systems");
+
+
+    // cost curves
+    const costCurveCategories = [ "embodiedEnergy", "investment", "maintenance", ]
+    const costCurveKeys = [ "systemSize", "intake", "generation", "circulation", "substation", ]
+    let wsDataCostCurves : any[][] = [ ["System name", ...costCurveKeys] ];
+    energySystemNames.forEach(name => {
+      wsDataCostCurves.push(...[
+        [name],
+        ["Embodied energy"], [""], [""], [""], [""],
+        ["Investment"], [""], [""], [""], [""],
+        ["Maintenance"], [""], [""], [""], [""],
+      ]);
+    });
+    const offset = 1;
+    const energySystemHeaderOffset = 1;
+    const rowsPerCat = 5;
+    let i = 0;
+    Object.keys(this.calcData.energySystems).forEach(energySystemKey => {
+      const energySystem = this.calcData.energySystems[energySystemKey];
+      if (energySystem.deleted) {
+        return;
+      }
+      const costCurves = energySystem.costCurves;
+      let j = 0;
+      costCurveCategories.forEach(cat => {
+        costCurveKeys.forEach(key => {
+          let k = i*(3*rowsPerCat+energySystemHeaderOffset)+j*rowsPerCat+energySystemHeaderOffset+offset;
+          costCurves[cat][key].value.forEach(val => {
+            wsDataCostCurves[k].push(val);
+            k++;
+          });
+        });
+        j++;
+      });
+      i++;
+    });
+
+    const wsCostCurves = xlsx.utils.aoa_to_sheet(wsDataCostCurves);
+    xlsx.utils.book_append_sheet(workBook, wsCostCurves, "Energy system cost curves");
+
+
+    // energy carriers
+    const energyCarrierKeys = [ "currentPrice", "emissionFactor", "primaryEnergyFactorNonRe", "primaryEnergyFactorRe", ]
+    const energyCarrierNames = Object.keys(this.calcData.energyCarriers)
+      .filter(key => !this.calcData.energyCarriers[key].deleted)
+      .map(key => {
+        return this.calcData.energyCarriers[key].name;
+      });
+    let wsDataEnergyCarriers : any[][] = [ ["key"].concat(energyCarrierNames) ];
+
+    energyCarrierKeys.forEach(key => {
+      wsDataEnergyCarriers.push([key]);
+    })
+
+    Object.keys(this.calcData.energyCarriers).forEach(energyCarrierKey => {
+      const energyCarrier = this.calcData.energyCarriers[energyCarrierKey];
+      if (energyCarrier.deleted) {
+        return;
+      }
+      let i = 1;
+      energyCarrierKeys.forEach(key => {
+        wsDataEnergyCarriers[i].push(energyCarrier[key]);
+        i++;
+      });
+    });
+
+    const wsEnergyCarriers = xlsx.utils.aoa_to_sheet(wsDataEnergyCarriers);
+    xlsx.utils.book_append_sheet(workBook, wsEnergyCarriers, "Energy carriers");
+
+    
+    // renovation measures
+    interface IBuildingPartKeys { label: string; keys: string[]; }
+    interface IDictBuildingPartKeys { [key: string]: IBuildingPartKeys }
+    const buildingParts: IDictBuildingPartKeys = {
+      facade: {
+        label: "Facade",
+        keys: [ "lifeTime", "refurbishmentCost", "uValue", ],
+      },
+      foundation: {
+        label: "Foundation",
+        keys: [ "lifeTime", "refurbishmentCost", "basementWallUValue", "foundationUValue" ],
+      },
+      roof: {
+        label: "Roof",
+        keys: [ "lifeTime", "refurbishmentCost", "uValue", ],
+      },
+      windows: {
+        label: "Windows",
+        keys: [ "lifeTime", "refurbishmentCost", "uValue", "gValue",  ],
+      },
+      hvac: {
+        label: "HVAC",
+        keys: [ 
+          "lifeTime",
+          "refurbishmentCost",
+          "coldWaterTemp",
+          "coolingType",
+          "efficiency",
+          "energyCarrier",
+          "heatingType",
+          "hotWaterTemp",
+          "recoveryEfficiency",
+          "ventilationRate",
+          "ventilationType",
+        ],
+      },
+    }
+    Object.keys(buildingParts).forEach(partKey => {
+      const partMeasureKeys = buildingParts[partKey].keys;
+      const partMeasureNames = Object.keys(this.calcData.buildingMeasures[partKey])
+        .filter(key => !this.calcData.buildingMeasures[partKey][key].deleted)
+        .map(key => {
+          return this.calcData.buildingMeasures[partKey][key].measureName;
+        });
+      let wsDataPartMeasures : any[][] = [ ["key"].concat(partMeasureNames) ];
+      partMeasureKeys.forEach(key => {
+        wsDataPartMeasures.push([key]);
+      })
+
+      Object.keys(this.calcData.buildingMeasures[partKey]).forEach(partMeasureKey => {
+        const partMeasure = this.calcData.buildingMeasures[partKey][partMeasureKey];
+        if (partMeasure.deleted) {
+          return;
+        }
+        let i = 1;
+        partMeasureKeys.forEach(key => {
+          wsDataPartMeasures[i].push(partMeasure[key]);
+          i++;
+        });
+      });
+
+      const wsPartMeasures = xlsx.utils.aoa_to_sheet(wsDataPartMeasures);
+      xlsx.utils.book_append_sheet(workBook, wsPartMeasures, `${buildingParts[partKey].label} renovation measures`);
+    });
 
     return workBook;
 
