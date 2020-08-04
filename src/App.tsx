@@ -6,8 +6,7 @@ import { Unsubscribe } from 'firebase';
 import firebase from 'firebase/app';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { Spinner, Overlay } from '@blueprintjs/core';
-import { Intent } from '@blueprintjs/core';
+import { Spinner, Intent } from '@blueprintjs/core';
 import xlsx from 'xlsx';
 
 // internal
@@ -16,7 +15,7 @@ import { Footer } from './components/Footer';
 import { Login } from './components/Login';
 import { Logout } from './components/Logout';
 import { Workspace } from './components/Workspace';
-import { IProject, IAppProps, IAppState, Project } from './types';
+import { IProject, IAppProps, IAppState, Project, IDictProject } from './types';
 import './style/stylesheet.css';
 import { FirebaseInstance } from './base';
 import { ProjectList } from './components/ProjectList';
@@ -81,11 +80,11 @@ class App extends Component<IAppProps, IAppState> {
         this.setState({
           currentUser: user,
         });
-        this.dataRef = this.fb.base.syncState(`projects/${user.uid}`, {
+        this.fb.base.fetch(`projects/${user.uid}`, {
           context: this,
-          state: 'projects',
-          then: () => {
+          then: (data: IDictProject) => {
             this.setState({
+              projects: data,
               loading: false,
             });
           },
@@ -95,7 +94,6 @@ class App extends Component<IAppProps, IAppState> {
           currentUser: null,
           loading: false,
         });
-        this.fb.base.removeBinding(this.dataRef);
       }
 
     });
@@ -104,7 +102,6 @@ class App extends Component<IAppProps, IAppState> {
 
   componentWillUnmount() {
     this.removeAuthListener();
-    this.fb.base.removeBinding(this.dataRef);
   }
 
   addProject = (name: string, workbook: xlsx.WorkBook | null) => {
@@ -188,7 +185,6 @@ class App extends Component<IAppProps, IAppState> {
       // todo: save warning messages somewhere
       AppToaster.show({ intent: Intent.DANGER, message: "Project could not be updated: project name is not unique" });
     } else {
-      this.setState({ updating: true });
       this.setActiveProject(project.id);
       const projects = { ...this.state.projects };
 
@@ -198,10 +194,16 @@ class App extends Component<IAppProps, IAppState> {
       const updatedProject = this.updateTimeStamp(project);
       projects[project.id] = updatedProject;
       
-      this.setState({ projects }, () => {
-        this.setState({ updating: false });
+      this.setState({ projects, updating: true }, () => {
+        this.fb.base.update(`projects/${this.state.currentUser!.uid}`, {
+          data: this.state.projects,
+          then: () => {
+            this.setState({
+              updating: false,
+            });
+          },
+        });
       });
-      
     }
   }
 
@@ -247,7 +249,6 @@ class App extends Component<IAppProps, IAppState> {
   }
 
   render() {
-    console.time();
     if (this.state.loading) {
       return (
         <div style={{ textAlign: "center", position: "absolute", top: "25%", left: "50%" }}>
@@ -258,12 +259,6 @@ class App extends Component<IAppProps, IAppState> {
     }
     return (
       <div className="app-body">
-        <Overlay isOpen={this.state.updating}>
-          <div style={{ textAlign: "center", position: "absolute", top: "25%", left: "50%" }}>
-            <h3>Updating project</h3>
-            <Spinner />
-          </div>
-        </Overlay>
         <BrowserRouter>
           <div className="app-container">
             <Header
