@@ -162,7 +162,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
           <CartesianGrid />
           <XAxis type="number" dataKey="x" name="x" unit="-" />
           <YAxis type="number" dataKey="y" name="y" unit="-" />
-          <Scatter name="Placeholder data" data={this.placeholderData} fill="#8884d8" />
+          <Scatter className="" name="Placeholder data" data={this.placeholderData} fill="#8884d8" />
 
         </ScatterChart>
       </div>
