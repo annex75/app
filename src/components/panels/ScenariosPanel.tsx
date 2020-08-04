@@ -293,7 +293,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
             }
             {
               // for each building type
-              Object.keys(buildingTypes).map((buildingTypeId: string) => {
+              Object.keys(buildingTypes).filter(key => !buildingTypes[key].deleted).map((buildingTypeId: string) => {
                 return (
                   <div key={`scenario-${buildingTypeId}-div`} style={{display: "flex", flexDirection: "column", justifyContent: "space-around"}}>
                     <Button
