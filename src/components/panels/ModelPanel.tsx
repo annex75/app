@@ -5,6 +5,7 @@ import { debounce as _debounce } from 'lodash';
 
 // internal
 import { IModelPanelProps, IModelPanelState, IModelOptionsCard, TModelOptionsCategory } from '../../types';
+import { Switch } from '@blueprintjs/core';
 
 export class ModelPanel extends Component<IModelPanelProps, IModelPanelState> {
   constructor(props: IModelPanelProps) {
@@ -50,6 +51,7 @@ export class ModelPanel extends Component<IModelPanelProps, IModelPanelState> {
     this.state = {
       project,
       modelOptions,
+      calculationActive: false,
     }  
   }
 
@@ -65,8 +67,16 @@ export class ModelPanel extends Component<IModelPanelProps, IModelPanelState> {
     this.setState(newState);
     this.updateProjectDebounce();
   }
+
   updateProject = () => this.props.updateProject(this.state.project);
   updateProjectDebounce = _debounce(this.updateProject, 1000);
+
+  handleActivateCalculation = (e: React.FormEvent<HTMLInputElement>) => {
+    const newState = _fpSet("project.calculationActive", !this.state.project.calculationActive, this.state);
+    this.setState(newState, () => {
+      this.updateProject();
+    });
+  }
 
   // takes a subpath and returns its location in the main data structure
   formatPath = (childPath: string) => {
@@ -78,6 +88,10 @@ export class ModelPanel extends Component<IModelPanelProps, IModelPanelState> {
     return (
       <div>
         <h1>{this.props.title}</h1>
+        <div className="bp3-card panel-card" >
+          <h2>Calculations</h2>
+          <Switch checked={this.state.project.calculationActive} label="Activate calculations" onChange={this.handleActivateCalculation} />
+        </div>
         <div className="bp3-card panel-card" >Energy demand</div>
         <div className="bp3-card panel-card" >Energy system output</div>
         <div className="bp3-card panel-card" >Energy system cost</div>

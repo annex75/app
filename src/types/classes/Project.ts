@@ -3,12 +3,15 @@ import { v4 as uuidv4 } from 'uuid';
 import xlsx from 'xlsx';
 
 // internal
-import { APP_VERSION } from '../constants';
-import { updateFromWorkbook } from '../WorkbookImport';
-import { IProject, OverviewData, CalcData, ScenarioData, ScenarioInfo, Scenario, toXlsx, BuildingInformation, BuildingGeometry } from './Data';
+import { APP_VERSION } from '../../constants';
+import { updateFromWorkbook } from '../../WorkbookImport';
+import { IProject, OverviewData, CalcData, ScenarioData, ScenarioInfo, Scenario, toXlsx, BuildingInformation, BuildingGeometry, } from '../Data';
+import { TCostCurveCategory } from './EnergySystem';
+import { calculateSystemSizes, IEnergySystemScenarioInfo, calculateAnnualizedSpecificInvestmentCost, calculateSpecificMaintenanceCost, calculateSpecificEmbodiedEnergy } from '../../calculation-model/calculate';
 
 export class Project implements IProject {
   appVersion = APP_VERSION;
+  calculationActive: boolean = false;
   id: string = uuidv4();
   name: string;
   owner: string;
@@ -48,6 +51,56 @@ export class Project implements IProject {
     updateFromWorkbook(this, workBook);
     console.log(this);
   }
+
+  updateTimeStamp = () => {
+    this.timeStamp = Date.now();
+    return this;
+  }
+
+  performCalculations = () => {
+    if (this.calculationActive) {
+      let scenarioEnergySystemInfos: Record<string,Record<string, IEnergySystemScenarioInfo>> = {};
+      scenarioEnergySystemInfos = calculateSystemSizes(this.jsonData);
+
+      // todo: calculations on renovation measures
+
+      Object.entries(scenarioEnergySystemInfos).forEach(([key, entry]) => {
+        this.scenarioData.scenarios[key].energySystems = entry;
+      });
+    }
+
+    return this._summarize();
+  }
+
+  _summarize = () => {
+    Object.keys(this.scenarioData.scenarios).forEach(scenarioId => {
+      const scenario = this.scenarioData.scenarios[scenarioId];
+      
+      Object.keys(this.calcData.buildingTypes).forEach(buildingTypeId => {
+        const buildingType = this.calcData.buildingTypes[buildingTypeId];
+        const numBuildings = buildingType.scenarioInfos[scenarioId].buildingType.numberOfBuildings;
+        const heatingNeed = buildingType.scenarioInfos[scenarioId].buildingType.heatingNeed;
+        const area = buildingType.buildingGeometry.grossFloorArea;
+        scenario.total.buildingArea += numBuildings*area;
+        scenario.total.heatingNeed = numBuildings*heatingNeed;
+      })
+
+      Object.keys(scenario.energySystems).forEach(energySystemId => {
+        const totalBuildingArea = scenario.total.buildingArea;
+        const energySystemScenarioInfo = scenario.energySystems[energySystemId];
+        const energySystem = this.calcData.energySystems[energySystemId];
+        const annualizedSpecificInvestmentCost = calculateAnnualizedSpecificInvestmentCost(energySystemScenarioInfo, energySystem, totalBuildingArea);
+        const specificMaintenanceCost = calculateSpecificMaintenanceCost(energySystemScenarioInfo, energySystem, totalBuildingArea);
+        scenario.total.annualizedSpecificCost += 
+          annualizedSpecificInvestmentCost
+          + specificMaintenanceCost;
+        scenario.total.specificEmbodiedEnergy += calculateSpecificEmbodiedEnergy(energySystemScenarioInfo, totalBuildingArea);
+      });
+      
+    })
+    return this;
+  }
+
 
   // takes an empty workbook and fills it with this project in parsed form
   // todo: this function is a complete mess and will be hard to keep up to date if we change the data format
@@ -130,7 +183,7 @@ export class Project implements IProject {
 
 
     // cost curves
-    const costCurveCategories = [ "embodiedEnergy", "investment", "maintenance", ]
+    const costCurveCategories: TCostCurveCategory[] = [ "embodiedEnergy", "investment", "maintenance", ]
     const costCurveKeys = [ "systemSize", "intake", "generation", "circulation", "substation", ]
     let wsDataCostCurves : any[][] = [ ["System name", ...costCurveKeys] ];
     energySystemNames.forEach(name => {

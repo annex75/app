@@ -9,6 +9,7 @@ export const noop = (s: any) => {
 export const generateDefaultProject = (): IProject => {
     const defProject = {
         appVersion: APP_VERSION,
+        calculationActive: false,
         id: uuid(),
         name: "Default project",
         owner: "defaultOwner",

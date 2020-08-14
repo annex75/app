@@ -104,6 +104,10 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
   handleEditCostCurveClick = (e: React.MouseEvent<HTMLElement>, id: string) => {
     this.props.editCostCurve(id);
   }
+
+  handleEditSystemSizeCurveClick = (e: React.MouseEvent<HTMLElement>, id: string) => {
+    this.props.editSystemSizeCurve(id);
+  }
   
   render() {
     const { energySystems, energyCarriers } = this.props.data;
@@ -160,12 +164,20 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
             {
               Object.keys(energySystems).map(id => {
                 return (
-                  <Button
-                    className="bp3-button edit-cost-curve-button bp3-minimal"
-                    key={`energy-system-${id}-edit-cost-curve-button`}
-                    onClick={(e: React.MouseEvent<HTMLElement>) => this.handleEditCostCurveClick(e, id)}>
-                    Edit cost curve
-                  </Button>
+                  <div key={`energy-systems-button-container-${id}`} className="energy-systems-button-container">
+                    <Button
+                      className="bp3-button edit-cost-curve-button bp3-minimal"
+                      key={`energy-system-${id}-edit-system-size-curve-button`}
+                      onClick={(e: React.MouseEvent<HTMLElement>) => this.handleEditSystemSizeCurveClick(e, id)}>
+                      Edit system size curve
+                    </Button>
+                    <Button
+                      className="bp3-button edit-cost-curve-button bp3-minimal"
+                      key={`energy-system-${id}-edit-cost-curve-button`}
+                      onClick={(e: React.MouseEvent<HTMLElement>) => this.handleEditCostCurveClick(e, id)}>
+                      Edit cost curve
+                    </Button>
+                  </div>
                 )
               })
             }

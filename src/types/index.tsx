@@ -1,3 +1,4 @@
 export * from './Data';
 export * from './Components';
-export * from './Project';
+export * from './classes/Project';
+export * from './classes/EnergySystem';

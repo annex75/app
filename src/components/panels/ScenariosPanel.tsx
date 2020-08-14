@@ -3,10 +3,10 @@ import { set as _fpSet, get as _fpGet, equals as _fpEquals } from 'lodash/fp';
 import { pickBy as _pickBy, debounce as _debounce } from 'lodash';
 
 import * as config from '../../config.json';
-import { IScenariosPanelProps, IScenariosPanelState, Scenario, IScenarioOptionsCard, ScenarioInfo, TScenarioParamCategory } from '../../types';
+import { IScenariosPanelProps, IScenariosPanelState, Scenario, IScenarioOptionsCard, ScenarioInfo, TScenarioParamCategory, IScenarioInput, } from '../../types';
 import { InputGroup, FormGroup, Button, Intent, Collapse } from '@blueprintjs/core';
 import { AppToaster } from '../../toaster';
-import { renderInputField, } from '../../helpers';
+import { renderInputField, renderDropdown, IDropdownAlt } from '../../helpers';
 
 export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPanelState> {
   constructor(props: IScenariosPanelProps) {
@@ -27,36 +27,49 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
             numberOfBuildings: {
               key: "numberOfBuildings",
               type: Number,
+              mode: "input",
               rootPath: "calcData.buildingTypes",
               label: "Number of buildings:",
+            },
+            heatingNeed: {
+              key: "heatingNeed",
+              type: Number,
+              mode: "input",
+              label: "Heating need [kWh/a]:",
+              rootPath: "calcData.buildingTypes",
             },
             occupancy: {
               key: "occupancy",
               type: String,
+              mode: "input",
               rootPath: "calcData.buildingTypes",
               label: "Occupancy:"
             },
             occupants: {
               key: "occupants",
               type: Number,
+              mode: "input",
               rootPath: "calcData.buildingTypes",
               label: "Number of occupants:",
             },
             setPointTemp: {
               key: "setPointTemp",
               type: Number,
+              mode: "input",
               rootPath: "calcData.buildingTypes",
               label: "Set point temperature (heating):",
             },
             appliancesElectricityUsage: {
               key: "appliancesElectricityUsage",
               type: Number,
+              mode: "input",
               rootPath: "calcData.buildingTypes",
               label: "Domestic electricity usage:",
             },
             domesticHotWaterUsage: {
               key: "domesticHotWaterUsage",
               type: Number,
+              mode: "input",
               rootPath: "calcData.buildingTypes",
               label: "Domestic hot water usage:",
             },
@@ -70,18 +83,21 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
             interestRate: {
               key: "interestRate",
               type: Number,
+              mode: "input",
               rootPath: "scenarioData.scenarios",
               label: "Interest rate:",
             },
             energyPriceIncrease: {
               key: "energyPriceIncrease",
               type: Number,
+              mode: "input",
               rootPath: "scenarioData.scenarios",
               label: "Annual energy price increase:",
             },
             calculationPeriod: {
               key: "calculationPeriod",
               type: Number,
+              mode: "input",
               rootPath: "scenarioData.scenarios",
               label: "Calculation period:"
             },
@@ -93,10 +109,10 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
           parameters: {
             energySystem: {
               key: "energySystem",
-              type: String,
-              rootPath: "calcData.buildingTypes",
+              nameKey: "name",
+              optionPath: "calcData.energySystems",
+              mode: "dropdown",
               label: "Energy system:",
-              validator: this.createValidator("project.calcData.energySystems", "energy system", "name"),
             },
           },
         },
@@ -106,38 +122,38 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
           parameters: {
             roof: {
               key: "roof",
-              type: String,
-              rootPath: "calcData.buildingTypes",
+              nameKey: "measureName",
+              optionPath: "calcData.buildingMeasures.roof",
+              mode: "dropdown",
               label: "Roof:",
-              validator: this.createValidator("project.calcData.buildingMeasures.roof", "roof renovation measure", "measureName"),
             },
             facade: {
               key: "facade",
-              type: String,
-              rootPath: "calcData.buildingTypes",
+              nameKey: "measureName",
+              optionPath: "calcData.buildingMeasures.facade",
+              mode: "dropdown",
               label: "Façade:",
-              validator: this.createValidator("project.calcData.buildingMeasures.facade", "façade renovation measure", "measureName"),
             },
             foundation: {
               key: "foundation",
-              type: String,
-              rootPath: "calcData.buildingTypes",
+              nameKey: "measureName",
+              optionPath: "calcData.buildingMeasures.foundation",
+              mode: "dropdown",
               label: "Foundation:",
-              validator: this.createValidator("project.calcData.buildingMeasures.foundation", "foundation renovation measure", "measureName"),
             },
             windows: {
               key: "windows",
-              type: String,
-              rootPath: "calcData.buildingTypes",
+              nameKey: "measureName",
+              optionPath: "calcData.buildingMeasures.windows",
+              mode: "dropdown",
               label: "Windows:",
-              validator: this.createValidator("project.calcData.buildingMeasures.windows", "windows renovation measure", "measureName"),
             },
             hvac: {
               key: "hvac",
-              type: String,
-              rootPath: "calcData.buildingTypes",
+              nameKey: "measureName",
+              optionPath: "calcData.buildingMeasures.hvac",
+              mode: "dropdown",
               label: "HVAC system:",
-              validator: this.createValidator("project.calcData.buildingMeasures.hvac", "hvac renovation measure", "measureName"),
             }
           }
         },
@@ -159,8 +175,9 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
   handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const path = this.formatPath(e.target.name);
     const newState = _fpSet(path, e.target.value, this.state);
-    this.setState(newState);
-    this.updateProjectDebounce();
+    this.setState(newState, () => {
+      this.updateProject();
+    });
   }
   updateProject = () => this.props.updateProject(this.state.project);
   updateProjectDebounce = _debounce(this.updateProject, 1000);
@@ -168,6 +185,13 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
   // takes a subpath and returns its location in the main data structure
   formatPath = (childPath: string) => {
     return `project.${childPath}`;
+  }
+
+  handleDropdownChange = (item: IDropdownAlt) => {
+    const path = this.formatPath(item.path);
+    const newState = _fpSet(path, item.id, this.state);
+    this.setState(newState);
+    this.updateProjectDebounce();
   }
 
   handleAddScenarioClick = (e: React.MouseEvent<HTMLElement>) => {
@@ -266,7 +290,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                     <h3 key={`scenario-global-${paramCategoryName}-header`}>{paramCategory.label}</h3>
                     {
                       Object.keys(paramCategory.parameters).map(paramName => {
-                        const param = paramCategory.parameters[paramName];
+                        const param = paramCategory.parameters[paramName] as IScenarioInput;
                         return (
                           <div key={`scenario-global-${paramName}-div`} className="panel-list-row">
                             <FormGroup
@@ -284,7 +308,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                               <span className="empty-button"/>
                             </FormGroup>
                           </div>
-                        )
+                        )                        
                       })
                     }
                   </div>
@@ -326,8 +350,37 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                                       {
                                         Object.keys(scenarios).map(id => {
                                           param.path = `calcData.buildingTypes.${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
-                                          param.localPath = `${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
-                                          return renderInputField(`scenario-${buildingTypeId}-${paramName}-${id}`, param, buildingTypes, this.handleChange, param.validator)
+                                          switch (param.mode) {
+                                            case "input": {
+                                              param.localPath = `${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
+                                              return renderInputField(`scenario-${buildingTypeId}-${paramName}-${id}`, param, buildingTypes, this.handleChange, param.validator)
+                                            } case "dropdown": {
+                                              const data = _fpGet(param.optionPath, this.state.project);
+                                              const alts = Object.keys(data).map((key) => {
+                                                const dataPoint = data[key];
+                                                return {
+                                                  label: dataPoint[param.nameKey] || "",
+                                                  id: dataPoint.id || "",
+                                                  name: dataPoint[param.nameKey] || "",
+                                                  path: param.path || "",
+                                                }
+                                              });
+                                              
+                                              const selId = _fpGet(param.path, this.state.project);
+                                              const selected = alts.find(e => {
+                                                return e.id === selId;
+                                              }) || {
+                                                label: "Select...",
+                                                path: "",
+                                                id: "",
+                                                name: "",
+                                              };
+
+                                              return renderDropdown(`scenario-${buildingTypeId}-${paramName}-${id}`, alts, selected, param, this.handleDropdownChange)
+                                            } default: {
+                                              throw new Error(`Param mode is not defined`);
+                                            }
+                                          }
                                         })
                                       }
                                       <span className="empty-button"/>

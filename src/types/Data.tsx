@@ -2,6 +2,10 @@
 import { v4 as uuidv4 } from 'uuid';
 
 // internal
+import { EnergySystem } from './classes/EnergySystem';
+import { IEnergySystemScenarioInfo } from '../calculation-model/calculate';
+export * from './classes/Project';
+export * from './classes/EnergySystem';
 
 // this module defines data containers
 
@@ -16,6 +20,7 @@ export interface IDictBool {
 
 export interface IProject {
   appVersion: string | null;
+  calculationActive: boolean;
   id: string;
   name: string;
   owner: string;
@@ -229,84 +234,6 @@ export interface IDictEnergySystem {
   [index: string]: EnergySystem;
 }
 
-const defSystemSizes = [ 50, 100, 150, 200, 250 ];
-const defCostCurve = [ 0, 0, 0, 0, 0];
-
-export class EnergySystem {
-  constructor(id: string = uuidv4()) {
-    this.id = id;
-    this.costCurves = {};
-    this.costCurves.investment = new CostCurveDict("euro");
-    this.costCurves.maintenance = new CostCurveDict("euro/a");
-    this.costCurves.embodiedEnergy = new CostCurveDict("co2eq/a");
-  }
-  id: string;
-  name: string = "";
-  systemType: string = "";
-  systemCategory: string = "District";
-  lifeTime: number = 0;
-  energyCarrier: string = "";
-  costCurves: Record<string,CostCurveDict>;
-  [key: string]: EnergySystem[keyof EnergySystem];
-}
-
-export class CostCurveDict {
-  constructor(unit: string) {
-    this.intake.unit = unit;
-    this.generation.unit = unit;
-    this.circulation.unit = unit;
-    this.substation.unit = unit;
-  }
-  systemSize: ICostCurve = {
-    label: "System size [kW]",
-    value: defSystemSizes,
-    index: 0,
-    unit: "kW",
-  };
-  intake: ICostCurve = {
-    label: "Intake",
-    value: defCostCurve,
-    index: 1,
-    unit: "",
-  };
-  generation: ICostCurve = {
-    label: "Generation",
-    value: defCostCurve,
-    index: 2,
-    unit: "",
-  };
-  circulation: ICostCurve = {
-    label: "Circulation",
-    value: defCostCurve,
-    index: 3,
-    unit: "",
-  };
-  substation: ICostCurve = {
-    label: "Substation",
-    value: defCostCurve,
-    index: 4,
-    unit: "",
-  };
-  [key: string]: CostCurveDict[keyof CostCurveDict]
-}
-
-export interface ICostCurve {
-  label: string;
-  unit: string;
-  value: number[];
-  index: number;
-}
-
-export class EnergySystemType {
-  name: string = "";
-}
-
-export interface ICostCurveType {
-  name: string;
-  label: string;
-  unit: string;
-}
-
 export interface IDictEnergyCarrier {
   [index: string]: EnergyCarrier;
 }
@@ -405,31 +332,51 @@ export class ScenarioData {
   scenarios: Record<string,Scenario> = {};
 }
 
+export interface IResultSummary {
+  specificEmbodiedEnergy: number; // [kWh/m2]
+  annualizedSpecificCost: number; // [€/m2a]
+  buildingArea: number; // [m2]
+  heatingNeed: number; // [kWh]
+  // specificGHGEmissions: number; // todo: implement
+  // annualizedSpecificInvestmentCost: number;
+  // specificMaintenanceCost: number;
+}
+
 export class Scenario {
   constructor(scenarioId: string = uuidv4()) {
     this.id = scenarioId;
   }
   id: string;
   name: string = "";
-}
-
-export class ScenarioInfo {
-  buildingType: IScenarioBuildingData = {
-    numberOfBuildings: 0,
-    occupancy: "",
-    occupants: 0,
-    setPointTemp: 0,
-    appliancesElectricityUsage: 0,
-    domesticHotWaterUsage: 0,
-  };
   economy: IScenarioEconomyData = {
     interestRate: 0,
     energyPriceIncrease: 0,
     calculationPeriod: 0,
   }
+  energySystems: Record<string,IEnergySystemScenarioInfo> = {};
+  total: IResultSummary = {
+    specificEmbodiedEnergy: 0,
+    annualizedSpecificCost: 0,
+    buildingArea: 0,
+    heatingNeed: 0,
+  }
+}
+
+export class ScenarioInfo {
+  buildingType: IScenarioBuildingData = {
+    numberOfBuildings: 0,
+    heatingNeed: 0, // [kWh]
+    occupancy: "",
+    occupants: 0,
+    setPointTemp: 0, // [degC]
+    appliancesElectricityUsage: 0, // [?]
+    domesticHotWaterUsage: 0, // [?]
+  };
+
   energySystem: Record<string,string> = {
     energySystem: "",
   };
+
   buildingMeasures: Record<TBuildingMeasureCategory,string> = {
     roof: "",
     facade: "",
@@ -442,6 +389,7 @@ export class ScenarioInfo {
 
 export interface IScenarioBuildingData {
   numberOfBuildings: number;
+  heatingNeed: number;
   occupancy: string;
   occupants: number;
   setPointTemp: number;

@@ -1,13 +1,15 @@
+// external
 import React, { Component } from 'react';
-
 import '@blueprintjs/table/lib/css/table.css';
-
 import { MenuItem, Button, Classes, FormGroup } from '@blueprintjs/core';
 import { Select, ItemRenderer } from '@blueprintjs/select';
 import { Table, Column, EditableCell, ColumnHeaderCell } from '@blueprintjs/table';
-import { ICostCurveType, ICostCurveEditorProps, ICostCurveEditorState, ICostCurve } from '../../../types';
-import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter } from 'recharts';
 
+// internal
+import { ICostCurveType, ICostCurveEditorProps, ICostCurveEditorState, ICostCurve } from '../../../types';
+import { renderScatterChart, getNewColor, IChartSetup } from '../../../helpers';
+
+// todo: replace this local thing with renderDropdown() from helpers.tsx
 const CostCurveSelect = Select.ofType<ICostCurveType>();
 const renderCostCurveType: ItemRenderer<ICostCurveType> = (type, { handleClick, modifiers }) => {
   return ( 
@@ -30,17 +32,17 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
       {
         name: "investment",
         label: "Investment cost",
-        unit: "euro/a"
+        unit: "€"
       },
       {
         name: "maintenance",
         label: "Maintenance cost",
-        unit: "euro/a"
+        unit: "€/a"
       },
       {
         name: "embodiedEnergy",
         label: "Embodied energy",
-        unit: "kWh/"
+        unit: "kWh/m²a"
       }
     ]
     this.state = {
@@ -83,26 +85,6 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
     return <ColumnHeaderCell name={label} />;
   };
 
-  chartSettings = {
-    width: 400,
-    height: 200,
-    margin: {
-      top: 20,
-      right: 20,
-      bottom: 20,
-      left: 20,
-    },
-  }
-
-  placeholderData = [
-    { x: 100, y: 200, z: 200 },
-    { x: 120, y: 100, z: 260 },
-    { x: 170, y: 300, z: 400 },
-    { x: 140, y: 250, z: 280 },
-    { x: 150, y: 400, z: 500 },
-    { x: 110, y: 280, z: 200 },
-  ]
-
   render() {
     const { energySystems } = this.props;
     const { costCurveType, activeEnergySystemId } = this.state;
@@ -123,6 +105,34 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
           columnHeaderCellRenderer={(index: number) => this.renderColumnHeader(index, costCurve.label)}/>
       )
     });
+
+    const xCurve = activeSystem.costCurves[costCurveType.name][costCurvesSorted[0]];
+
+    const chartSetup: IChartSetup = {
+      xUnit: " kW",
+      xLabel: "System size",
+      xKey: 'x',
+      yUnit: ` ${costCurveType.unit}`,
+      yLabel: costCurveType.label,
+      yKey: 'y',
+      mode: "2d",
+      name: "Scatter chart"
+    }
+
+    const graphData = costCurvesSorted.slice(1).map((id: string, index: number) => {
+
+      const costCurve = activeSystem.costCurves[costCurveType.name][id] as ICostCurve;
+      return {
+        name: costCurve.label,
+        fillColor: getNewColor(index),
+        data: costCurve.value.map((v, i) => {
+          return {
+            x: xCurve.value[i],
+            y: v,
+          }
+        })
+      }
+    })
 
     return (
       <div className={Classes.DIALOG_BODY}>
@@ -154,17 +164,18 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
         <Table
           numRows={this.state.costCurveRows}
           enableRowHeader={false}
+          enableFocusedCell={true}
+          getCellClipboardData={(row: number, col: number) => 
+            {
+              return activeSystem.costCurves[costCurveType.name][costCurvesSorted[col]].value[row];
+            }}
           >
           {columns}
         </Table>
-        <h2>Cost curves (placeholder)</h2>
-        <ScatterChart {...this.chartSettings}>
-          <CartesianGrid />
-          <XAxis type="number" dataKey="x" name="x" unit="-" />
-          <YAxis type="number" dataKey="y" name="y" unit="-" />
-          <Scatter className="" name="Placeholder data" data={this.placeholderData} fill="#8884d8" />
-
-        </ScatterChart>
+        <h2>Cost curves</h2>
+        {
+          renderScatterChart(graphData, chartSetup )
+        }
       </div>
     )
   }

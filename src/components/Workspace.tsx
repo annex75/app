@@ -152,13 +152,18 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
               updateProject={this.props.updateProject}
               project={this.state.project}/>
           } />
-          <Tab disabled id="model" title={"Model settings"} panel={
+          <Tab id="model" title={"Model settings"} panel={
             <ModelPanel
               title="Calculation model settings"
               updateProject={this.props.updateProject}
               project={this.state.project}/>
           } />
-          <Tab disabled id="results" title={"Results"} panel={<ResultsPanel title="Results" />} />
+          <Tab id="results" title={"Results"} panel={
+            <ResultsPanel
+              title="Results" 
+              project={this.state.project}
+              updateProject={this.props.updateProject}/>
+          } />
         </Tabs>
       </div>
     );

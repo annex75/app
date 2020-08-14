@@ -104,6 +104,19 @@ class App extends Component<IAppProps, IAppState> {
     this.removeAuthListener();
   }
 
+  updateProjectsDatabase = (projects: IDictProject) => {
+    this.setState({ projects, updating: true }, () => {
+      this.fb.base.update(`projects/${this.state.currentUser!.uid}`, {
+        data: this.state.projects,
+        then: () => {
+          this.setState({
+            updating: false,
+          });
+        },
+      });
+    });
+  }
+
   addProject = (name: string, workbook: xlsx.WorkBook | null) => {
     if (!this.state.currentUser) {
       AppToaster.show({ intent: Intent.DANGER, message: "Project could not be added: no user signed in" });
@@ -121,7 +134,8 @@ class App extends Component<IAppProps, IAppState> {
       
       const projects = { ...this.state.projects };
       projects[project.id] = project.jsonData;
-      this.setState({ projects });
+
+      this.updateProjectsDatabase(projects);
     }
   }
 
@@ -141,7 +155,7 @@ class App extends Component<IAppProps, IAppState> {
 
       const projects = { ...this.state.projects };
       projects[projectClone.id] = projectClone;
-      this.setState({ projects });
+      this.updateProjectsDatabase(projects);
     }
   }
 
@@ -180,30 +194,30 @@ class App extends Component<IAppProps, IAppState> {
     }
   }
 
-  updateProject = (project: IProject) => {
-    if (!this.validProjectName(project.name, project.id)) {
+  updateProject = (iProject: IProject) => {
+    console.log(iProject);
+    if (!this.validProjectName(iProject.name, iProject.id)) {
       // todo: save warning messages somewhere
-      AppToaster.show({ intent: Intent.DANGER, message: "Project could not be updated: project name is not unique" });
+      
     } else {
-      this.setActiveProject(project.id);
+      this.setActiveProject(iProject.id);
       const projects = { ...this.state.projects };
 
       // not implemented
-      this.issueDuplicateWarnings(project);
+      this.issueDuplicateWarnings(iProject);
+      let updatedProject;
+      try {
+        updatedProject = Project.fromIProject(iProject)
+          .updateTimeStamp()
+          .performCalculations()
+          .jsonData;
 
-      const updatedProject = this.updateTimeStamp(project);
-      projects[project.id] = updatedProject;
-      
-      this.setState({ projects, updating: true }, () => {
-        this.fb.base.update(`projects/${this.state.currentUser!.uid}`, {
-          data: this.state.projects,
-          then: () => {
-            this.setState({
-              updating: false,
-            });
-          },
-        });
-      });
+        projects[iProject.id] = updatedProject;
+      } catch (e) {
+        projects[iProject.id] = iProject;
+        AppToaster.show({ intent: Intent.DANGER, message: e.message });
+      }
+      this.updateProjectsDatabase(projects);
     }
   }
 
@@ -217,12 +231,6 @@ class App extends Component<IAppProps, IAppState> {
     // check energy carriers
 
     // check renovation measures
-  }
-
-  updateTimeStamp = (project: IProject) => {
-    let outProject = _.cloneDeep(project);
-    outProject.timeStamp = Date.now();
-    return outProject;
   }
 
   // todo: update this to actually remove the project from db

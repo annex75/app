@@ -236,6 +236,15 @@ ul {
   padding-left: 5px;
 }
 
+.dropdown-button {
+  width: 140px;
+  margin-right: 5px;
+  padding-right: 5px;
+  margin-left: 5px;
+}
+
+
+
 .inline-input .bp3-form-content .building-type-button-header-div {
   width: 150px;
   padding-right: 5px;
@@ -244,10 +253,14 @@ ul {
   justify-content: center;
 }
 
+.energy-systems-button-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .bp3-form-content .edit-cost-curve-button {
   width: 150px;
-  padding-right: 5px;
-  padding-left: 5px;
+  padding: 5px;
 }
 
 .inline-input .bp3-form-content .bp3-input-group input {
@@ -291,6 +304,10 @@ input {
   margin: 10vh 0;
 }
 
-.cost-curve-editor-dialog {
+.curve-editor-dialog {
   min-width: 800px;
+}
+
+.chart-y-axis-label {
+  text-anchor: middle;
 }

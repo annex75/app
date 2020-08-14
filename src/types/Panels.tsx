@@ -1,4 +1,4 @@
-import { IProject, District, IDictBuildingType, IDictEnergySystem, ICostCurveType, ICostCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory, IValidatorResult, IDictBool } from "./Data";
+import { IProject, District, IDictBuildingType, IDictEnergySystem, ICostCurveType, ICostCurve, ISystemSizeCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory, IValidatorResult, IDictBool } from "./Data";
 import { ChangeEvent, ComponentType, ReactNode } from "react";
 
 /* Panels */
@@ -42,6 +42,15 @@ export interface IInput {
   handleChange?(e: ChangeEvent<HTMLInputElement>): void;
 }
 
+export interface IDropdown {
+  key: string;
+  disabled?: boolean;
+  label: string;
+  path?: string; // where to store selected value
+  optionPath?: string; // where to get possible values
+  handleChange?(e: ChangeEvent<HTMLInputElement>): void;
+}
+
 export interface IOverviewInfo extends IInput {
 
 }
@@ -72,6 +81,7 @@ export interface ICalcDataPanelState extends IPanelState {
   project: IProject;
   cards: Record<string, ICalcDataPanelCard>;
   costCurveEditorIsOpen: boolean;
+  systemSizeCurveEditorIsOpen: boolean;
   activeEnergySystemId: string;
 }
 
@@ -182,6 +192,7 @@ export interface IEnergySystemsCardProps extends ICalcDataCardProps {
   addEnergySystem(): void;
   addEnergyCarrier(): void;
   editCostCurve(id: string): void;
+  editSystemSizeCurve(id: string): void;
   data: Record<string,IDictEnergySystem | IDictEnergyCarrier>;
 }
 
@@ -200,6 +211,18 @@ export interface ICostCurveEditorState {
   costCurveType: ICostCurveType;
   costCurveRows: number;
 }
+
+export interface ISystemSizeCurveEditorProps {
+  activeEnergySystemId: string;
+  energySystems: IDictEnergySystem;
+  handleSystemSizeCurveEdit(systemSizeCurve: ISystemSizeCurve, curveId: string, activeEnergySystemId: string): void
+}
+
+export interface ISystemSizeCurveEditorState {
+  activeEnergySystemId: string;
+  systemSizeCurveRows: number;
+}
+
 
 export interface IBuildingMeasuresCardProps extends ICalcDataCardProps {
   handleChange(e: ChangeEvent<HTMLInputElement>): void;
@@ -258,7 +281,7 @@ export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
     key: "uValue",
     type: Number,
     label: "U-value:",
-    unit: "watt/m2K",
+    unit: "watt/m²K",
   };
   [key: string]: EnvelopeMeasureParameters[keyof EnvelopeMeasureParameters];
 }
@@ -268,13 +291,13 @@ export class BasementMeasureParameters extends BaseBuildingMeasureParameters {
     key: "foundationUValue",
     type: Number,
     label: "Foundation U-value:",
-    unit: "watt/m2K",
+    unit: "watt/m²K",
   };
   basementWallUValue = {
     key: "basementUValue",
     type: Number,
     label: "Basement wall U-value:",
-    unit: "watt/m2K",
+    unit: "watt/m²K",
   };
   [key: string]: BasementMeasureParameters[keyof BasementMeasureParameters];
 }
@@ -284,7 +307,7 @@ export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
     key: "uValue",
     type: Number,
     label: "U-value:",
-    unit: "watt/m2K",
+    unit: "watt/m²K",
   };
   gValue = {
     key: "gValue",
@@ -380,13 +403,20 @@ export interface IScenarioOptionsCard {
 export interface IScenarioParamCategory {
   label: string,
   global: boolean,
-  parameters: Record<string, IScenarioInfo>,
+  parameters: Record<string, IScenarioInput | IScenarioDropdown>,
 }
 
-export interface IScenarioInfo extends IInput {
+export interface IScenarioInput extends IInput {
   type: StringConstructor | NumberConstructor;
+  mode: "input";
   label: string;
   validator?: (val: string) => IValidatorResult;
+}
+
+export interface IScenarioDropdown extends IDropdown {
+  optionPath: string; 
+  nameKey: "name" | "measureName";
+  mode: "dropdown";
 }
 
 export interface IModelPanelProps extends IPanelProps {
@@ -398,6 +428,7 @@ export interface IModelPanelProps extends IPanelProps {
 export interface IModelPanelState extends IPanelState {
   project: IProject;
   modelOptions: Record<TModelOptionsCategory, IModelOptionsCard>;
+  calculationActive: boolean;
 }
 
 export type TModelOptionsCategory = "energyDemand" | "energySystemOutput" | "energySystemCost";
@@ -414,6 +445,9 @@ export interface IModelOption {
   label: string;
 }
 
-export interface IResultsPanelProps extends IPanelProps { }
+export interface IResultsPanelProps extends IPanelProps {
+  project: IProject;
+  updateProject(project: IProject): void;
+ }
 
 export interface IResultsPanelState extends IPanelState { }

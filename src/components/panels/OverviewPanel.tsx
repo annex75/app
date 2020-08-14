@@ -207,7 +207,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
             <YAxis type="number" dataKey="y" name="y" unit="-" />
             {/* todo: Tooltip does not seem to do anything */}
             <Tooltip />
-            <Scatter className="" name="Placeholder data" data={this.placeholderData} fill="#8884d8" />
+            <Scatter name="Placeholder data" data={this.placeholderData} fill="#8884d8" />
 
           </ScatterChart>
         </div>
