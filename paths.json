@@ -1,0 +1,12 @@
+{
+  "compilerOptions":
+  {
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "types/*",
+        "node_modules/@types/*",
+      ]
+    }
+  }
+}
