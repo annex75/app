@@ -4,15 +4,15 @@ import { v4 as uuidv4 } from 'uuid';
 const defSystemSizes = [ 50, 100, 150, 200, 250 ];
 const defCostCurve = [ 50, 100, 150, 200, 250];
 
-export type TCostCurveCategory = "investment" | "maintenance" | "embodiedEnergy";
+export type TCostCurveCategory = "investmentCost" | "maintenanceCost" | "embodiedEnergy";
 export type TCostCurveType = "intake" | "substation" | "circulation" | "generation";
 
 export class EnergySystem {
   constructor(id: string = uuidv4()) {
     this.id = id;
     this.costCurves = {
-      investment: new CostCurveDict("euro"),
-      maintenance: new CostCurveDict("euro/a"),
+      investmentCost: new CostCurveDict("euro"),
+      maintenanceCost: new CostCurveDict("euro/a"),
       embodiedEnergy: new CostCurveDict("co2eq/a"),
     };
   }

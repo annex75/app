@@ -2,8 +2,8 @@
 import { v4 as uuidv4 } from 'uuid';
 
 // internal
-import { EnergySystem } from './classes/EnergySystem';
-import { IEnergySystemScenarioInfo } from '../calculation-model/calculate';
+import { EnergySystem, TCostCurveType } from './classes/EnergySystem';
+import { IEnergySystemScenarioInfo, IBuildingMeasureScenarioInfo } from '../calculation-model/calculate';
 export * from './classes/Project';
 export * from './classes/EnergySystem';
 
@@ -257,6 +257,9 @@ export interface IDictBuildingMeasure {
 }
 
 export type TBuildingMeasureCategory = "roof" | "facade" | "foundation" | "windows" | "hvac";
+export const buildingMeasureCategories: TBuildingMeasureCategory[] = [
+  "roof", "facade", "foundation", "windows", "hvac",
+];
 
 export interface IBuildingMeasure {
   id: string;
@@ -280,7 +283,7 @@ abstract class BaseBuildingMeasure {
   lifeTime: number = 0;
 }
 
-export const createRenovationMeasure = (category: TBuildingMeasureCategory, id: string = uuidv4()) => {
+export const createBuildingMeasure = (category: TBuildingMeasureCategory, id: string = uuidv4()) => {
   switch (category) {
     case "roof":
     case "facade":
@@ -332,14 +335,25 @@ export class ScenarioData {
   scenarios: Record<string,Scenario> = {};
 }
 
+export interface IBuildingMeasureResult {
+  refurbishmentCost: number;
+}
+
 export interface IResultSummary {
   specificEmbodiedEnergy: number; // [kWh/m2]
   annualizedSpecificCost: number; // [€/m2a]
   buildingArea: number; // [m2]
   heatingNeed: number; // [kWh]
+  energySystems: {
+    investmentCost: Record<TCostCurveType, number>;
+    maintenanceCost: Record<TCostCurveType, number>;
+    embodiedEnergy: Record<TCostCurveType, number>;
+  };
+  buildingMeasures: Record<TBuildingMeasureCategory,IBuildingMeasureResult>;
   // specificGHGEmissions: number; // todo: implement
   // annualizedSpecificInvestmentCost: number;
   // specificMaintenanceCost: number;
+  [key: string]: IResultSummary[keyof IResultSummary];
 }
 
 export class Scenario {
@@ -354,11 +368,30 @@ export class Scenario {
     calculationPeriod: 0,
   }
   energySystems: Record<string,IEnergySystemScenarioInfo> = {};
+  buildingMeasures: Record<TBuildingMeasureCategory, Record<string, IBuildingMeasureScenarioInfo>> = {
+    roof: {},
+    facade: {},
+    foundation: {},
+    hvac: {},
+    windows: {},
+  };
   total: IResultSummary = {
     specificEmbodiedEnergy: 0,
     annualizedSpecificCost: 0,
     buildingArea: 0,
     heatingNeed: 0,
+    energySystems: {
+      investmentCost: { intake: -1, generation: -1, circulation: -1, substation: -1, },
+      maintenanceCost: { intake: -1, generation: -1, circulation: -1, substation: -1, },
+      embodiedEnergy: { intake: -1, generation: -1, circulation: -1, substation: -1, },
+    },
+    buildingMeasures: {
+      roof: { refurbishmentCost: -1 },
+      facade: { refurbishmentCost: -1 },
+      foundation: { refurbishmentCost: -1 },
+      windows: { refurbishmentCost: -1 },
+      hvac: { refurbishmentCost: -1 },
+    },
   }
 }
 

@@ -30,12 +30,12 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
     super(props);
     this.costCurveTypes = [
       {
-        name: "investment",
+        name: "investmentCost",
         label: "Investment cost",
         unit: "€"
       },
       {
-        name: "maintenance",
+        name: "maintenanceCost",
         label: "Maintenance cost",
         unit: "€/a"
       },

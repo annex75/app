@@ -215,7 +215,7 @@ class App extends Component<IAppProps, IAppState> {
         projects[iProject.id] = updatedProject;
       } catch (e) {
         projects[iProject.id] = iProject;
-        AppToaster.show({ intent: Intent.DANGER, message: e.message });
+        AppToaster.show({ intent: Intent.DANGER, message: `Calculation failed: ${e.message}` });
       }
       this.updateProjectsDatabase(projects);
     }

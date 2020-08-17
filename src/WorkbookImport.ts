@@ -3,7 +3,7 @@ import { WorkBook } from 'xlsx';
 import _ from 'lodash';//{ set as _fpSet } from 'lodash/fp';
 
 // internal
-import { Project, BuildingType, createRenovationMeasure, TBuildingMeasureCategory, EnergyCarrier } from "./types";
+import { Project, BuildingType, createBuildingMeasure, TBuildingMeasureCategory, EnergyCarrier } from "./types";
 import * as config from './config.json';
 
 interface IWorkbookEntry {
@@ -112,7 +112,7 @@ export const updateFromWorkbook = (project: Project, workbook: WorkBook) => {
       delete project.calcData.buildingMeasures[category][key];
       for (let i = 0; i < numBuildingTypes; i++) {
         const measureId = `${bIds[i]}-ref`;
-        project.calcData.buildingMeasures[category][measureId] = createRenovationMeasure(category as TBuildingMeasureCategory, measureId);
+        project.calcData.buildingMeasures[category][measureId] = createBuildingMeasure(category as TBuildingMeasureCategory, measureId);
         project.calcData.buildingMeasures[category][measureId].measureName = `${bNames[i]} (reference case)`;
       }
     }
