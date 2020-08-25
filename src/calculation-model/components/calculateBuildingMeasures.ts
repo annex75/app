@@ -3,7 +3,7 @@ import { IProject, TBuildingMeasureCategory, buildingMeasureCategories, IBuildin
 export interface IBuildingMeasureScenarioInfo {
   refurbishmentCost: number;
   // maintenanceCost: Record<TBuildingMeasureCategory, number>;
-  // embodiedEnergy: Record<TBuildingMeasureCategory, number>;
+  embodiedEnergy: number;
   [key: string]: number;
 }
 
@@ -43,15 +43,17 @@ export const calculateBuildingMeasures = (project: IProject) => {
         if (!Object.keys(buildingMeasuresInUse[scenarioId][cat]).includes(buildingMeasure.id)) {
           buildingMeasuresInUse[scenarioId][cat][buildingMeasureId] = {
             refurbishmentCost: 0,
+            embodiedEnergy: 0,
           };
         }
       });
       const buildingMeasureScenarioInfos = buildingMeasuresInUse[scenarioId][cat];
-      // calculate system size
+      // calculate
       Object.keys(buildingMeasureScenarioInfos).forEach(buildingMeasureId => {
         let buildingMeasureScenarioInfo = buildingMeasureScenarioInfos[buildingMeasureId];
         const buildingMeasure = project.calcData.buildingMeasures[cat][buildingMeasureId];
         buildingMeasureScenarioInfo.refurbishmentCost += Number(buildingMeasure.refurbishmentCost);
+        buildingMeasureScenarioInfo.embodiedEnergy += Number(buildingMeasure.embodiedEnergy);
       });
     });
   });
@@ -64,4 +66,11 @@ export const calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost = (
   totalBuildingArea: number,
 ) => {
   return buildingMeasureScenarioInfo.refurbishmentCost/(totalBuildingArea*buildingMeasure.lifeTime);
+}
+
+export const calculateBuildingMeasureSpecificEmbodiedEnergy = (
+  buildingMeasureScenarioInfo: IBuildingMeasureScenarioInfo,
+  totalBuildingArea: number,
+) => {
+  return buildingMeasureScenarioInfo.embodiedEnergy/(totalBuildingArea);
 }

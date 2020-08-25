@@ -22,6 +22,7 @@ export class EnergySystem {
   systemCategory: string = "District";
   lifeTime: number = 0;
   energyCarrier: string = "";
+  efficiency: number = 1;
   costCurves: Record<TCostCurveCategory,CostCurveDict>;
   systemSizeCurves: SystemSizeCurveDict = new SystemSizeCurveDict();
   [key: string]: EnergySystem[keyof EnergySystem];

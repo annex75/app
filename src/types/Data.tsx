@@ -267,6 +267,7 @@ export interface IBuildingMeasure {
   measureName: string;
   refurbishmentCost: number;
   lifeTime: number;
+  embodiedEnergy: number;
 
   [key: string]: IBuildingMeasure[keyof IBuildingMeasure];
 }
@@ -281,6 +282,7 @@ abstract class BaseBuildingMeasure {
   measureName: string = "";
   refurbishmentCost: number = 0;
   lifeTime: number = 0;
+  embodiedEnergy: number = 0;
 }
 
 export const createBuildingMeasure = (category: TBuildingMeasureCategory, id: string = uuidv4()) => {
@@ -337,6 +339,7 @@ export class ScenarioData {
 
 export interface IBuildingMeasureResult {
   refurbishmentCost: number;
+  embodiedEnergy: number;
 }
 
 export interface IResultSummary {
@@ -354,6 +357,28 @@ export interface IResultSummary {
   // annualizedSpecificInvestmentCost: number;
   // specificMaintenanceCost: number;
   [key: string]: IResultSummary[keyof IResultSummary];
+}
+
+export class ResultSummary implements IResultSummary {
+  specificEmbodiedEnergy: number = 0;
+  annualizedSpecificCost: number = 0;
+  buildingArea: number = 0;
+  heatingNeed: number = 0;
+  specificPrimaryEnergyUse: number = 0;
+  specificEmissions: number = 0;
+  energySystems = {
+    investmentCost: { intake: 0, generation: 0, circulation: 0, substation: 0, },
+    maintenanceCost: { intake: 0, generation: 0, circulation: 0, substation: 0, },
+    embodiedEnergy: { intake: 0, generation: 0, circulation: 0, substation: 0, },
+  };
+  buildingMeasures = {
+    roof: { refurbishmentCost: 0, embodiedEnergy: 0, },
+    facade: { refurbishmentCost: 0, embodiedEnergy: 0, },
+    foundation: { refurbishmentCost: 0, embodiedEnergy: 0, },
+    windows: { refurbishmentCost: 0, embodiedEnergy: 0, },
+    hvac: { refurbishmentCost: 0, embodiedEnergy: 0, },
+  };
+  [key: string]: ResultSummary[keyof ResultSummary];
 }
 
 export class Scenario {
@@ -375,24 +400,7 @@ export class Scenario {
     hvac: {},
     windows: {},
   };
-  total: IResultSummary = {
-    specificEmbodiedEnergy: 0,
-    annualizedSpecificCost: 0,
-    buildingArea: 0,
-    heatingNeed: 0,
-    energySystems: {
-      investmentCost: { intake: -1, generation: -1, circulation: -1, substation: -1, },
-      maintenanceCost: { intake: -1, generation: -1, circulation: -1, substation: -1, },
-      embodiedEnergy: { intake: -1, generation: -1, circulation: -1, substation: -1, },
-    },
-    buildingMeasures: {
-      roof: { refurbishmentCost: -1 },
-      facade: { refurbishmentCost: -1 },
-      foundation: { refurbishmentCost: -1 },
-      windows: { refurbishmentCost: -1 },
-      hvac: { refurbishmentCost: -1 },
-    },
-  }
+  total: ResultSummary = new ResultSummary();
 }
 
 export class ScenarioInfo {

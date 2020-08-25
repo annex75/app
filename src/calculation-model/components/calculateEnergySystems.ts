@@ -1,9 +1,11 @@
-import { IProject, EnergySystem, TCostCurveCategory, TCostCurveType } from "../../types";
+import { IProject, EnergySystem, TCostCurveCategory, TCostCurveType, EnergyCarrier } from "../../types";
 import { extractInterpolatedValueFromCurves } from '../utils';
 
 export interface IEnergySystemScenarioInfo {
   heatingNeed: number;
   systemSize: number;
+  primaryEnergyUse: number;
+  emissions: number;
   investmentCost: Record<TCostCurveType, number>;
   maintenanceCost: Record<TCostCurveType, number>;
   embodiedEnergy: Record<TCostCurveType, number>;
@@ -42,7 +44,9 @@ export const calculateEnergySystems = (project: IProject) => {
       if (!Object.keys(energySystemsInUse[scenarioId]).includes(energySystem.id)) {
         energySystemsInUse[scenarioId][energySystemId] = {
           heatingNeed: totalBuildingTypeHeatNeed,
-          systemSize: -1,
+          systemSize: 0,
+          primaryEnergyUse: 0,
+          emissions: 0,
           investmentCost: { intake: 0, generation: 0, circulation: 0, substation: 0, },
           maintenanceCost: { intake: 0, generation: 0, circulation: 0, substation: 0, },
           embodiedEnergy: { intake: 0, generation: 0, circulation: 0, substation: 0, },
@@ -64,6 +68,11 @@ export const calculateEnergySystems = (project: IProject) => {
       energySystemScenarioInfo.maintenanceCost = calculateEnergySystemTotalMaintenanceCost(energySystem, systemSize);
       energySystemScenarioInfo.investmentCost = calculateEnergySystemTotalInvestmentCost(energySystem, systemSize);
       energySystemScenarioInfo.embodiedEnergy = calculateEnergySystemTotalEmbodiedEnergy(energySystem, systemSize);
+
+      const energyCarrierId = energySystem.energyCarrier;
+      const energyCarrier = project.calcData.energyCarriers[energyCarrierId];
+      energySystemScenarioInfo.primaryEnergyUse = calculateEnergySystemPrimaryEnergyUse(energySystem, energyCarrier, heatingNeed);
+      energySystemScenarioInfo.emissions = calculateEnergySystemEmissions(energySystem, energyCarrier, heatingNeed);
     });
   });
   return energySystemsInUse;
@@ -94,10 +103,6 @@ export const calculateEnergySystemTotalMaintenanceCost = (energySystem: EnergySy
 
 export const calculateEnergySystemTotalEmbodiedEnergy = (energySystem: EnergySystem, systemSize: number, ) => {
   return calculateEnergySystemCosts("embodiedEnergy", energySystem, systemSize);
-}
-
-interface IEnergySystemComponentCosts {
-  intake: number;
 }
 
 export const calculateEnergySystemCosts = (type: TCostCurveCategory, energySystem: EnergySystem, systemSize: number, ) => {
@@ -140,6 +145,17 @@ export const calculateEnergySystemSpecificMaintenanceCost = (
   return costs/(totalBuildingArea)
 }
 
+export const calculateSpecificValueFromEnergySystemScenarioInfo = (
+  energySystemScenarioInfo: IEnergySystemScenarioInfo,
+  totalBuildingArea: number,
+  key: keyof IEnergySystemScenarioInfo,
+) => {
+  const out = Object.entries(energySystemScenarioInfo[key]).reduce((memo, [, val]) => {
+    return memo + val;
+  }, 0);
+  return out/(totalBuildingArea);
+}
+
 export const calculateEnergySystemSpecificEmbodiedEnergy = (
   energySystemScenarioInfo: IEnergySystemScenarioInfo,
   totalBuildingArea: number,
@@ -148,4 +164,22 @@ export const calculateEnergySystemSpecificEmbodiedEnergy = (
     return memo + val;
   }, 0);
   return embodiedEnergy/(totalBuildingArea);
+}
+
+export const calculateEnergySystemPrimaryEnergyUse = (
+  energySystem: EnergySystem,
+  energyCarrier: EnergyCarrier,
+  heatingNeed: number,
+) => {
+  // todo: check this calculation
+  const primaryEnergyFactor = energyCarrier.primaryEnergyFactorNonRe + energyCarrier.primaryEnergyFactorRe;
+  return primaryEnergyFactor*heatingNeed/energySystem.efficiency;
+}
+
+export const calculateEnergySystemEmissions = (
+  energySystem: EnergySystem,
+  energyCarrier: EnergyCarrier,
+  heatingNeed: number,
+) => {
+  return energyCarrier.emissionFactor*heatingNeed/energySystem.efficiency;
 }

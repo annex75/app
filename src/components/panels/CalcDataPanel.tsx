@@ -17,6 +17,7 @@ import { EnergySystemsCard } from './cards/EnergySystemsCard';
 import { CostCurveEditor } from './dialogs/CostCurveEditor';
 import { BuildingMeasuresCard } from './cards/BuildingMeasuresCard';
 import { SystemSizeCurveEditor } from './dialogs/SystemSizeCurveEditor';
+import { IDropdownAlt } from '../../helpers';
 
 
 export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanelState> {
@@ -61,6 +62,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
           editCostCurve: this.editCostCurve,
           editSystemSizeCurve: this.editSystemSizeCurve,
           handleChange: this.handleChangeEvent,
+          handleDropdownChange: this.handleDropdownChange,
         },
       },
       "buildingMeasures": {
@@ -99,6 +101,10 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     const path = this.formatPath(e.target.name);
     const value = e.target.value;
     this.handleChange(path, value);
+  }
+
+  handleDropdownChange = (item: IDropdownAlt) => {
+    this.handleChange(this.formatPath(item.path), item.id);
   }
 
   // todo: this function should be able to tell if a local or root path is provided and act accordingly
@@ -295,7 +301,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
                   <Button minimal className="bp3-button" icon={card.isOpen ? "arrow-up" : "arrow-down"}/>
                 </div>
                 <Collapse key={`${id}-collapse`} isOpen={card.isOpen}>
-                  <PanelCard component={card.component} data={data} {...card.eventHandlers} {...card.functions} />
+                  <PanelCard component={card.component} data={data} project={this.state.project} {...card.eventHandlers} {...card.functions} />
                 </Collapse>
               </Card>
             )

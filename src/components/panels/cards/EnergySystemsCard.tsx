@@ -1,8 +1,11 @@
+// external
 import React, { Component, ChangeEvent } from 'react';
-import { IEnergySystemsCardProps, IEnergySystemParameter, IEnergySystemsCardState, ICalcDataAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictEnergyCarrier } from "../../../types";
+import { get as _fpGet } from 'lodash/fp';
 import { Button, FormGroup, Collapse } from '@blueprintjs/core';
 
-import { renderInputField, } from '../../../helpers';
+// internal
+import { IEnergySystemsCardProps, IEnergySystemParameter, IEnergySystemsCardState, ICalcDataAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictEnergyCarrier, IEnergySystemDropdown } from "../../../types";
+import { renderInputField, renderDropdown, } from '../../../helpers';
 
 export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnergySystemsCardState> {
 
@@ -56,34 +59,46 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
     };
   }
 
-  energySystemParameters: Record<string,IEnergySystemParameter> = {
+  energySystemParameters: Record<string, IEnergySystemParameter | IEnergySystemDropdown> = {
     name: {
       key: "name",
       disabled: false,
       type: String,
+      mode: "input",
       label: "System name:"
     },
-    systemType: {
+    systemType: { // todo: dropdown
       key: "systemType",
       disabled: false,
       type: String,
+      mode: "input",
       label: "System type:",
     },
-    systemCategory: {
+    systemCategory: { // todo: dropdown
       key: "systemCategory",
       disabled: true,
       type: String,
+      mode: "input",
       label: "System category:"
     },
     lifeTime: {
       key: "lifeTime",
       type: Number,
+      mode: "input",
       label: "Life time:"
+    },
+    efficiency: {
+      key: "efficiency",
+      type: Number,
+      mode: "input",
+      label: "Efficiency:"
     },
     energyCarrier: {
       key: "energyCarrier",
-      type: String,
-      label: "Energy carrier:"
+      mode: "dropdown",
+      nameKey: "name",
+      optionPath: "calcData.energyCarriers",
+      label: "Energy carrier:",
     }
   }
 
@@ -137,9 +152,38 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
                   {
                     Object.keys(energySystems).map(id => {
                       param.path = `energySystems.${id}.${paramName}`;
-                      param.localPath = `${id}.${paramName}`;
-                      const eventHandler = this.props.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
-                      return renderInputField(`energy-system-${id}`, param, energySystems, eventHandler )
+                      switch (param.mode) {
+                        case "input": {
+                          param.localPath = `${id}.${paramName}`;
+                          const eventHandler = this.props.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
+                          return renderInputField(`energy-system-${id}`, param, energySystems, eventHandler )
+                        } case "dropdown": {
+                          const data = _fpGet(param.optionPath, this.props.project);
+                          const alts = Object.keys(data).map((key) => {
+                            const dataPoint = data[key];
+                            return {
+                              label: dataPoint[param.nameKey] || "",
+                              id: dataPoint.id || "",
+                              name: dataPoint[param.nameKey] || "",
+                              path: param.path || "",
+                            }
+                          });
+
+                          const selId = _fpGet(param.path, this.props.project.calcData);
+                          const selected = alts.find(e => {
+                            return e.id === selId;
+                          }) || {
+                            label: "Select...",
+                            path: "",
+                            id: "",
+                            name: "",
+                          };
+                          const eventHandler = this.props.handleDropdownChange;
+                          return renderDropdown(`energy-system-${paramName}-${id}`, alts, selected, param, eventHandler)
+                        } default: {
+                          throw new Error(`Param mode is not defined`);
+                        }
+                      }
                     })
                   }
                   {

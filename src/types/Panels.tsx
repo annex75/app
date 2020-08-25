@@ -1,5 +1,6 @@
 import { IProject, District, IDictBuildingType, IDictEnergySystem, ICostCurveType, ICostCurve, ISystemSizeCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory, IValidatorResult, IDictBool } from "./Data";
 import { ChangeEvent, ComponentType, ReactNode } from "react";
+import { IDropdownAlt } from "../helpers";
 
 /* Panels */
 
@@ -60,6 +61,7 @@ type TEventHandler =
   | ((path: string, value: any) => void)
   | ((category: TBuildingMeasureCategory) => void)
   | ((e: React.MouseEvent<HTMLElement>) => void)
+  | ((item: IDropdownAlt) => void)
 
 // todo: a bit ugly that we are not type checking here. but it was the only way I managed to allow both events and string as arguments
 export interface IDictEventHandler {
@@ -184,16 +186,24 @@ export interface IBuildingAdvancedOptionsCard extends ICalcDataAdvancedOptionsCa
 }
 
 export interface IEnergySystemParameter extends IInput {
+  mode: "input";
+}
 
+export interface IEnergySystemDropdown extends IDropdown {
+  optionPath: string; 
+  nameKey: "name";
+  mode: "dropdown";
 }
 
 export interface IEnergySystemsCardProps extends ICalcDataCardProps {
   handleChange(e: ChangeEvent<HTMLInputElement>): void;
+  handleDropdownChange(item: IDropdownAlt): void;
   addEnergySystem(): void;
   addEnergyCarrier(): void;
   editCostCurve(id: string): void;
   editSystemSizeCurve(id: string): void;
   data: Record<string,IDictEnergySystem | IDictEnergyCarrier>;
+  project: IProject;
 }
 
 export interface IEnergySystemsCardState extends ICalcDataCardState {
@@ -274,6 +284,12 @@ abstract class BaseBuildingMeasureParameters {
     label: "Life time:",
     unit: "a",
   };
+  embodiedEnergy = {
+    key: "embodiedEnergy",
+    type: Number,
+    label: "Embodied energy:",
+    unit: "kWh"
+  }
 }
 
 export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {

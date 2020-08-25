@@ -8,7 +8,7 @@ import { renderScatterChart, IChartSetup } from '../../helpers';
 
 interface IResultGraph {
   id: string;
-  label: "Emboded energy vs. annualized specific cost",
+  label: string;
   xDataPath: string; // root path: this.props.project.scenarioData.scenarios[...]
   yDataPath: string; // root path: this.props.project.scenarioData.scenarios[...]
   mode: "2d"; // todo: implement 3d data
@@ -20,7 +20,7 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
   resultGraphs: IResultGraph[] = [
     {
       id: "embodiedEnergy",
-      label: "Emboded energy vs. annualized specific cost",
+      label: "Embodied energy vs. annualized specific cost",
       xDataPath: "total.annualizedSpecificCost",
       yDataPath: "total.specificEmbodiedEnergy",
       mode: "2d",
@@ -30,6 +30,42 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
         xKey: 'x',
         yUnit: " kWh/m²",
         yLabel: "Specific embodied energy",
+        yKey: 'y',
+        mode: "2d",
+        name: "Scatter chart",
+        legend: false,
+        label: true,
+      }
+    },{
+      id: "primaryEnergyUse",
+      label: "Specific primary energy use vs. annualized specific cost",
+      xDataPath: "total.annualizedSpecificCost",
+      yDataPath: "total.specificPrimaryEnergyUse",
+      mode: "2d",
+      chartSetup: {
+        xUnit: " €/m²a",
+        xLabel: "Annualized specific cost",
+        xKey: 'x',
+        yUnit: " kWh/m²,a",
+        yLabel: "Specific primary energy use",
+        yKey: 'y',
+        mode: "2d",
+        name: "Scatter chart",
+        legend: false,
+        label: true,
+      }
+    },{
+      id: "emissions",
+      label: "Specific greenhouse gas emissions vs. annualized specific cost",
+      xDataPath: "total.annualizedSpecificCost",
+      yDataPath: "total.specificEmissions",
+      mode: "2d",
+      chartSetup: {
+        xUnit: " €/m²a",
+        xLabel: "Annualized specific cost",
+        xKey: 'x',
+        yUnit: " kg CO₂eq/m²,a",
+        yLabel: "Specific greenhouse gas emissions",
         yKey: 'y',
         mode: "2d",
         name: "Scatter chart",
