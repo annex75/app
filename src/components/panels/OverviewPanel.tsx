@@ -2,8 +2,8 @@
 import React, { Component, ChangeEvent, FormEvent } from 'react';
 import { set as _fpSet, equals as _fpEquals } from 'lodash/fp';
 import { debounce as _debounce } from 'lodash';
-import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter } from 'recharts';
-import { FormGroup, Tooltip } from '@blueprintjs/core';
+/* import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter } from 'recharts'; */
+import { FormGroup, /* Tooltip */ } from '@blueprintjs/core';
 
 // internal
 import { IOverviewPanelProps, IOverviewPanelState, IOverviewDataCard } from '../../types';
@@ -198,19 +198,21 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
             )
           })
         }
-        
+        {
+        /* todo: implement
         <div id="results-overview" className="bp3-card panel-card">
           <h3>Results overview (placeholder)</h3>
           <ScatterChart {...this.chartSettings}>
             <CartesianGrid />
             <XAxis type="number" dataKey="x" name="x" unit="-" />
             <YAxis type="number" dataKey="y" name="y" unit="-" />
-            {/* todo: Tooltip does not seem to do anything */}
             <Tooltip />
             <Scatter name="Placeholder data" data={this.placeholderData} fill="#8884d8" />
 
           </ScatterChart>
         </div>
+        */
+        }
 
         <div id="about-project" className="bp3-card panel-card">
           <h3>About IEA EBC Annex 75</h3>

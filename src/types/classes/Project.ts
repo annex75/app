@@ -110,9 +110,11 @@ export class Project implements IProject {
 
         const annualizedSpecificInvestmentCost = calculateEnergySystemAnnualizedSpecificInvestmentCost(energySystemScenarioInfo, energySystem, totalBuildingArea);
         const specificMaintenanceCost = calculateEnergySystemSpecificMaintenanceCost(energySystemScenarioInfo, energySystem, totalBuildingArea);
+        const annualizedSpecificEnergyCost = energySystemScenarioInfo.lifetimeEnergyCost/(totalBuildingArea*energySystem.lifeTime);
         scenario.total.annualizedSpecificCost += 
           annualizedSpecificInvestmentCost
-          + specificMaintenanceCost;
+          + specificMaintenanceCost
+          + annualizedSpecificEnergyCost;
         scenario.total.specificEmbodiedEnergy += calculateSpecificValueFromEnergySystemScenarioInfo(energySystemScenarioInfo, totalBuildingArea, "embodiedEnergy");
         scenario.total.specificPrimaryEnergyUse += energySystemScenarioInfo.primaryEnergyUse/totalBuildingArea;
         scenario.total.specificEmissions += energySystemScenarioInfo.emissions/totalBuildingArea;

@@ -6,6 +6,7 @@ export interface IEnergySystemScenarioInfo {
   systemSize: number;
   primaryEnergyUse: number;
   emissions: number;
+  lifetimeEnergyCost: number;
   investmentCost: Record<TCostCurveType, number>;
   maintenanceCost: Record<TCostCurveType, number>;
   embodiedEnergy: Record<TCostCurveType, number>;
@@ -19,7 +20,7 @@ export const calculateEnergySystems = (project: IProject) => {
   // for each scenario
   let energySystemsInUse: Record<TScenarioId,Record<TEnergySystemId,IEnergySystemScenarioInfo>> = {};
   Object.keys(project.scenarioData.scenarios).forEach((scenarioId) => {
-    // const scenario = project.scenarioData.scenarios[scenarioId];
+    const scenario = project.scenarioData.scenarios[scenarioId];
     energySystemsInUse[scenarioId] = {};
     // find which energy systems serve which building and what their heat need is
     Object.keys(project.calcData.buildingTypes).forEach(buildingTypeId => {
@@ -47,6 +48,7 @@ export const calculateEnergySystems = (project: IProject) => {
           systemSize: 0,
           primaryEnergyUse: 0,
           emissions: 0,
+          lifetimeEnergyCost: 0,
           investmentCost: { intake: 0, generation: 0, circulation: 0, substation: 0, },
           maintenanceCost: { intake: 0, generation: 0, circulation: 0, substation: 0, },
           embodiedEnergy: { intake: 0, generation: 0, circulation: 0, substation: 0, },
@@ -73,6 +75,8 @@ export const calculateEnergySystems = (project: IProject) => {
       const energyCarrier = project.calcData.energyCarriers[energyCarrierId];
       energySystemScenarioInfo.primaryEnergyUse = calculateEnergySystemPrimaryEnergyUse(energySystem, energyCarrier, heatingNeed);
       energySystemScenarioInfo.emissions = calculateEnergySystemEmissions(energySystem, energyCarrier, heatingNeed);
+
+      energySystemScenarioInfo.lifetimeEnergyCost = calculateEnergySystemLifetimeEnergyCost(energySystem, energyCarrier, energySystemScenarioInfo.primaryEnergyUse, scenario.economy.energyPriceIncrease);
     });
   });
   return energySystemsInUse;
@@ -182,4 +186,18 @@ export const calculateEnergySystemEmissions = (
   heatingNeed: number,
 ) => {
   return energyCarrier.emissionFactor*heatingNeed/energySystem.efficiency;
+}
+
+export const calculateEnergySystemLifetimeEnergyCost = (
+  energySystem: EnergySystem,
+  energyCarrier: EnergyCarrier,
+  primaryEnergyUse: number,
+  priceIncrease: number,
+) => {
+  let lifetimeEnergyCost = 0;
+  for (let i = 0; i < energySystem.lifeTime; i++) {
+    const energyCost = primaryEnergyUse*energyCarrier.currentPrice*Math.pow(priceIncrease,i);
+    lifetimeEnergyCost += energyCost;
+  }
+  return lifetimeEnergyCost;
 }
