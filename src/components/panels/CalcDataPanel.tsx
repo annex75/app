@@ -9,7 +9,7 @@ import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 //import { CalcData } from '@annex-75/calculation-model/';
 
 import * as config from '../../config.json';
-import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure, BasementMeasure, WindowMeasure, EnergyCarrier, ISystemSizeCurve, TCostCurveCategory, IDictEnergyCarrier, IDictEnergySystem } from '../../types';
+import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure, BasementMeasure, WindowMeasure, EnergyCarrier, ISystemSizeCurve, TCostCurveCategory } from '../../types';
 import { DistrictCard } from './cards/DistrictCard';
 import { BuildingTypeCard } from './cards/BuildingTypeCard';
 import { AppToaster } from '../../toaster';
@@ -142,9 +142,9 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     this.setStateAndUpdate(newState);
   }
 
-  performDatabaseOperation = (checkValidOperation: (newState: ICalcDataPanelState) => void, operation: (newState: ICalcDataPanelState) => void) => {
+  performDatabaseOperation = (checkValidOperation: (newState: ICalcDataPanelState) => boolean, operation: (newState: ICalcDataPanelState) => void) => {
     let newState = { ...this.state };
-    checkValidOperation(newState);
+    if(!checkValidOperation(newState)) return;
     operation(newState); // we allow this operation to mutate the newState object
     this.setStateAndUpdate(newState);
   }
@@ -154,8 +154,9 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     const valid = (newState: ICalcDataPanelState) => {
       if (Object.keys(newState.project.calcData.buildingTypes).length >= config.MAX_BUILDING_TYPES) {
         AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_BUILDING_TYPES} building types are currently allowed`});
-        return;
+        return false;
       }
+      return true;
     }
     const operation = (newState: ICalcDataPanelState) => {
       let buildingType;
@@ -187,8 +188,9 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     const valid = (newState: ICalcDataPanelState) => {
       if (Object.keys(newState.project.calcData.buildingTypes).length <= 1) {
         AppToaster.show({ intent: Intent.DANGER, message: `The last building type can not be deleted.`});
-        return;
+        return false;
       }
+      return true;
     }
     const operation = (newState: ICalcDataPanelState) => {
       const buildingType = newState.project.calcData.buildingTypes[id];
@@ -204,8 +206,9 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     const valid = (newState: ICalcDataPanelState) => {
       if (Object.keys(newState.project.calcData.energySystems).length >= config.MAX_ENERGY_SYSTEMS) {
         AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_ENERGY_SYSTEMS} energy systems are currently allowed`});
-        return;
+        return false;
       }
+      return true;
     }
     const operation = (newState: ICalcDataPanelState) => {
       const energySystem = new EnergySystem();
@@ -218,8 +221,9 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     const valid = (newState: ICalcDataPanelState) => {
       if (Object.keys(newState.project.calcData.energyCarriers).length >= config.MAX_ENERGY_CARRIERS) {
         AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_ENERGY_CARRIERS} energy carriers are currently allowed`});
-        return;
+        return false;
       }
+      return true;
     }
     const operation = (newState: ICalcDataPanelState) => {
       const energyCarrier = new EnergyCarrier();
@@ -232,8 +236,9 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     const valid = (newState: ICalcDataPanelState) => {
       if (Object.keys(newState.project.calcData.buildingMeasures[category]).length >= config.MAX_BUILDING_MEASURES) {
         AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_BUILDING_MEASURES} building measures are currently allowed per category`});
-        return;
+        return false;
       }
+      return true;
     }
     const operation = (newState: ICalcDataPanelState) => {
       const buildingMeasure = this.getBuildingMeasure(category);
