@@ -176,7 +176,7 @@ export const calculateEnergySystemPrimaryEnergyUse = (
   heatingNeed: number,
 ) => {
   // todo: check this calculation
-  const primaryEnergyFactor = energyCarrier.primaryEnergyFactorNonRe + energyCarrier.primaryEnergyFactorRe;
+  const primaryEnergyFactor = Number(energyCarrier.primaryEnergyFactorNonRe) + Number(energyCarrier.primaryEnergyFactorRe);
   return primaryEnergyFactor*heatingNeed/energySystem.efficiency;
 }
 
@@ -196,7 +196,7 @@ export const calculateEnergySystemLifetimeEnergyCost = (
 ) => {
   let lifetimeEnergyCost = 0;
   for (let i = 0; i < energySystem.lifeTime; i++) {
-    const energyCost = primaryEnergyUse*energyCarrier.currentPrice*Math.pow(priceIncrease,i);
+    const energyCost = primaryEnergyUse*energyCarrier.currentPrice*Math.pow(Number(priceIncrease),i);
     lifetimeEnergyCost += energyCost;
   }
   return lifetimeEnergyCost;

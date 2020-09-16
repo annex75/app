@@ -9,7 +9,7 @@ import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 //import { CalcData } from '@annex-75/calculation-model/';
 
 import * as config from '../../config.json';
-import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure, BasementMeasure, WindowMeasure, EnergyCarrier, ISystemSizeCurve, TCostCurveCategory } from '../../types';
+import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure, BasementMeasure, WindowMeasure, EnergyCarrier, ISystemSizeCurve, TCostCurveCategory, IDictEnergyCarrier, IDictEnergySystem } from '../../types';
 import { DistrictCard } from './cards/DistrictCard';
 import { BuildingTypeCard } from './cards/BuildingTypeCard';
 import { AppToaster } from '../../toaster';
@@ -18,7 +18,6 @@ import { CostCurveEditor } from './dialogs/CostCurveEditor';
 import { BuildingMeasuresCard } from './cards/BuildingMeasuresCard';
 import { SystemSizeCurveEditor } from './dialogs/SystemSizeCurveEditor';
 import { IDropdownAlt } from '../../helpers';
-
 
 export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanelState> {
 
@@ -117,6 +116,11 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
   updateProject = () => this.props.updateProject(this.state.project);
   updateProjectDebounce = _debounce(this.updateProject, 1000);
 
+  setStateAndUpdate = (newState: ICalcDataPanelState) => {
+    this.setState(newState);
+    this.updateProjectDebounce();
+  }
+
   // takes a subpath and returns its location in the main data structure
   formatPath = (childPath: string) => {
     return `project.calcData.${childPath}`;
@@ -129,120 +133,113 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
   handleCostCurveEdit = (costCurve: ICostCurve, costCurveId: string, activeEnergySystemId: string, costCurveType: TCostCurveCategory) => {
     let newState = { ...this.state };
     newState.project.calcData.energySystems[activeEnergySystemId].costCurves[costCurveType][costCurveId] = costCurve;
-    this.setState(newState);
-    this.updateProjectDebounce();
+    this.setStateAndUpdate(newState);
   }
 
   handleSystemSizeCurveEdit = (systemSizeCurve: ISystemSizeCurve, curveId: string, activeEnergySystemId: string) => {
     let newState = { ...this.state };
     newState.project.calcData.energySystems[activeEnergySystemId].systemSizeCurves[curveId] = systemSizeCurve;
-    this.setState(newState);
-    this.updateProjectDebounce();
+    this.setStateAndUpdate(newState);
   }
 
-  addBuildingType = () => {
+  performDatabaseOperation = (checkValidOperation: (newState: ICalcDataPanelState) => void, operation: (newState: ICalcDataPanelState) => void) => {
     let newState = { ...this.state };
-
-    if (Object.keys(newState.project.calcData.buildingTypes).length >= config.MAX_BUILDING_TYPES) {
-      AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_BUILDING_TYPES} building types are currently allowed`});
-      return;
-    }
-    
-    let buildingType = new BuildingType();
-    for (const scenarioId in newState.project.scenarioData.scenarios) {
-      buildingType.scenarioInfos[scenarioId] = new ScenarioInfo();
-    } 
-
-    newState.project.calcData.buildingTypes[buildingType.id] = buildingType;
-    
-    this.setState(newState);
-    this.updateProjectDebounce();
+    checkValidOperation(newState);
+    operation(newState); // we allow this operation to mutate the newState object
+    this.setStateAndUpdate(newState);
   }
 
-  copyBuildingType = (id: string) => {
-    let newState = { ...this.state };
-    if (Object.keys(newState.project.calcData.buildingTypes).length >= config.MAX_BUILDING_TYPES) {
-      AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_BUILDING_TYPES} building types are currently allowed`});
-      return;
+  // if id is supplied, attempt copying
+  addBuildingType = (id: string = "") => {
+    const valid = (newState: ICalcDataPanelState) => {
+      if (Object.keys(newState.project.calcData.buildingTypes).length >= config.MAX_BUILDING_TYPES) {
+        AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_BUILDING_TYPES} building types are currently allowed`});
+        return;
+      }
     }
-    
-    const buildingType = newState.project.calcData.buildingTypes[id];
-    if (!buildingType) {
-      throw new Error(`Building type ${id} could not be found`);
-    } 
-    
-    const copyName = `${buildingType.name} - copy`;
-    
-    let buildingTypeClone = _cloneDeep(buildingType);
-    buildingTypeClone.id = uuidv4();
-    buildingTypeClone.name = copyName;
+    const operation = (newState: ICalcDataPanelState) => {
+      let buildingType;
+      if (id) {
+        const buildingTypeOriginal = newState.project.calcData.buildingTypes[id];
+        if (!buildingTypeOriginal) {
+          throw new Error(`Building type ${id} could not be found`);
+        } 
+        const copyName = `${buildingTypeOriginal.name} - copy`;
+        buildingType = _cloneDeep(buildingTypeOriginal);
+        buildingType.id = uuidv4();
+        buildingType.name = copyName;
+      } else {
+        buildingType = new BuildingType();
+        for (const scenarioId in newState.project.scenarioData.scenarios) {
+          buildingType.scenarioInfos[scenarioId] = new ScenarioInfo();
+        } 
+      }
 
-    newState.project.calcData.buildingTypes[buildingTypeClone.id] = buildingTypeClone;
-
-    this.setState(newState);
-    this.updateProjectDebounce();
+      newState.project.calcData.buildingTypes[buildingType.id] = buildingType;
+    }
+    this.performDatabaseOperation(valid, operation);
   }
+
+  copyBuildingType = (id: string) => this.addBuildingType(id);
 
   // todo: actually delete it from the database (similar to deleting projects)
   deleteBuildingType = (id: string) => {
-    let newState = { ...this.state };
-    if (Object.keys(newState.project.calcData.buildingTypes).length <= 1) {
-      AppToaster.show({ intent: Intent.DANGER, message: `The last building type can not be deleted.`});
-      return;
+    const valid = (newState: ICalcDataPanelState) => {
+      if (Object.keys(newState.project.calcData.buildingTypes).length <= 1) {
+        AppToaster.show({ intent: Intent.DANGER, message: `The last building type can not be deleted.`});
+        return;
+      }
     }
-    
-    const buildingType = newState.project.calcData.buildingTypes[id];
-    if (!buildingType) {
-      throw new Error(`Building type ${id} could not be found`);
+    const operation = (newState: ICalcDataPanelState) => {
+      const buildingType = newState.project.calcData.buildingTypes[id];
+      if (!buildingType) {
+        throw new Error(`Building type ${id} could not be found`);
+      }
+      newState.project.calcData.buildingTypes[id].deleted = true;
     }
-    newState.project.calcData.buildingTypes[id].deleted = true;
-    this.setState(newState);
-    this.updateProjectDebounce();
+    this.performDatabaseOperation(valid, operation);
   }
 
   addEnergySystem = () => {
-    let newState = { ...this.state };
-
-    if (Object.keys(newState.project.calcData.energySystems).length >= config.MAX_ENERGY_SYSTEMS) {
-      AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_ENERGY_SYSTEMS} energy systems are currently allowed`});
-      return;
+    const valid = (newState: ICalcDataPanelState) => {
+      if (Object.keys(newState.project.calcData.energySystems).length >= config.MAX_ENERGY_SYSTEMS) {
+        AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_ENERGY_SYSTEMS} energy systems are currently allowed`});
+        return;
+      }
     }
-    
-    const energySystem = new EnergySystem();
-    newState.project.calcData.energySystems[energySystem.id] = energySystem;
-    
-    this.setState(newState);
-    this.updateProjectDebounce();
+    const operation = (newState: ICalcDataPanelState) => {
+      const energySystem = new EnergySystem();
+      newState.project.calcData.energySystems[energySystem.id] = energySystem;
+    }
+    this.performDatabaseOperation(valid, operation);
   }
 
   addEnergyCarrier = () => {
-    let newState = { ...this.state };
-
-    if (Object.keys(newState.project.calcData.energyCarriers).length >= config.MAX_ENERGY_CARRIERS) {
-      AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_ENERGY_CARRIERS} energy carriers are currently allowed`});
-      return;
+    const valid = (newState: ICalcDataPanelState) => {
+      if (Object.keys(newState.project.calcData.energyCarriers).length >= config.MAX_ENERGY_CARRIERS) {
+        AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_ENERGY_CARRIERS} energy carriers are currently allowed`});
+        return;
+      }
     }
-    
-    const energyCarrier = new EnergyCarrier();
-    newState.project.calcData.energyCarriers[energyCarrier.id] = energyCarrier;
-    
-    this.setState(newState);
-    this.updateProjectDebounce();
+    const operation = (newState: ICalcDataPanelState) => {
+      const energyCarrier = new EnergyCarrier();
+      newState.project.calcData.energyCarriers[energyCarrier.id] = energyCarrier;
+    }
+    this.performDatabaseOperation(valid, operation);
   }
 
   addBuildingMeasure = (category: TBuildingMeasureCategory) => {
-    let newState = { ...this.state };
-
-    if (Object.keys(newState.project.calcData.buildingMeasures[category]).length >= config.MAX_BUILDING_MEASURES) {
-      AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_BUILDING_MEASURES} building measures are currently allowed per category`});
-      return;
+    const valid = (newState: ICalcDataPanelState) => {
+      if (Object.keys(newState.project.calcData.buildingMeasures[category]).length >= config.MAX_BUILDING_MEASURES) {
+        AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_BUILDING_MEASURES} building measures are currently allowed per category`});
+        return;
+      }
     }
-    
-    const buildingMeasure = this.getBuildingMeasure(category);
-    newState.project.calcData.buildingMeasures[category][buildingMeasure.id] = buildingMeasure;
-    
-    this.setState(newState);
-    this.updateProjectDebounce();
+    const operation = (newState: ICalcDataPanelState) => {
+      const buildingMeasure = this.getBuildingMeasure(category);
+      newState.project.calcData.buildingMeasures[category][buildingMeasure.id] = buildingMeasure;
+    }
+    this.performDatabaseOperation(valid, operation);
   }
 
   getBuildingMeasure(category: TBuildingMeasureCategory) {

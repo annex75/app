@@ -119,16 +119,16 @@ export class Project implements IProject {
         scenario.total.specificPrimaryEnergyUse += energySystemScenarioInfo.primaryEnergyUse/totalBuildingArea;
         scenario.total.specificEmissions += energySystemScenarioInfo.emissions/totalBuildingArea;
       });
-
+      
       // renovation measures
-
+      
       buildingMeasureCategories.forEach(cat => {
         Object.keys(scenario.buildingMeasures[cat]).forEach(buildingMeasureId => {
           const buildingMeasure = this.calcData.buildingMeasures[cat][buildingMeasureId];
           const buildingMeasureScenarioInfo = scenario.buildingMeasures[cat][buildingMeasureId];
           scenario.total.buildingMeasures[cat].refurbishmentCost += Number(buildingMeasureScenarioInfo.refurbishmentCost);
           scenario.total.buildingMeasures[cat].embodiedEnergy += Number(buildingMeasureScenarioInfo.embodiedEnergy);
-          const annualizedSpecificRefurbishmentCost = calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost(buildingMeasureScenarioInfo, buildingMeasure,totalBuildingArea)
+          const annualizedSpecificRefurbishmentCost = calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost(buildingMeasureScenarioInfo, buildingMeasure, totalBuildingArea);
           scenario.total.annualizedSpecificCost += annualizedSpecificRefurbishmentCost;
           scenario.total.specificEmbodiedEnergy += calculateBuildingMeasureSpecificEmbodiedEnergy(buildingMeasureScenarioInfo, totalBuildingArea);
         });
