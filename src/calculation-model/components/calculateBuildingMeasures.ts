@@ -52,8 +52,8 @@ export const calculateBuildingMeasures = (project: IProject) => {
       Object.keys(buildingMeasureScenarioInfos).forEach(buildingMeasureId => {
         let buildingMeasureScenarioInfo = buildingMeasureScenarioInfos[buildingMeasureId];
         const buildingMeasure = project.calcData.buildingMeasures[cat][buildingMeasureId];
-        buildingMeasureScenarioInfo.refurbishmentCost += Number(buildingMeasure.refurbishmentCost);
-        buildingMeasureScenarioInfo.embodiedEnergy += Number(buildingMeasure.embodiedEnergy);
+        buildingMeasureScenarioInfo.refurbishmentCost += +buildingMeasure.refurbishmentCost;
+        buildingMeasureScenarioInfo.embodiedEnergy += +buildingMeasure.embodiedEnergy;
       });
     });
   });

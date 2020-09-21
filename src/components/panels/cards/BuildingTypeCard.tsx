@@ -1,7 +1,7 @@
 import React, { Component, ChangeEvent } from "react"
 
 import { IBuildingTypeCardProps, IBuildingTypeCardState, IBuildingAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictBuildingType, IDictBool } from "../../../types";
-import { renderInputField } from '../../../helpers'
+import { renderInputField, renderInputLabel } from '../../../helpers'
 
 import { FormGroup, Button, InputGroup, Collapse, Tooltip, Position, Intent, Alert } from "@blueprintjs/core";
 
@@ -21,26 +21,30 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
         parameters: {
           constructionYear: {
             key: "constructionYear",
+            unit: "none",
             type: Number,
-            label: "Construction year:",
+            label: "Construction year",
             rootPath: "buildingTypes",
           },
           buildingClass: {
             key: "buildingClass",
+            unit: "none",
             type: Number,
-            label: "Building class:",
+            label: "Building class",
             rootPath: "buildingTypes",
           },
           energyPerformanceCertificate: {
             key: "energyPerformanceCertificate",
+            unit: "none",
             type: String,
-            label: "Energy performance certificates:",
+            label: "Energy performance certificates",
             rootPath: "buildingTypes",
           },
           ownership: {
             key: "ownership",
+            unit: "none",
             type: String,
-            label: "Ownership:",
+            label: "Ownership",
             rootPath: "buildingTypes",
           }
         }
@@ -55,92 +59,107 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
         parameters: {
           grossFloorArea: {
             key: "grossFloorArea",
+            unit: "meterSq",
             type: Number,
-            label: "Gross heated floor area:",
+            label: "Gross heated floor area",
             rootPath: "buildingTypes",
           },
           heatedVolume: {
             key: "heatedVolume",
+            unit: "meterCubed",
             type: Number,
-            label: "Heated volume:",
+            label: "Heated volume",
             rootPath: "buildingTypes",
           },
           facadeAreaN: {
             key: "facadeAreaN",
+            unit: "meterSq",
             type: Number,
-            label: "Façade area to the North:",
+            label: "Façade area to the North",
             rootPath: "buildingTypes",
           },
           facadeAreaE: {
             key: "facadeAreaE",
+            unit: "meterSq",
             type: Number,
-            label: "Façade area to the East:",
+            label: "Façade area to the East",
             rootPath: "buildingTypes",
           },
           facadeAreaS: {
             key: "facadeAreaS",
+            unit: "meterSq",
             type: Number,
-            label: "Façade area to the South:",
+            label: "Façade area to the South",
             rootPath: "buildingTypes",
           },
           facadeAreaW: {
             key: "facadeAreaW",
+            unit: "meterSq",
             type: Number,
-            label: "Façade area to the West:",
+            label: "Façade area to the West",
             rootPath: "buildingTypes",
           },
           roofArea: {
             key: "roofArea",
+            unit: "meterSq",
             type: Number,
-            label: "Roof area:",
+            label: "Roof area",
             rootPath: "buildingTypes",
           },
           windowAreaN: {
             key: "windowAreaN",
+            unit: "meterSq",
             type: Number,
-            label: "Window area to the North:",
+            label: "Window area to the North",
             rootPath: "buildingTypes",
           },
           windowAreaE: {
             key: "windowAreaE",
+            unit: "meterSq",
             type: Number,
-            label: "Window area to the East:",
+            label: "Window area to the East",
             rootPath: "buildingTypes",
           },
           windowAreaS: {
             key: "windowAreaS",
+            unit: "meterSq",
             type: Number,
-            label: "Window area to the South:",
+            label: "Window area to the South",
             rootPath: "buildingTypes",
           },
           windowAreaW: {
             key: "windowAreaW",
+            unit: "meterSq",
             type: Number,
-            label: "Window area to the West:",
+            label: "Window area to the West",
             rootPath: "buildingTypes",
           },
           foundationArea: {
             key: "foundationArea",
+            unit: "meterSq",
             type: Number,
-            label: "Foundation area:",
+            label: "Foundation area",
             rootPath: "buildingTypes",
           },
           numberOfFloorsAbove: {
             key: "numberOfFloorsAbove",
+            unit: "none",
             type: Number,
-            label: "Number of floors above ground:",
+            label: "Number of floors above ground",
             rootPath: "buildingTypes",
           },
           numberOfFloorsBelow: {
             key: "numberOfFloorsBelow",
+            unit: "none",
             type: Number,
-            label: "Number of floors below ground:",
+            label: "Number of floors below ground",
             rootPath: "buildingTypes",
           },
           floorHeight: {
             key: "floorHeight",
+            unit: "meter",
             type: Number,
-            label: "Average floor height:",
+            label: "Average floor height",
             rootPath: "buildingTypes",
           },
         }
@@ -163,12 +182,14 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
     newState.deleteBuildingTypeWarningOpen[id] = true;
     this.setState(newState);
   }
+
   // todo: cancel and confirm could share function
   handleAlertCancel = (id: string) => {
     let newState = { ...this.state };
     newState.deleteBuildingTypeWarningOpen[id] = false;
     this.setState(newState);
   }
+
   handleAlertConfirm = (id: string) => {
     let newState = { ...this.state };
     newState.deleteBuildingTypeWarningOpen[id] = false;
@@ -205,7 +226,6 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
                     <Tooltip content={`Copy building type "${buildingTypes[id].name}"`} position={Position.TOP}>
                       <Button onClick={() => this.props.copyBuildingType(id)} className="bp3-minimal building-type-header-button bp3-icon-duplicate"></Button>
                     </Tooltip>
-
                     <Alert
                       cancelButtonText="Cancel"
                       confirmButtonText="Delete building type"
@@ -312,7 +332,7 @@ const AdvancedOptionsCard = (props: IBuildingAdvancedOptionsCardProps) => {
                 inline
                 className="inline-input"
                 key={`building-type-${paramName}-input`}
-                label={param.label}
+                label={renderInputLabel(param)}
                 labelFor={`building-type-${paramName}-input`}>
                 {
                   Object.keys(buildingTypes).filter(id => !buildingTypes[id].deleted).map(id => {

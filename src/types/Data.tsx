@@ -246,8 +246,10 @@ export class EnergyCarrier {
   name: string = "";
   primaryEnergyFactorRe: number = 0;
   primaryEnergyFactorNonRe: number = 0;
+  primaryEnergyFactorTotal: number = 0;
   emissionFactor: number = 0;
   currentPrice: number = 0;
+  projectedPrice: number = 0;
   deleted: boolean = false;
   [key: string]: EnergyCarrier[keyof EnergyCarrier];
 }
@@ -392,13 +394,13 @@ export class Scenario {
     energyPriceIncrease: 0,
     calculationPeriod: 0,
   }
-  energySystems: Record<string,IEnergySystemScenarioInfo> = {};
+  energySystems: Record<string,IEnergySystemScenarioInfo> = { };
   buildingMeasures: Record<TBuildingMeasureCategory, Record<string, IBuildingMeasureScenarioInfo>> = {
-    roof: {},
-    facade: {},
-    foundation: {},
-    hvac: {},
-    windows: {},
+    roof: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
+    facade: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
+    foundation: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
+    hvac: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
+    windows: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
   };
   total: ResultSummary = new ResultSummary();
 }
@@ -447,5 +449,26 @@ export interface IScenarioEconomyData {
 export interface IValidatorResult {
   valid: boolean;
   invalidMsg: string;
+}
+
+export enum Units {
+  none = "",
+  wattPerMeterSqKelvin = "W/m²K",
+  years = "a",
+  nonDimensional = "-",
+  euro = "€",
+  euroPerKiloWattHour = "€/kWh",
+  percent = "%",
+  airChangesHourly = "ACH",
+  degC = "°C",
+  kiloWattHour = "kWh",
+  kiloWattHourPerKiloWattHour = "kWh/kWh",
+  kiloWattHourPerYear = "kWh/a",
+  kiloWattHourPerMeterSq = "kWh/m²",
+  meter = "m",
+  meterSq = "m²",
+  meterCubed = "m³",
+  personsPerMeterSq = "persons/m²",
+  kiloGramCO2EqPerKiloWattHour = "kg CO₂eq/kWh"
 }
   

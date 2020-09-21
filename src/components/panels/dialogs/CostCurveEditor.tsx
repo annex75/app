@@ -6,12 +6,27 @@ import { Select, ItemRenderer } from '@blueprintjs/select';
 import { Table, Column, EditableCell, ColumnHeaderCell } from '@blueprintjs/table';
 
 // internal
-import { ICostCurveType, ICostCurveEditorProps, ICostCurveEditorState, ICostCurve } from '../../../types';
+import { ICostCurveCategory, ICostCurveEditorProps, ICostCurveEditorState, ICostCurve, getEnergySystemCategory, getEnergySystemType, ICostCurveScale } from '../../../types';
 import { renderScatterChart, getNewColor, IChartSetup } from '../../../helpers';
 
 // todo: replace this local thing with renderDropdown() from helpers.tsx
-const CostCurveSelect = Select.ofType<ICostCurveType>();
-const renderCostCurveType: ItemRenderer<ICostCurveType> = (type, { handleClick, modifiers }) => {
+const CostCurveSelect = Select.ofType<ICostCurveCategory>();
+const renderCostCurveType: ItemRenderer<ICostCurveCategory> = (type, { handleClick, modifiers }) => {
+  return ( 
+    <MenuItem
+      active={modifiers.active}
+      disabled={modifiers.disabled}
+      label={type.label}
+      key={type.name}
+      onClick={handleClick}
+    />
+  )
+}
+
+// todo: replace this local thing with renderDropdown() from helpers.tsx
+// also in SystemSizeCurveEditor.tsx
+export const CostCurveScaleSelect = Select.ofType<ICostCurveScale>();
+export const renderCostCurveScale: ItemRenderer<ICostCurveScale> = (type, { handleClick, modifiers }) => {
   return ( 
     <MenuItem
       active={modifiers.active}
@@ -24,11 +39,12 @@ const renderCostCurveType: ItemRenderer<ICostCurveType> = (type, { handleClick, 
 }
 
 export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurveEditorState> {
-  costCurveTypes: ICostCurveType[];
+  costCurveCategories: ICostCurveCategory[];
+  costCurveScales: ICostCurveScale[];
 
   constructor(props: ICostCurveEditorProps) {
     super(props);
-    this.costCurveTypes = [
+    this.costCurveCategories = [
       {
         name: "investmentCost",
         label: "Investment cost",
@@ -44,22 +60,36 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
         label: "Embodied energy",
         unit: "kWh/m²a"
       }
-    ]
+    ];
+    this.costCurveScales = [
+      {
+        name: "substation",
+        label: "Individual system",
+      },{
+        name: "centralized",
+        label: "Centralised system",
+      },
+    ];
     this.state = {
       activeEnergySystemId: this.props.activeEnergySystemId,
-      costCurveType: this.costCurveTypes[0],
+      costCurveCategory: this.costCurveCategories[0],
+      costCurveScale: this.costCurveScales[0],
       costCurveRows: 5,
     };
   }
 
-  handleChangeCostCurveType = (costCurveType: ICostCurveType) => {
-    this.setState({ costCurveType });
+  handleChangeCostCurveType = (costCurveCategory: ICostCurveCategory) => {
+    this.setState({ costCurveCategory });
+  }
+
+  handleChangeCostCurveScale = (costCurveScale: ICostCurveScale) => {
+    this.setState({ costCurveScale });
   }
 
   handleValueChange = (row: number, col: number, id: string, costCurve: ICostCurve) => {
     return (value: string) => {
-      costCurve.value[row] = Number(value) || 0;
-      this.props.handleCostCurveEdit(costCurve, id, this.state.activeEnergySystemId, this.state.costCurveType.name);
+      costCurve.value[row] = +value || 0;
+      this.props.handleCostCurveEdit(costCurve, id, this.state.activeEnergySystemId, this.state.costCurveScale.name, this.state.costCurveCategory.name);
     }
   }
 
@@ -87,17 +117,17 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
 
   render() {
     const { energySystems } = this.props;
-    const { costCurveType, activeEnergySystemId } = this.state;
+    const { costCurveCategory, costCurveScale, activeEnergySystemId } = this.state;
     const activeSystem = energySystems[activeEnergySystemId];
     
     // pretty ugly hack to get them in the right order, but I can't find a way to retain property order in typescript?
-    const costCurvesSorted = Object.keys(activeSystem.costCurves[costCurveType.name]).sort((a,b) => {
-      const tA = activeSystem.costCurves[costCurveType.name][a] as ICostCurve;
-      const tB = activeSystem.costCurves[costCurveType.name][b] as ICostCurve;
+    const costCurvesSorted = Object.keys(activeSystem.costCurves[costCurveScale.name][costCurveCategory.name]).sort((a,b) => {
+      const tA = activeSystem.costCurves[costCurveScale.name][costCurveCategory.name][a] as ICostCurve;
+      const tB = activeSystem.costCurves[costCurveScale.name][costCurveCategory.name][b] as ICostCurve;
       return tA.index < tB.index? -1 : tA.index > tB.index? 1 : 0;
     });
     const columns = costCurvesSorted.map((id: string, index: number) => {
-      const costCurve = activeSystem.costCurves[costCurveType.name][id] as ICostCurve;
+      const costCurve = activeSystem.costCurves[costCurveScale.name][costCurveCategory.name][id] as ICostCurve;
       return (
         <Column
           key={String(index)}
@@ -106,14 +136,14 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
       )
     });
 
-    const xCurve = activeSystem.costCurves[costCurveType.name][costCurvesSorted[0]];
+    const xCurve = activeSystem.costCurves[costCurveScale.name][costCurveCategory.name][costCurvesSorted[0]];
 
     const chartSetup: IChartSetup = {
       xUnit: " kW",
       xLabel: "System size",
       xKey: 'x',
-      yUnit: ` ${costCurveType.unit}`,
-      yLabel: costCurveType.label,
+      yUnit: ` ${costCurveCategory.unit}`,
+      yLabel: costCurveCategory.label,
       yKey: 'y',
       mode: "2d",
       name: "Scatter chart"
@@ -121,7 +151,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
 
     const graphData = costCurvesSorted.slice(1).map((id: string, index: number) => {
 
-      const costCurve = activeSystem.costCurves[costCurveType.name][id] as ICostCurve;
+      const costCurve = activeSystem.costCurves[costCurveScale.name][costCurveCategory.name][id] as ICostCurve;
       return {
         name: costCurve.label,
         fillColor: getNewColor(index),
@@ -137,8 +167,33 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
     return (
       <div className={Classes.DIALOG_BODY}>
         <h3>{activeSystem.name}</h3>
-        <p>System type: {activeSystem.systemType}</p>
-        <p>System category: {activeSystem.systemCategory}</p>
+        <p>System type: {getEnergySystemType(activeSystem.systemType).name}</p>
+        <p>System category: {getEnergySystemCategory(activeSystem.systemCategory).name}</p>
+        {
+          activeSystem.systemCategory === 'centralized'? <FormGroup
+            inline
+            className="inline-input"
+            key={`cost-curve-category-form`}
+            label="Select cost curve scale:"
+            labelFor="cost-curve-category-button">
+            <CostCurveScaleSelect
+              items={this.costCurveScales.map( t => {
+                return t;
+              })}
+              resetOnQuery={false}
+              filterable={false}
+              itemRenderer={renderCostCurveScale}
+              onItemSelect={this.handleChangeCostCurveScale}
+              >
+              <Button
+                id="cost-curve-category-button"
+                rightIcon="caret-down"
+                text={costCurveScale.label}
+              />
+            </CostCurveScaleSelect>
+          </FormGroup> 
+          : null
+        }
         <FormGroup
           inline
           className="inline-input"
@@ -146,7 +201,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
           label="Select cost curve type:"
           labelFor="cost-curve-type-button">
           <CostCurveSelect
-            items={this.costCurveTypes.map( t => {
+            items={this.costCurveCategories.map( t => {
               return t;
             })}
             resetOnQuery={false}
@@ -157,7 +212,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
             <Button
               id="cost-curve-type-button"
               rightIcon="caret-down"
-              text={costCurveType.label}
+              text={costCurveCategory.label}
             />
           </CostCurveSelect>
         </FormGroup>
@@ -167,7 +222,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
           enableFocusedCell={true}
           getCellClipboardData={(row: number, col: number) => 
             {
-              return activeSystem.costCurves[costCurveType.name][costCurvesSorted[col]].value[row];
+              return activeSystem.costCurves[costCurveScale.name][costCurveCategory.name][costCurvesSorted[col]].value[row];
             }}
           >
           {columns}

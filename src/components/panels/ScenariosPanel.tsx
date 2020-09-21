@@ -6,7 +6,7 @@ import * as config from '../../config.json';
 import { IScenariosPanelProps, IScenariosPanelState, Scenario, IScenarioOptionsCard, ScenarioInfo, TScenarioParamCategory, IScenarioInput, } from '../../types';
 import { InputGroup, FormGroup, Button, Intent, Collapse } from '@blueprintjs/core';
 import { AppToaster } from '../../toaster';
-import { renderInputField, renderDropdown, IDropdownAlt } from '../../helpers';
+import { renderInputField, renderDropdown, IDropdownAlt, renderInputLabel } from '../../helpers';
 
 export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPanelState> {
   constructor(props: IScenariosPanelProps) {
@@ -27,15 +27,17 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
             numberOfBuildings: {
               key: "numberOfBuildings",
               type: Number,
+              unit: "none",
               mode: "input",
               rootPath: "calcData.buildingTypes",
-              label: "Number of buildings:",
+              label: "Number of buildings",
             },
             heatingNeed: {
               key: "heatingNeed",
               type: Number,
               mode: "input",
-              label: "Heating need [kWh/a]:",
+              unit: "kiloWattHourPerYear",
+              label: "Heating need",
               rootPath: "calcData.buildingTypes",
             },
             occupancy: {
@@ -43,35 +45,39 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               type: String,
               mode: "input",
               rootPath: "calcData.buildingTypes",
-              label: "Occupancy:"
+              label: "Occupancy"
             },
             occupants: {
               key: "occupants",
               type: Number,
               mode: "input",
+              unit: "personsPerMeterSq",
               rootPath: "calcData.buildingTypes",
-              label: "Number of occupants:",
+              label: "Number of occupants",
             },
             setPointTemp: {
               key: "setPointTemp",
               type: Number,
               mode: "input",
+              unit: "degC",
               rootPath: "calcData.buildingTypes",
-              label: "Set point temperature (heating):",
+              label: "Set point temperature (heating)",
             },
             appliancesElectricityUsage: {
               key: "appliancesElectricityUsage",
               type: Number,
               mode: "input",
+              unit: "kiloWattHourPerMeterSq",
               rootPath: "calcData.buildingTypes",
-              label: "Domestic electricity usage:",
+              label: "Domestic electricity usage",
             },
             domesticHotWaterUsage: {
               key: "domesticHotWaterUsage",
               type: Number,
               mode: "input",
+              unit: "kiloWattHourPerMeterSq",
               rootPath: "calcData.buildingTypes",
-              label: "Domestic hot water usage:",
+              label: "Domestic hot water usage",
             },
 
           }
@@ -83,23 +89,25 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
             interestRate: {
               key: "interestRate",
               type: Number,
+              unit: "percent",
               mode: "input",
               rootPath: "scenarioData.scenarios",
-              label: "Interest rate:",
+              label: "Interest rate",
             },
-            energyPriceIncrease: {
+            /*energyPriceIncrease: {
               key: "energyPriceIncrease",
               type: Number,
               mode: "input",
               rootPath: "scenarioData.scenarios",
-              label: "Annual energy price increase:",
-            },
+              label: "Annual energy price increase",
+            },*/
             calculationPeriod: {
               key: "calculationPeriod",
               type: Number,
               mode: "input",
+              unit: "years",
               rootPath: "scenarioData.scenarios",
-              label: "Calculation period:"
+              label: "Calculation period"
             },
           }
         },
@@ -111,8 +119,8 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "energySystem",
               nameKey: "name",
               optionPath: "calcData.energySystems",
-              mode: "dropdown",
-              label: "Energy system:",
+              mode: "dropdownOptionPath",
+              label: "Energy system",
             },
           },
         },
@@ -124,36 +132,36 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "roof",
               nameKey: "measureName",
               optionPath: "calcData.buildingMeasures.roof",
-              mode: "dropdown",
-              label: "Roof:",
+              mode: "dropdownOptionPath",
+              label: "Roof",
             },
             facade: {
               key: "facade",
               nameKey: "measureName",
               optionPath: "calcData.buildingMeasures.facade",
-              mode: "dropdown",
-              label: "Façade:",
+              mode: "dropdownOptionPath",
+              label: "Façade",
             },
             foundation: {
               key: "foundation",
               nameKey: "measureName",
               optionPath: "calcData.buildingMeasures.foundation",
-              mode: "dropdown",
-              label: "Foundation:",
+              mode: "dropdownOptionPath",
+              label: "Foundation",
             },
             windows: {
               key: "windows",
               nameKey: "measureName",
               optionPath: "calcData.buildingMeasures.windows",
-              mode: "dropdown",
-              label: "Windows:",
+              mode: "dropdownOptionPath",
+              label: "Windows",
             },
             hvac: {
               key: "hvac",
               nameKey: "measureName",
               optionPath: "calcData.buildingMeasures.hvac",
-              mode: "dropdown",
-              label: "HVAC system:",
+              mode: "dropdownOptionPath",
+              label: "HVAC system",
             }
           }
         },
@@ -297,7 +305,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                               inline
                               className="inline-input"
                               key={`scenario-global-${paramName}-input`}
-                              label={param.label}
+                              label={renderInputLabel(param)}
                               labelFor={`scenario-global-${paramName}-input`}>
                               {
                                 Object.keys(scenarios).map(id => {
@@ -345,7 +353,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                                       inline
                                       className="inline-input"
                                       key={`scenario-${buildingTypeId}-${paramName}-input`}
-                                      label={param.label}
+                                      label={renderInputLabel(param)}
                                       labelFor={`scenario-${buildingTypeId}-${paramName}-input`}>
                                       {
                                         Object.keys(scenarios).map(id => {
@@ -354,7 +362,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                                             case "input": {
                                               param.localPath = `${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
                                               return renderInputField(`scenario-${buildingTypeId}-${paramName}-${id}`, param, buildingTypes, this.handleChange, param.validator)
-                                            } case "dropdown": {
+                                            } case "dropdownOptionPath": {
                                               const data = _fpGet(param.optionPath, this.state.project);
                                               const alts = Object.keys(data).map((key) => {
                                                 const dataPoint = data[key];

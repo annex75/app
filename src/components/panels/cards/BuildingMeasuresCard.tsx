@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { IBuildingMeasuresCardProps, IBuildingMeasuresCardState, IBuildingMeasureCategoryCard, IDictEventHandler, IDictBuildingMeasure, IBuildingMeasureInfo, EnvelopeMeasureParameters, WindowMeasureParameters, HvacMeasureParameters, BasementMeasureParameters, TBuildingMeasureCategory } from '../../../types';
 import { Button, Collapse, FormGroup } from '@blueprintjs/core';
 
-import { renderInputField, } from '../../../helpers';
+import { renderInputField, renderInputLabel, } from '../../../helpers';
 
 export class BuildingMeasuresCard extends Component<IBuildingMeasuresCardProps, IBuildingMeasuresCardState> {
   
@@ -122,7 +122,7 @@ const BuildingMeasureCategoryCard = (props: IBuildingMeasureCategoryCardProps) =
                 inline
                 className="inline-input"
                 key={`building-measure-${paramName}-input`}
-                label={param.label}
+                label={renderInputLabel(param)}
                 labelFor={`building-measure-${paramName}-input`}>
                 {
                   Object.keys(buildingMeasures).map(id => {

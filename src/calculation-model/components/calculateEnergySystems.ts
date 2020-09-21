@@ -1,20 +1,31 @@
 import { IProject, EnergySystem, TCostCurveCategory, TCostCurveType, EnergyCarrier } from "../../types";
 import { extractInterpolatedValueFromCurves } from '../utils';
 
+export interface ISystemSize {
+  centralized: number;
+  decentralized: number[];
+}
+
 export interface IEnergySystemScenarioInfo {
   heatingNeed: number;
-  systemSize: number;
+  individualBuildingHeatNeed: IIndividualBuildingHeatNeed[];
+  systemSize: ISystemSize;
   primaryEnergyUse: number;
   emissions: number;
   lifetimeEnergyCost: number;
   investmentCost: Record<TCostCurveType, number>;
   maintenanceCost: Record<TCostCurveType, number>;
   embodiedEnergy: Record<TCostCurveType, number>;
-  [key: string]: number | Record<TCostCurveType, number>;
+  [key: string]: IEnergySystemScenarioInfo[keyof IEnergySystemScenarioInfo];
 }
 
 type TScenarioId = string;
 type TEnergySystemId = string;
+
+interface IIndividualBuildingHeatNeed {
+  heatingNeed: number;
+  numBuildings: number;
+}
 
 export const calculateEnergySystems = (project: IProject) => {
   // for each scenario
@@ -45,7 +56,8 @@ export const calculateEnergySystems = (project: IProject) => {
       if (!Object.keys(energySystemsInUse[scenarioId]).includes(energySystem.id)) {
         energySystemsInUse[scenarioId][energySystemId] = {
           heatingNeed: totalBuildingTypeHeatNeed,
-          systemSize: 0,
+          individualBuildingHeatNeed: [{ heatingNeed: buildingTypeHeatNeed, numBuildings: numBuildingsOfType }],
+          systemSize: { centralized: 0, decentralized: [] },
           primaryEnergyUse: 0,
           emissions: 0,
           lifetimeEnergyCost: 0,
@@ -55,17 +67,18 @@ export const calculateEnergySystems = (project: IProject) => {
         };
       } else {
         energySystemsInUse[scenarioId][energySystemId].heatingNeed += totalBuildingTypeHeatNeed;
+        energySystemsInUse[scenarioId][energySystemId].individualBuildingHeatNeed.push({ heatingNeed: buildingTypeHeatNeed, numBuildings: numBuildingsOfType });
       }
     });
 
-    
     const energySystemScenarioInfos = energySystemsInUse[scenarioId];
     // calculate system size
     Object.keys(energySystemScenarioInfos).forEach(energySystemId => {
       const energySystemScenarioInfo = energySystemScenarioInfos[energySystemId];
       const energySystem = project.calcData.energySystems[energySystemId];
-      const heatingNeed = energySystemScenarioInfo.heatingNeed;
-      const systemSize = calculateSystemSize(energySystem, heatingNeed);
+      validateEnergySystem(energySystem);
+      const { heatingNeed, individualBuildingHeatNeed } = energySystemScenarioInfo;
+      const systemSize = calculateSystemSize(energySystem, heatingNeed, individualBuildingHeatNeed);
       energySystemScenarioInfo.systemSize = systemSize;
       energySystemScenarioInfo.maintenanceCost = calculateEnergySystemTotalMaintenanceCost(energySystem, systemSize);
       energySystemScenarioInfo.investmentCost = calculateEnergySystemTotalInvestmentCost(energySystem, systemSize);
@@ -82,47 +95,103 @@ export const calculateEnergySystems = (project: IProject) => {
   return energySystemsInUse;
 }
 
-export const calculateSystemSize = (energySystem: EnergySystem, heatingNeed: number) => {
+export const calculateSystemSize = (energySystem: EnergySystem, systemHeatingNeed: number, individualBuildingHeatNeed: IIndividualBuildingHeatNeed[]) => {
   const { systemSizeCurves } = energySystem;
-  const heatingNeedCurve = systemSizeCurves.heatingNeed.value;
-  const systemSizeCurve = systemSizeCurves.systemSize.value;
+  const centralizedHeatingNeedCurve = systemSizeCurves.centralized.heatingNeed.value;
+  const centralizedSystemSizeCurve = systemSizeCurves.centralized.systemSize.value;
   
-  let systemSize = extractInterpolatedValueFromCurves(heatingNeedCurve, systemSizeCurve, heatingNeed);
+  const substationHeatingNeedCurve = systemSizeCurves.substation.heatingNeed.value;
+  const substationSystemSizeCurve = systemSizeCurves.substation.systemSize.value;
+
+  let systemSize: ISystemSize = { centralized: 0, decentralized: [] };
   
   // todo: change calculation method based on system type
   switch(energySystem.systemType) {
     default: {
-      return systemSize;
+      systemSize.centralized = extractInterpolatedValueFromCurves(centralizedHeatingNeedCurve, centralizedSystemSizeCurve, systemHeatingNeed);
+      individualBuildingHeatNeed.forEach(individualBuilding => {
+        for (let i = 0; i < individualBuilding.numBuildings; i++) {
+          const heatingNeed = individualBuilding.heatingNeed
+          systemSize.decentralized.push(extractInterpolatedValueFromCurves(substationHeatingNeedCurve, substationSystemSizeCurve, heatingNeed))
+        }
+      })
     }
   }
+  return systemSize;
 }
 
-export const calculateEnergySystemTotalInvestmentCost = (energySystem: EnergySystem, systemSize: number, ) => {
-  return calculateEnergySystemCosts("investmentCost", energySystem, systemSize);
+export const calculateEnergySystemTotalInvestmentCost = (energySystem: EnergySystem, systemSize: ISystemSize, ) => {
+  return calculateEnergySystemTotalCategoryCost("investmentCost", energySystem, systemSize);
 }
 
-export const calculateEnergySystemTotalMaintenanceCost = (energySystem: EnergySystem, systemSize: number, ) => {
-  return calculateEnergySystemCosts("maintenanceCost", energySystem, systemSize);
+export const calculateEnergySystemTotalMaintenanceCost = (energySystem: EnergySystem, systemSize: ISystemSize, ) => {
+  return calculateEnergySystemTotalCategoryCost("maintenanceCost", energySystem, systemSize);
 }
 
-export const calculateEnergySystemTotalEmbodiedEnergy = (energySystem: EnergySystem, systemSize: number, ) => {
-  return calculateEnergySystemCosts("embodiedEnergy", energySystem, systemSize);
+export const calculateEnergySystemTotalEmbodiedEnergy = (energySystem: EnergySystem, systemSize: ISystemSize, ) => {
+  return calculateEnergySystemTotalCategoryCost("embodiedEnergy", energySystem, systemSize);
 }
 
-export const calculateEnergySystemCosts = (type: TCostCurveCategory, energySystem: EnergySystem, systemSize: number, ) => {
-  const costCurves = energySystem.costCurves[type];
+const calculateEnergySystemTotalCategoryCost = (category: TCostCurveCategory, energySystem: EnergySystem, systemSize: ISystemSize,) => {
+  let costs: Record<TCostCurveType, number> = {
+    intake: 0,
+    circulation: 0,
+    generation: 0,
+    substation: 0,
+  };
+  switch(energySystem.systemCategory) {
+    case "decentralized": {
+      const decentralizedCost = calculateIndividualEnergySystemCosts(category, energySystem, systemSize.decentralized);
+      Object.keys(costs).forEach(key => {
+        costs[key as TCostCurveType] += decentralizedCost[key as TCostCurveType];
+      });
+      break;
+    } case "centralized": {
+      const centralizedCost = calculateCentralizedEnergySystemCosts(category, energySystem, systemSize.centralized);
+      const decentralizedCost = calculateIndividualEnergySystemCosts(category, energySystem, systemSize.decentralized);
+      Object.keys(costs).forEach(key => {
+        costs[key as TCostCurveType] += centralizedCost[key as TCostCurveType] + decentralizedCost[key as TCostCurveType];
+      });
+      break;
+    } case "none": {
+      break;
+    } default: {
+      throw new Error(`System category ${energySystem.systemCategory} has not been defined.`);
+    }
+  }
+  return costs;
+}
+
+export const calculateCentralizedEnergySystemCosts = (type: TCostCurveCategory, energySystem: EnergySystem, systemSize: number, ) => {
+  const costCurves = energySystem.costCurves.centralized[type];
   const systemSizeCurve = costCurves.systemSize;
   let costs: Record<TCostCurveType, number> = {
     intake: 0,
     circulation: 0,
-    substation: 0,
     generation: 0,
+    substation: 0,
   };
   Object.entries(costCurves).forEach(([id, c]) => {
     if (id === "systemSize") {
       return;
     }
     costs[id as TCostCurveType] += extractInterpolatedValueFromCurves(systemSizeCurve.value, c.value, systemSize);
+  });
+  return costs;
+}
+
+// todo: implement
+export const calculateIndividualEnergySystemCosts = (type: TCostCurveCategory, energySystem: EnergySystem, systemSizes: number[], ) => {
+  const costCurves = energySystem.costCurves.substation[type];
+  const systemSizeCurve = costCurves.systemSize;
+  let costs: Record<TCostCurveType, number> = {
+    intake: 0,
+    circulation: 0,
+    generation: 0,
+    substation: 0,
+  };
+  systemSizes.forEach(systemSize => {
+    costs.substation += extractInterpolatedValueFromCurves(systemSizeCurve.value, costCurves.substation.value, systemSize);
   });
   return costs;
 }
@@ -176,7 +245,8 @@ export const calculateEnergySystemPrimaryEnergyUse = (
   heatingNeed: number,
 ) => {
   // todo: check this calculation
-  const primaryEnergyFactor = Number(energyCarrier.primaryEnergyFactorNonRe) + Number(energyCarrier.primaryEnergyFactorRe);
+  //const primaryEnergyFactor = +energyCarrier.primaryEnergyFactorNonRe + +energyCarrier.primaryEnergyFactorRe;
+  const primaryEnergyFactor = +energyCarrier.primaryEnergyFactorTotal;
   return primaryEnergyFactor*heatingNeed/energySystem.efficiency;
 }
 
@@ -196,8 +266,18 @@ export const calculateEnergySystemLifetimeEnergyCost = (
 ) => {
   let lifetimeEnergyCost = 0;
   for (let i = 0; i < energySystem.lifeTime; i++) {
-    const energyCost = primaryEnergyUse*energyCarrier.currentPrice*Math.pow(Number(priceIncrease),i);
+    //const energyCost = primaryEnergyUse*energyCarrier.currentPrice*Math.pow(+priceIncrease,i);
+    const energyCost = primaryEnergyUse*energyCarrier.projectedPrice;
     lifetimeEnergyCost += energyCost;
   }
   return lifetimeEnergyCost;
+}
+
+const validateEnergySystem = (energySystem: EnergySystem) => {
+  if (!energySystem.energyCarrier) {
+    throw new Error("Energy carrier must be defined for all energy systems.");
+  }
+  if (!energySystem.lifeTime) {
+    throw new Error("Life time must be defined and positive for all energy systems.");
+  }
 }

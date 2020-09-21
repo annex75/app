@@ -1,26 +1,42 @@
 // external
 import React, { Component } from 'react';
 import '@blueprintjs/table/lib/css/table.css';
-import { Classes,  } from '@blueprintjs/core';
+import { Classes, FormGroup, Button,  } from '@blueprintjs/core';
 import { Table, Column, EditableCell, ColumnHeaderCell } from '@blueprintjs/table';
 
 // internal
-import { ISystemSizeCurveEditorProps, ISystemSizeCurveEditorState, ISystemSizeCurve } from '../../../types';
+import { ISystemSizeCurveEditorProps, ISystemSizeCurveEditorState, ISystemSizeCurve, getEnergySystemType, getEnergySystemCategory, ICostCurveScale } from '../../../types';
 import { IChartSetup, getNewColor, renderScatterChart } from '../../../helpers';
+import { CostCurveScaleSelect, renderCostCurveScale } from './CostCurveEditor';
 
 export class SystemSizeCurveEditor extends Component<ISystemSizeCurveEditorProps, ISystemSizeCurveEditorState> {
+  costCurveScales: ICostCurveScale[];
   constructor(props: ISystemSizeCurveEditorProps) {
     super(props);
+    this.costCurveScales = [
+      {
+        name: "substation",
+        label: "Individual system",
+      },{
+        name: "centralized",
+        label: "Centralised system",
+      },
+    ];
     this.state = {
       activeEnergySystemId: this.props.activeEnergySystemId,
       systemSizeCurveRows: 5,
+      costCurveScale: this.costCurveScales[0],
     };
+  }
+
+  handleChangeCostCurveScale = (costCurveScale: ICostCurveScale) => {
+    this.setState({ costCurveScale });
   }
 
   handleValueChange = (row: number, col: number, id: string, systemSizeCurve: ISystemSizeCurve) => {
     return (value: string) => {
-      systemSizeCurve.value[row] = Number(value) || 0;
-      this.props.handleSystemSizeCurveEdit(systemSizeCurve, id, this.state.activeEnergySystemId);
+      systemSizeCurve.value[row] = +value || 0;
+      this.props.handleSystemSizeCurveEdit(systemSizeCurve, id, this.state.costCurveScale.name, this.state.activeEnergySystemId);
     }
   }
 
@@ -48,17 +64,17 @@ export class SystemSizeCurveEditor extends Component<ISystemSizeCurveEditorProps
 
   render() {
     const { energySystems } = this.props;
-    const { activeEnergySystemId } = this.state;
+    const { activeEnergySystemId, costCurveScale } = this.state;
     const activeSystem = energySystems[activeEnergySystemId];
     
     // pretty ugly hack to get them in the right order, but I can't find a way to retain property order in typescript?
-    const systemSizeCurvesSorted = Object.keys(activeSystem.systemSizeCurves).sort((a,b) => {
-      const tA = activeSystem.systemSizeCurves[a];
-      const tB = activeSystem.systemSizeCurves[b];
+    const systemSizeCurvesSorted = Object.keys(activeSystem.systemSizeCurves[costCurveScale.name]).sort((a,b) => {
+      const tA = activeSystem.systemSizeCurves[costCurveScale.name][a];
+      const tB = activeSystem.systemSizeCurves[costCurveScale.name][b];
       return tA.index < tB.index? -1 : tA.index > tB.index? 1 : 0;
     });
     const columns = systemSizeCurvesSorted.map((id: string, index: number) => {
-      const systemSizeCurve = activeSystem.systemSizeCurves[id];
+      const systemSizeCurve = activeSystem.systemSizeCurves[costCurveScale.name][id];
       return (
         <Column
           key={String(index)}
@@ -67,7 +83,7 @@ export class SystemSizeCurveEditor extends Component<ISystemSizeCurveEditorProps
       )
     });
 
-    const xCurve = activeSystem.systemSizeCurves[systemSizeCurvesSorted[0]];
+    const xCurve = activeSystem.systemSizeCurves[costCurveScale.name][systemSizeCurvesSorted[0]];
 
     const chartSetup: IChartSetup = {
       xUnit: " kWh",
@@ -82,7 +98,7 @@ export class SystemSizeCurveEditor extends Component<ISystemSizeCurveEditorProps
 
     const graphData = systemSizeCurvesSorted.slice(1).map((id: string, index: number) => {
 
-      const costCurve = activeSystem.systemSizeCurves[id] as ISystemSizeCurve;
+      const costCurve = activeSystem.systemSizeCurves[costCurveScale.name][id] as ISystemSizeCurve;
       return {
         name: costCurve.label,
         fillColor: getNewColor(index),
@@ -98,8 +114,33 @@ export class SystemSizeCurveEditor extends Component<ISystemSizeCurveEditorProps
     return (
       <div className={Classes.DIALOG_BODY}>
         <h3>{activeSystem.name}</h3>
-        <p>System type: {activeSystem.systemType}</p>
-        <p>System category: {activeSystem.systemCategory}</p>
+        <p>System type: {getEnergySystemType(activeSystem.systemType).name}</p>
+        <p>System category: {getEnergySystemCategory(activeSystem.systemCategory).name}</p>
+        {
+          activeSystem.systemCategory === 'centralized'? <FormGroup
+            inline
+            className="inline-input"
+            key={`cost-curve-type-form`}
+            label="Select cost curve type:"
+            labelFor="cost-curve-type-button">
+            <CostCurveScaleSelect
+              items={this.costCurveScales.map( t => {
+                return t;
+              })}
+              resetOnQuery={false}
+              filterable={false}
+              itemRenderer={renderCostCurveScale}
+              onItemSelect={this.handleChangeCostCurveScale}
+              >
+              <Button
+                id="cost-curve-category-button"
+                rightIcon="caret-down"
+                text={costCurveScale.label}
+              />
+            </CostCurveScaleSelect>
+          </FormGroup> 
+          : null
+        }
         <Table
           numRows={this.state.systemSizeCurveRows}
           enableRowHeader={false}

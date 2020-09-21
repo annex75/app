@@ -243,6 +243,10 @@ ul {
   margin-left: 5px;
 }
 
+.bp3-button.dropdown-button-twoline {
+  min-height: 42px;
+}
+
 
 
 .inline-input .bp3-form-content .building-type-button-header-div {

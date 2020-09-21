@@ -5,9 +5,9 @@ import xlsx from 'xlsx';
 // internal
 import { APP_VERSION } from '../../constants';
 import { updateFromWorkbook } from '../../WorkbookImport';
-import { IProject, OverviewData, CalcData, ScenarioData, ScenarioInfo, Scenario, toXlsx, BuildingInformation, BuildingGeometry, buildingMeasureCategories, ResultSummary, } from '../Data';
+import { IProject, OverviewData, CalcData, ScenarioData, ScenarioInfo, Scenario, toXlsx, BuildingInformation, BuildingGeometry, buildingMeasureCategories, ResultSummary, TBuildingMeasureCategory, } from '../Data';
 import { TCostCurveCategory, TCostCurveType } from './EnergySystem';
-import { calculateEnergySystems, calculateEnergySystemAnnualizedSpecificInvestmentCost, calculateEnergySystemSpecificMaintenanceCost, calculateBuildingMeasures, calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost, calculateBuildingMeasureSpecificEmbodiedEnergy, calculateSpecificValueFromEnergySystemScenarioInfo } from '../../calculation-model/calculate';
+import { calculateEnergySystems, calculateEnergySystemAnnualizedSpecificInvestmentCost, calculateEnergySystemSpecificMaintenanceCost, calculateBuildingMeasures, calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost, calculateBuildingMeasureSpecificEmbodiedEnergy, calculateSpecificValueFromEnergySystemScenarioInfo, IBuildingMeasureScenarioInfo } from '../../calculation-model/calculate';
 
 export class Project implements IProject {
   appVersion = APP_VERSION;
@@ -67,18 +67,32 @@ export class Project implements IProject {
       const scenarioBuildingMeasureInfos = calculateBuildingMeasures(this.jsonData);
       Object.entries(scenarioBuildingMeasureInfos).forEach(([key, entry]) => {
         buildingMeasureCategories.forEach(cat => {
-          console.log()
+          if (!this.scenarioData.scenarios[key].buildingMeasures) {
+            // hack
+            this.scenarioData.scenarios[key].buildingMeasures = {} as Record<TBuildingMeasureCategory,Record<string, IBuildingMeasureScenarioInfo>>;
+          }
           this.scenarioData.scenarios[key].buildingMeasures[cat] = entry[cat];
         });
       });
-    }
-
-    return this._summarize();
+      return this._summarize();
+    } else {
+      return this;
+    }    
   }
 
   _summarize = () => {
     Object.keys(this.scenarioData.scenarios).forEach(scenarioId => {
       const scenario = this.scenarioData.scenarios[scenarioId];
+      if (!scenario.energySystems || !Object.keys(scenario.energySystems).length) {
+        throw new Error("Energy systems have not been properly defined in the scenarios.");
+      }
+
+      if (!scenario.buildingMeasures || !Object.keys(scenario.buildingMeasures).every(key => {
+        return Object.keys(scenario.buildingMeasures[key as TBuildingMeasureCategory]).length;
+      })) {
+        throw new Error("Building measures have not been properly defined in the scenarios.");
+      }
+
       scenario.total = new ResultSummary();
       
       // building types
@@ -98,7 +112,7 @@ export class Project implements IProject {
       // energy systems
       const totalBuildingArea = scenario.total.buildingArea;
 
-      Object.keys(scenario.energySystems).forEach(energySystemId => {
+      Object.keys(scenario.energySystems || {}).forEach(energySystemId => {
         const energySystemScenarioInfo = scenario.energySystems[energySystemId];
         const energySystem = this.calcData.energySystems[energySystemId];
         
@@ -126,8 +140,8 @@ export class Project implements IProject {
         Object.keys(scenario.buildingMeasures[cat]).forEach(buildingMeasureId => {
           const buildingMeasure = this.calcData.buildingMeasures[cat][buildingMeasureId];
           const buildingMeasureScenarioInfo = scenario.buildingMeasures[cat][buildingMeasureId];
-          scenario.total.buildingMeasures[cat].refurbishmentCost += Number(buildingMeasureScenarioInfo.refurbishmentCost);
-          scenario.total.buildingMeasures[cat].embodiedEnergy += Number(buildingMeasureScenarioInfo.embodiedEnergy);
+          scenario.total.buildingMeasures[cat].refurbishmentCost += +buildingMeasureScenarioInfo.refurbishmentCost;
+          scenario.total.buildingMeasures[cat].embodiedEnergy += +buildingMeasureScenarioInfo.embodiedEnergy;
           const annualizedSpecificRefurbishmentCost = calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost(buildingMeasureScenarioInfo, buildingMeasure, totalBuildingArea);
           scenario.total.annualizedSpecificCost += annualizedSpecificRefurbishmentCost;
           scenario.total.specificEmbodiedEnergy += calculateBuildingMeasureSpecificEmbodiedEnergy(buildingMeasureScenarioInfo, totalBuildingArea);
@@ -220,8 +234,15 @@ export class Project implements IProject {
 
 
     // cost curves
+    // todo: broken as of 200917, needs some work
+    /*
     const costCurveCategories: TCostCurveCategory[] = [ "embodiedEnergy", "investmentCost", "maintenanceCost", ]
-    const costCurveKeys = [ "systemSize", "intake", "generation", "circulation", "substation", ]
+    const costCurveScales: TCostCurveScale[] = [ "centralized", "substation" ]
+    const costCurveKeys: Record<TCostCurveScale, TCostCurveType[]> = {
+      centralized: [ "intake", "generation", "circulation", ],
+      substation: [ "substation", ],
+    };
+      
     let wsDataCostCurves : any[][] = [ ["System name", ...costCurveKeys] ];
     energySystemNames.forEach(name => {
       wsDataCostCurves.push(...[
@@ -257,6 +278,7 @@ export class Project implements IProject {
 
     const wsCostCurves = xlsx.utils.aoa_to_sheet(wsDataCostCurves);
     xlsx.utils.book_append_sheet(workBook, wsCostCurves, "Energy system cost curves");
+    */
 
 
     // energy carriers

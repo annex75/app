@@ -5,9 +5,23 @@ import { Select, ItemRenderer } from '@blueprintjs/select';
 import { get as _fpGet } from 'lodash/fp';
 
 // internal
-import { IInput, IValidatorResult, IDropdown } from './types';
+import { IInput, IValidatorResult, IDropdown, Units } from './types';
 import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter, ZAxis, Tooltip, Legend } from 'recharts';
 import { Label } from 'recharts';
+
+export const renderInputLabel = (param: IInput | IDropdown) => {
+  let out;
+
+  // todo: this is not great. we use unit as the typeguard but other types than IInput may have the unit property
+  if ((param as IInput).unit) {
+    const paramI = param as IInput;
+    const unitStr = paramI.unit && paramI.unit !== "none"? ` [${Units[paramI.unit]}]`: "";
+    out = `${param.label}${unitStr}:`;
+  } else {
+    out = `${param.label}:`;
+  }
+  return out;
+}
 
 export const renderInputField = (parent: string, param: IInput, obj: any, handleChange?: (e: ChangeEvent<HTMLInputElement>) => void, validator?: (val: string) => IValidatorResult ) => {
   const val = _fpGet(param.localPath || param.path!, obj) as string || '';
@@ -54,14 +68,18 @@ export interface IDropdownAlt {
   path: string;
 }
 
-export const renderDropdown = (key: string, items: IDropdownAlt[], selected: IDropdownAlt, param: IDropdown, handleSelect: (item: IDropdownAlt) => void) => {
+export interface IDropdownSettings {
+  twoLine?: boolean,
+}
+
+export const renderDropdown = (key: string, items: IDropdownAlt[], selected: IDropdownAlt, param: IDropdown, handleSelect: (item: IDropdownAlt) => void, settings: IDropdownSettings = {}) => {
   const TheSelect = Select.ofType<IDropdownAlt>();
   const renderDropdownAlts: ItemRenderer<IDropdownAlt> = (item, { handleClick, modifiers }) => {
     return ( 
       <MenuItem
         active={modifiers.active}
         disabled={modifiers.disabled}
-        label={item.label}
+        label={item.label || " "}
         key={item.name}
         onClick={handleClick}
       />
@@ -76,10 +94,10 @@ export const renderDropdown = (key: string, items: IDropdownAlt[], selected: IDr
       itemRenderer={renderDropdownAlts}
       onItemSelect={handleSelect}>
       <Button
-        className="dropdown-button"
-        id="cost-curve-type-button"
+        className={settings.twoLine? "dropdown-button dropdown-button-twoline" : "dropdown-button"}
+        id={`${key}-button`}
         rightIcon="caret-down"
-        text={selected.label}
+        text={selected.label || " "}
       />
     </TheSelect>
   )

@@ -9,7 +9,7 @@ import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 //import { CalcData } from '@annex-75/calculation-model/';
 
 import * as config from '../../config.json';
-import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure, BasementMeasure, WindowMeasure, EnergyCarrier, ISystemSizeCurve, TCostCurveCategory } from '../../types';
+import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure, BasementMeasure, WindowMeasure, EnergyCarrier, ISystemSizeCurve, TCostCurveCategory, TCostCurveScale } from '../../types';
 import { DistrictCard } from './cards/DistrictCard';
 import { BuildingTypeCard } from './cards/BuildingTypeCard';
 import { AppToaster } from '../../toaster';
@@ -130,21 +130,21 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     // todo: handle file input
   }
 
-  handleCostCurveEdit = (costCurve: ICostCurve, costCurveId: string, activeEnergySystemId: string, costCurveType: TCostCurveCategory) => {
+  handleCostCurveEdit = (costCurve: ICostCurve, costCurveId: string, activeEnergySystemId: string, costCurveScale: TCostCurveScale, costCurveType: TCostCurveCategory) => {
     let newState = { ...this.state };
-    newState.project.calcData.energySystems[activeEnergySystemId].costCurves[costCurveType][costCurveId] = costCurve;
+    newState.project.calcData.energySystems[activeEnergySystemId].costCurves[costCurveScale][costCurveType][costCurveId] = costCurve;
     this.setStateAndUpdate(newState);
   }
 
-  handleSystemSizeCurveEdit = (systemSizeCurve: ISystemSizeCurve, curveId: string, activeEnergySystemId: string) => {
+  handleSystemSizeCurveEdit = (systemSizeCurve: ISystemSizeCurve, curveId: string, costCurveScale: TCostCurveScale, activeEnergySystemId: string) => {
     let newState = { ...this.state };
-    newState.project.calcData.energySystems[activeEnergySystemId].systemSizeCurves[curveId] = systemSizeCurve;
+    newState.project.calcData.energySystems[activeEnergySystemId].systemSizeCurves[costCurveScale][curveId] = systemSizeCurve;
     this.setStateAndUpdate(newState);
   }
 
   performDatabaseOperation = (checkValidOperation: (newState: ICalcDataPanelState) => boolean, operation: (newState: ICalcDataPanelState) => void) => {
     let newState = { ...this.state };
-    if(!checkValidOperation(newState)) return;
+    if (!checkValidOperation(newState)) return;
     operation(newState); // we allow this operation to mutate the newState object
     this.setStateAndUpdate(newState);
   }

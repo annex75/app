@@ -1,6 +1,7 @@
-import { IProject, District, IDictBuildingType, IDictEnergySystem, ICostCurveType, ICostCurve, ISystemSizeCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory, IValidatorResult, IDictBool } from "./Data";
+import { IProject, District, IDictBuildingType, IDictEnergySystem, TCostCurveScale, ICostCurveCategory, ICostCurveScale, ICostCurve, ISystemSizeCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory, IValidatorResult, IDictBool, Units } from "./Data";
 import { ChangeEvent, ComponentType, ReactNode } from "react";
 import { IDropdownAlt } from "../helpers";
+import { TCostCurveCategory } from "./classes/EnergySystem";
 
 /* Panels */
 
@@ -36,6 +37,7 @@ export interface IInput {
   disabled?: boolean;
   type: TInputType;
   label: string;
+  unit?: keyof typeof Units;
   buttonLabel?: string;
   path?: string;
   localPath?: string;
@@ -48,9 +50,20 @@ export interface IDropdown {
   disabled?: boolean;
   label: string;
   path?: string; // where to store selected value
-  optionPath?: string; // where to get possible values
   handleChange?(e: ChangeEvent<HTMLInputElement>): void;
+  twoLine?: boolean;
 }
+
+// dropdown which retrieves options from the object
+export interface IDropdownOptionPath extends IDropdown {
+  optionPath: string; // where to get possible values
+}
+
+// dropdown which retrieves options from the object
+export interface IDropdownOptions extends IDropdown {
+  options: IDropdownAlt[]; // where to get possible values
+}
+
 
 export interface IOverviewInfo extends IInput {
 
@@ -189,11 +202,17 @@ export interface IEnergySystemParameter extends IInput {
   mode: "input";
 }
 
-export interface IEnergySystemDropdown extends IDropdown {
-  optionPath: string; 
+export interface IEnergySystemDropdownOptionPath extends IDropdownOptionPath {
   nameKey: "name";
-  mode: "dropdown";
+  mode: "dropdownOptionPath";
 }
+
+export interface IEnergySystemDropdownOptions extends IDropdownOptions {
+  nameKey: "name";
+  mode: "dropdownOptions";
+}
+
+export type IEnergySystemDropdown = IEnergySystemDropdownOptionPath | IEnergySystemDropdownOptions;
 
 export interface IEnergySystemsCardProps extends ICalcDataCardProps {
   handleChange(e: ChangeEvent<HTMLInputElement>): void;
@@ -213,24 +232,26 @@ export interface IEnergySystemsCardState extends ICalcDataCardState {
 export interface ICostCurveEditorProps {
   activeEnergySystemId: string;
   energySystems: IDictEnergySystem;
-  handleCostCurveEdit(costCurve: ICostCurve, costCurveId: string, energySystemId: string, costCurveType: string): void
+  handleCostCurveEdit(costCurve: ICostCurve, costCurveId: string, energySystemId: string, costCurveScale: TCostCurveScale, costCurveType: TCostCurveCategory): void
 }
 
 export interface ICostCurveEditorState {
   activeEnergySystemId: string;
-  costCurveType: ICostCurveType;
+  costCurveScale: ICostCurveScale;
+  costCurveCategory: ICostCurveCategory;
   costCurveRows: number;
 }
 
 export interface ISystemSizeCurveEditorProps {
   activeEnergySystemId: string;
   energySystems: IDictEnergySystem;
-  handleSystemSizeCurveEdit(systemSizeCurve: ISystemSizeCurve, curveId: string, activeEnergySystemId: string): void
+  handleSystemSizeCurveEdit(systemSizeCurve: ISystemSizeCurve, curveId: string, costCurveScale: TCostCurveScale, activeEnergySystemId: string): void
 }
 
 export interface ISystemSizeCurveEditorState {
   activeEnergySystemId: string;
   systemSizeCurveRows: number;
+  costCurveScale: ICostCurveScale;
 }
 
 
@@ -255,7 +276,7 @@ export interface IBuildingMeasureCategoryCard {
 export interface IBuildingMeasureInfo extends IInput {
   type: StringConstructor | NumberConstructor;
   label: string;
-  unit: string;
+  unit: keyof typeof Units;
   disabled?: boolean;
 }
 
@@ -266,132 +287,132 @@ export interface IBuildingMeasureParameters {
 }
 
 abstract class BaseBuildingMeasureParameters {
-  measureName = {
+  measureName: IBuildingMeasureInfo = {
     key: "measureName",
     type: String,
-    label: "Measure name:",
-    unit: "",
+    label: "Measure name",
+    unit: "none",
   };
-  refurbishmentCost = {
+  refurbishmentCost: IBuildingMeasureInfo = {
     key: "refurbishmentCost",
     type: String,
-    label: "Refurbishment cost:",
+    label: "Refurbishment cost",
     unit: "euro",
   };
-  lifeTime = {
+  lifeTime: IBuildingMeasureInfo = {
     key: "lifeTime",
     type: Number,
-    label: "Life time:",
-    unit: "a",
+    label: "Life time",
+    unit: "years",
   };
-  embodiedEnergy = {
+  embodiedEnergy: IBuildingMeasureInfo = {
     key: "embodiedEnergy",
     type: Number,
-    label: "Embodied energy:",
-    unit: "kWh"
+    label: "Embodied energy",
+    unit: "kiloWattHour",
   }
 }
 
 export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
-  uValue = {
+  uValue: IBuildingMeasureInfo = {
     key: "uValue",
     type: Number,
-    label: "U-value:",
-    unit: "watt/m²K",
+    label: "U-value",
+    unit: "wattPerMeterSqKelvin",
   };
   [key: string]: EnvelopeMeasureParameters[keyof EnvelopeMeasureParameters];
 }
 
 export class BasementMeasureParameters extends BaseBuildingMeasureParameters {
-  foundationUValue = {
+  foundationUValue: IBuildingMeasureInfo = {
     key: "foundationUValue",
     type: Number,
-    label: "Foundation U-value:",
-    unit: "watt/m²K",
+    label: "Foundation U-value",
+    unit: "wattPerMeterSqKelvin",
   };
-  basementWallUValue = {
+  basementWallUValue: IBuildingMeasureInfo = {
     key: "basementUValue",
     type: Number,
-    label: "Basement wall U-value:",
-    unit: "watt/m²K",
+    label: "Basement wall U-value",
+    unit: "wattPerMeterSqKelvin",
   };
   [key: string]: BasementMeasureParameters[keyof BasementMeasureParameters];
 }
 
 export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
-  uValue = {
+  uValue: IBuildingMeasureInfo = {
     key: "uValue",
     type: Number,
-    label: "U-value:",
-    unit: "watt/m²K",
+    label: "U-value",
+    unit: "wattPerMeterSqKelvin",
   };
-  gValue = {
+  gValue: IBuildingMeasureInfo = {
     key: "gValue",
     type: Number,
-    label: "g-value:",
-    unit: "-",
+    label: "g-value",
+    unit: "nonDimensional",
   };
   [key: string]: WindowMeasureParameters[keyof WindowMeasureParameters];
 }
 
 // todo: a lot of data validation is needed here
 export class HvacMeasureParameters extends BaseBuildingMeasureParameters {
-  ventilationType = {
+  ventilationType: IInput = {
     key: "ventilationType",
     type: String,
-    label: "Ventilation system type:",
-    unit: "",
+    label: "Ventilation system type",
+    unit: "none",
   };
-  coolingType = {
+  coolingType: IInput = {
     key: "coolingType",
     type: String,
-    label: "Cooling system type:",
+    label: "Cooling system type",
     disabled: true,
-    unit: "",
+    unit: "none",
   };
-  heatingType = {
+  heatingType: IInput = {
     key: "heatingType",
     type: String,
-    label: "Heating system type:",
+    label: "Heating system type",
     disabled: true,
-    unit: "",
+    unit: "none",
   };
-  energyCarrier = {
+  energyCarrier: IInput = {
     key: "energyCarrier",
     type: String,
-    label: "Energy carrier:",
+    label: "Energy carrier",
     disabled: true,
-    unit: "",
+    unit: "none",
   };
-  efficiency = {
+  efficiency: IInput = {
     key: "efficiency",
     type: Number,
-    label: "Efficiency of heating system:",
+    label: "Efficiency of heating system",
     unit: "percent",
   };
-  recoveryEfficiency = {
+  recoveryEfficiency: IInput = {
     key: "recoveryEfficiency",
     type: Number,
-    label: "Efficiency of heat recovery:",
+    label: "Efficiency of heat recovery",
     unit: "percent",
   };
-  coldWaterTemp = {
+  coldWaterTemp: IInput = {
     key: "coldWaterTemp",
     type: Number,
-    label: "Cold water temperature:",
+    label: "Cold water temperature",
     unit: "degC",
   };
-  hotWaterTemp = {
+  hotWaterTemp: IInput = {
     key: "hotWaterTemp",
     type: Number,
-    label: "Hot water temperature:",
+    label: "Hot water temperature",
     unit: "degC",
   };
-  ventilationRate = {
+  ventilationRate: IInput = {
     key: "ventilationRate",
     type: Number,
-    label: "Ventilation rate:",
-    unit: "ach",
+    label: "Ventilation rate",
+    unit: "airChangesHourly",
   };
 
   [key: string]: HvacMeasureParameters[keyof HvacMeasureParameters];
@@ -432,7 +453,7 @@ export interface IScenarioInput extends IInput {
 export interface IScenarioDropdown extends IDropdown {
   optionPath: string; 
   nameKey: "name" | "measureName";
-  mode: "dropdown";
+  mode: "dropdownOptionPath";
 }
 
 export interface IModelPanelProps extends IPanelProps {

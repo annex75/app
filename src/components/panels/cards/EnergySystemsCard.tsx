@@ -4,8 +4,8 @@ import { get as _fpGet } from 'lodash/fp';
 import { Button, FormGroup, Collapse } from '@blueprintjs/core';
 
 // internal
-import { IEnergySystemsCardProps, IEnergySystemParameter, IEnergySystemsCardState, ICalcDataAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictEnergyCarrier, IEnergySystemDropdown } from "../../../types";
-import { renderInputField, renderDropdown, } from '../../../helpers';
+import { IEnergySystemsCardProps, IEnergySystemParameter, IEnergySystemsCardState, ICalcDataAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictEnergyCarrier, IEnergySystemDropdown, energySystemTypes, EnergySystemType, EnergySystemCategory, energySystemCategories } from "../../../types";
+import { renderInputField, renderDropdown, renderInputLabel, } from '../../../helpers';
 
 export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnergySystemsCardState> {
 
@@ -23,32 +23,50 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
         parameters: {
           name: {
             key: "name",
+            unit: "none",
             type: String,
-            label: "Energy carrier name:",
+            label: "Energy carrier name",
             rootPath: "",
           },
+          /*
           primaryEnergyFactorRe: {
             key: "primaryEnergyFactorRe",
             type: Number,
-            label: "Primary energy factor (renewables):",
+            label: "Primary energy factor (renewables)",
             rootPath: "",
           },
           primaryEnergyFactorNonRe: {
             key: "primaryEnergyFactorNonRe",
             type: Number,
-            label: "Primary energy factor (non-renewables):",
+            label: "Primary energy factor (non-renewables)",
+            rootPath: "",
+          }, */
+          primaryEnergyFactorTotal: {
+            key: "primaryEnergyFactorTotal",
+            unit: "kiloWattHourPerKiloWattHour",
+            type: Number,
+            label: "Primary energy factor",
             rootPath: "",
           },
           emissionFactor: {
             key: "emissionFactor",
             type: String,
-            label: "Emission factor:",
+            unit: "kiloGramCO2EqPerKiloWattHour",
+            label: "Emission factor",
             rootPath: "",
           },
           currentPrice: {
             key: "currentPrice",
+            unit: "euroPerKiloWattHour",
             type: Number,
-            label: "Current price:",
+            label: "Current price",
+            rootPath: "",
+          },
+          projectedPrice: {
+            key: "projectedPrice",
+            unit: "euroPerKiloWattHour",
+            type: Number,
+            label: "Projected price in 2030",
             rootPath: "",
           }
         }
@@ -59,46 +77,61 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
     };
   }
 
+  createDropdownInfo = (option: EnergySystemType | EnergySystemCategory) => {
+    return {
+      label: option.name || "",
+      id: option.id || "",
+      name: option.name || "",
+      path: "", // has to be set for each energy system
+    }
+  }
+
   energySystemParameters: Record<string, IEnergySystemParameter | IEnergySystemDropdown> = {
     name: {
       key: "name",
       disabled: false,
+      unit: "none",
       type: String,
       mode: "input",
-      label: "System name:"
+      label: "System name"
     },
-    systemType: { // todo: dropdown
+    systemType: {
       key: "systemType",
+      nameKey: "name",
       disabled: false,
-      type: String,
-      mode: "input",
-      label: "System type:",
+      mode: "dropdownOptions",
+      options: energySystemTypes.map((option) => this.createDropdownInfo(option)),
+      twoLine: true,
+      label: "System type",
     },
-    systemCategory: { // todo: dropdown
+    systemCategory: {
       key: "systemCategory",
-      disabled: true,
-      type: String,
-      mode: "input",
-      label: "System category:"
+      nameKey: "name",
+      disabled: false,
+      mode: "dropdownOptions",
+      options: energySystemCategories.map((option) => this.createDropdownInfo(option)),
+      label: "System category"
     },
     lifeTime: {
       key: "lifeTime",
+      unit: "years",
       type: Number,
       mode: "input",
-      label: "Life time:"
+      label: "Life time"
     },
     efficiency: {
       key: "efficiency",
+      unit: "nonDimensional",
       type: Number,
       mode: "input",
-      label: "Efficiency:"
+      label: "Efficiency"
     },
     energyCarrier: {
       key: "energyCarrier",
-      mode: "dropdown",
+      mode: "dropdownOptionPath",
       nameKey: "name",
       optionPath: "calcData.energyCarriers",
-      label: "Energy carrier:",
+      label: "Energy carrier",
     }
   }
 
@@ -137,9 +170,9 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
                   inline
                   className="inline-input"
                   key={`energy-system-${paramName}-input`}
-                  label={i? param.label : (
+                  label={i? renderInputLabel(param) : (
                     <div className="label-with-add-button">
-                      <p>{param.label}</p>
+                      <p>{renderInputLabel(param)}</p>
                       <Button
                         minimal
                         className="bp3-button add-button"
@@ -157,7 +190,7 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
                           param.localPath = `${id}.${paramName}`;
                           const eventHandler = this.props.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
                           return renderInputField(`energy-system-${id}`, param, energySystems, eventHandler )
-                        } case "dropdown": {
+                        } case "dropdownOptionPath": {
                           const data = _fpGet(param.optionPath, this.props.project);
                           const alts = Object.keys(data).map((key) => {
                             const dataPoint = data[key];
@@ -180,6 +213,22 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
                           };
                           const eventHandler = this.props.handleDropdownChange;
                           return renderDropdown(`energy-system-${paramName}-${id}`, alts, selected, param, eventHandler)
+                        } case "dropdownOptions": {
+                          const alts = param.options.map( option => {
+                            const newOption = Object.assign({ ...option }, { path: param.path });
+                            return newOption;
+                          });
+                          const selId = _fpGet(param.path, this.props.project.calcData);
+                          const selected = alts.find(e => {
+                            return e.id === selId;
+                          }) || {
+                            label: "Select...",
+                            path: "",
+                            id: "",
+                            name: "",
+                          };
+                          const eventHandler = this.props.handleDropdownChange;
+                          return renderDropdown(`energy-system-${paramName}-${id}`, alts, selected, param, eventHandler, { twoLine: param.twoLine })
                         } default: {
                           throw new Error(`Param mode is not defined`);
                         }
@@ -272,9 +321,9 @@ const AdvancedOptionsCard = (props: IEnergySystemsAdvancedOptionsCardProps) => {
                 inline
                 className="inline-input"
                 key={`energy-carriers-${paramName}-input`}
-                label={i? param.label : (
+                label={i? renderInputLabel(param) : (
                   <div className="label-with-add-button">
-                    <p>{param.label}</p>
+                    <p>{renderInputLabel(param)}</p>
                     <Button
                       minimal
                       className="bp3-button add-button"
