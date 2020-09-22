@@ -1,6 +1,6 @@
 {
   "name": "app",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "dependencies": {
     "@bimenergy/map": "^0.1.13",
