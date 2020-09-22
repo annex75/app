@@ -128,38 +128,124 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
           label: "Building renovation measures",
           global: false,
           parameters: {
-            roof: {
-              key: "roof",
-              nameKey: "measureName",
-              optionPath: "calcData.buildingMeasures.roof",
-              mode: "dropdownOptionPath",
-              label: "Roof",
-            },
             facade: {
               key: "facade",
               nameKey: "measureName",
-              optionPath: "calcData.buildingMeasures.facade",
+              optionPath: "calcData.buildingMeasures.insulation",
+              subPath: "facade.id",
               mode: "dropdownOptionPath",
               label: "Façade",
+            },
+            facadeInsulationThickness: {
+              key: "facadeInsulationThickness",
+              type: Number,
+              unit: "centimeter",
+              rootPath: "calcData.buildingTypes",
+              subPath: "facade.thickness",
+              mode: "input",
+              label: "Thickness of façade insulation",
+            },
+            facadeRetrofittedArea: {
+              key: "facadeRetrofittedArea",
+              type: Number,
+              unit: "meterSq",
+              rootPath: "calcData.buildingTypes",
+              subPath: "facade.area",
+              mode: "input",
+              label: "Retrofitted façade area (per building)",
+            },
+            roof: {
+              key: "roof",
+              nameKey: "measureName",
+              optionPath: "calcData.buildingMeasures.insulation",
+              subPath: "roof.id",
+              mode: "dropdownOptionPath",
+              label: "Roof",
+            },
+            roofInsulationThickness: {
+              key: "roofInsulationThickness",
+              type: Number,
+              unit: "centimeter",
+              rootPath: "calcData.buildingTypes",
+              subPath: "roof.thickness",
+              mode: "input",
+              label: "Thickness of roof insulation",
+            },
+            roofRetrofittedArea: {
+              key: "roofRetrofittedArea",
+              type: Number,
+              unit: "meterSq",
+              rootPath: "calcData.buildingTypes",
+              subPath: "roof.area",
+              mode: "input",
+              label: "Retrofitted roof area (per building)",
             },
             foundation: {
               key: "foundation",
               nameKey: "measureName",
-              optionPath: "calcData.buildingMeasures.foundation",
+              optionPath: "calcData.buildingMeasures.insulation",
+              subPath: "foundation.id",
               mode: "dropdownOptionPath",
               label: "Foundation",
+            },
+            foundationWallInsulationThickness: {
+              key: "foundationWallInsulationThickness",
+              type: Number,
+              unit: "centimeter",
+              rootPath: "calcData.buildingTypes",
+              subPath: "foundation.wallThickness",
+              mode: "input",
+              label: "Thickness of cellar wall insulation",
+            },
+            foundationRetrofittedWallArea: {
+              key: "foundationRetrofittedWallArea",
+              type: Number,
+              unit: "meterSq",
+              rootPath: "calcData.buildingTypes",
+              subPath: "foundation.wallArea",
+              mode: "input",
+              label: "Retrofitted cellar wall area (per building)",
+            },
+            foundationFloorInsulationThickness: {
+              key: "foundationFloorInsulationThickness",
+              type: Number,
+              unit: "centimeter",
+              rootPath: "calcData.buildingTypes",
+              subPath: "foundation.floorThickness",
+              mode: "input",
+              label: "Thickness of cellar floor insulation",
+            },
+            foundationRetrofittedFloorArea: {
+              key: "facade",
+              type: Number,
+              unit: "meterSq",
+              rootPath: "calcData.buildingTypes",
+              subPath: "foundation.floorArea",
+              mode: "input",
+              label: "Retrofitted cellar floor area (per building)",
             },
             windows: {
               key: "windows",
               nameKey: "measureName",
               optionPath: "calcData.buildingMeasures.windows",
+              subPath: "windows.id",
               mode: "dropdownOptionPath",
               label: "Windows",
+            },
+            windowsRetrofittedArea: {
+              key: "windowsRetrofittedArea",
+              type: Number,
+              unit: "meterSq",
+              rootPath: "calcData.buildingTypes",
+              subPath: "windows.area",
+              mode: "input",
+              label: "Retrofitted window area",
             },
             hvac: {
               key: "hvac",
               nameKey: "measureName",
               optionPath: "calcData.buildingMeasures.hvac",
+              subPath: "hvac.id",
               mode: "dropdownOptionPath",
               label: "HVAC system",
             }
@@ -357,10 +443,10 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                                       labelFor={`scenario-${buildingTypeId}-${paramName}-input`}>
                                       {
                                         Object.keys(scenarios).map(id => {
-                                          param.path = `calcData.buildingTypes.${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
+                                          param.path = `calcData.buildingTypes.${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${param.subPath || paramName}`;
                                           switch (param.mode) {
                                             case "input": {
-                                              param.localPath = `${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${paramName}`;
+                                              param.localPath = `${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${param.subPath || paramName}`;
                                               return renderInputField(`scenario-${buildingTypeId}-${paramName}-${id}`, param, buildingTypes, this.handleChange, param.validator)
                                             } case "dropdownOptionPath": {
                                               const data = _fpGet(param.optionPath, this.state.project);

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { IBuildingMeasuresCardProps, IBuildingMeasuresCardState, IBuildingMeasureCategoryCard, IDictEventHandler, IDictBuildingMeasure, IBuildingMeasureInfo, EnvelopeMeasureParameters, WindowMeasureParameters, HvacMeasureParameters, BasementMeasureParameters, TBuildingMeasureCategory } from '../../../types';
+import { IBuildingMeasuresCardProps, IBuildingMeasuresCardState, IBuildingMeasureCategoryCard, IDictEventHandler, IDictBuildingMeasure, IBuildingMeasureInfo, EnvelopeMeasureParameters, WindowMeasureParameters, HvacMeasureParameters, TBuildingMeasureCategory } from '../../../types';
 import { Button, Collapse, FormGroup } from '@blueprintjs/core';
 
 import { renderInputField, renderInputLabel, } from '../../../helpers';
@@ -10,35 +10,15 @@ export class BuildingMeasuresCard extends Component<IBuildingMeasuresCardProps, 
     super(props);   
     const buildingMeasureCategories: Record<string,IBuildingMeasureCategoryCard> = {
       // todo: it would be neat if a factory could produce these
-      roof: {
-        name: "roof",
-        title: "Roof",
+      insulation: {
+        name: "insulation",
+        title: "Additional insulation",
         isOpen: false,
         eventHandlers: {
           handleChange: this.props.handleChange,
           handleAddBuildingMeasureClick: this.props.addBuildingMeasure,
         },
         parameters: new EnvelopeMeasureParameters(),
-      },
-      facade: {
-        name: "facade",
-        title: "Façade",
-        isOpen: false,
-        eventHandlers: {
-          handleChange: this.props.handleChange,
-          handleAddBuildingMeasureClick: this.props.addBuildingMeasure,
-        },
-        parameters: new EnvelopeMeasureParameters(),
-      },
-      foundation: {
-        name: "foundation",
-        title: "Foundation",
-        isOpen: false,
-        eventHandlers: {
-          handleChange: this.props.handleChange,
-          handleAddBuildingMeasureClick: this.props.addBuildingMeasure,
-        },
-        parameters: new BasementMeasureParameters(),
       },
       windows: {
         name: "windows",

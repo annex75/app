@@ -5,7 +5,7 @@ import xlsx from 'xlsx';
 // internal
 import { APP_VERSION } from '../../constants';
 import { updateFromWorkbook } from '../../WorkbookImport';
-import { IProject, OverviewData, CalcData, ScenarioData, ScenarioInfo, Scenario, toXlsx, BuildingInformation, BuildingGeometry, buildingMeasureCategories, ResultSummary, TBuildingMeasureCategory, } from '../Data';
+import { IProject, OverviewData, CalcData, ScenarioData, ScenarioInfo, Scenario, toXlsx, BuildingInformation, BuildingGeometry, ResultSummary, buildingMeasureScenarioCategories, TBuildingMeasureScenarioCategory, } from '../Data';
 import { TCostCurveCategory, TCostCurveType } from './EnergySystem';
 import { calculateEnergySystems, calculateEnergySystemAnnualizedSpecificInvestmentCost, calculateEnergySystemSpecificMaintenanceCost, calculateBuildingMeasures, calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost, calculateBuildingMeasureSpecificEmbodiedEnergy, calculateSpecificValueFromEnergySystemScenarioInfo, IBuildingMeasureScenarioInfo } from '../../calculation-model/calculate';
 
@@ -66,10 +66,10 @@ export class Project implements IProject {
 
       const scenarioBuildingMeasureInfos = calculateBuildingMeasures(this.jsonData);
       Object.entries(scenarioBuildingMeasureInfos).forEach(([key, entry]) => {
-        buildingMeasureCategories.forEach(cat => {
+        buildingMeasureScenarioCategories.forEach(cat => {
           if (!this.scenarioData.scenarios[key].buildingMeasures) {
             // hack
-            this.scenarioData.scenarios[key].buildingMeasures = {} as Record<TBuildingMeasureCategory,Record<string, IBuildingMeasureScenarioInfo>>;
+            this.scenarioData.scenarios[key].buildingMeasures = {} as Record<TBuildingMeasureScenarioCategory,Record<string, IBuildingMeasureScenarioInfo>>;
           }
           this.scenarioData.scenarios[key].buildingMeasures[cat] = entry[cat];
         });
@@ -88,7 +88,7 @@ export class Project implements IProject {
       }
 
       if (!scenario.buildingMeasures || !Object.keys(scenario.buildingMeasures).every(key => {
-        return Object.keys(scenario.buildingMeasures[key as TBuildingMeasureCategory]).length;
+        return Object.keys(scenario.buildingMeasures[key as TBuildingMeasureScenarioCategory]).length;
       })) {
         throw new Error("Building measures have not been properly defined in the scenarios.");
       }
@@ -136,7 +136,7 @@ export class Project implements IProject {
       
       // renovation measures
       
-      buildingMeasureCategories.forEach(cat => {
+      buildingMeasureScenarioCategories.forEach(cat => {
         Object.keys(scenario.buildingMeasures[cat]).forEach(buildingMeasureId => {
           const buildingMeasure = this.calcData.buildingMeasures[cat][buildingMeasureId];
           const buildingMeasureScenarioInfo = scenario.buildingMeasures[cat][buildingMeasureId];
@@ -309,7 +309,7 @@ export class Project implements IProject {
     const wsEnergyCarriers = xlsx.utils.aoa_to_sheet(wsDataEnergyCarriers);
     xlsx.utils.book_append_sheet(workBook, wsEnergyCarriers, "Energy carriers");
 
-    
+    /* todo: this is broken now that building measures got updated
     // renovation measures
     interface IBuildingPartKeys { label: string; keys: string[]; }
     interface IDictBuildingPartKeys { [key: string]: IBuildingPartKeys }
@@ -373,7 +373,9 @@ export class Project implements IProject {
 
       const wsPartMeasures = xlsx.utils.aoa_to_sheet(wsDataPartMeasures);
       xlsx.utils.book_append_sheet(workBook, wsPartMeasures, `${buildingParts[partKey].label} renovation measures`);
+  
     });
+    */
 
     return workBook;
 

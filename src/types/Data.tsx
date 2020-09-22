@@ -103,20 +103,12 @@ export class CalcData {
       [firstEnergyCarrierId]: new EnergyCarrier(firstEnergyCarrierId)
     };
 
-    const firstRoofMeasureId = uuidv4();
-    const firstFacadeMeasureId = uuidv4();
-    const firstFoundationMeasureId = uuidv4();
+    const firstInsulationMeasureId = uuidv4();
     const firstWindowsMeasureId = uuidv4();
     const firstHvacMeasureId = uuidv4();
     this.buildingMeasures = {
-      roof: {
-        [firstRoofMeasureId]: new EnvelopeMeasure("roof", firstRoofMeasureId),
-      },
-      facade: {
-        [firstFacadeMeasureId]: new EnvelopeMeasure("facade", firstFacadeMeasureId),
-      },
-      foundation: {
-        [firstFoundationMeasureId]: new BasementMeasure("foundation", firstFoundationMeasureId),
+      insulation: {
+        [firstInsulationMeasureId]: new EnvelopeMeasure("insulation", firstInsulationMeasureId),
       },
       windows: {
         [firstWindowsMeasureId]: new WindowMeasure("windows", firstWindowsMeasureId),
@@ -258,9 +250,14 @@ export interface IDictBuildingMeasure {
   [index: string]: IBuildingMeasure;
 }
 
-export type TBuildingMeasureCategory = "roof" | "facade" | "foundation" | "windows" | "hvac";
+export type TBuildingMeasureCategory = "insulation" | "windows" | "hvac";
+export type TBuildingMeasureScenarioCategory = "facade" | "roof" | "foundation" | "windows" | "hvac";
+export type TBuildingMeasureScenarioData = "facadeInsulationThickness" | "facadeRetrofittedArea" | "roofInsulationThickness" | "roofRetrofittedArea" | "foundationWallInsulationThickness" | "foundationWallRetrofittedArea" | "foundationFloorInsulationThickness" | "foundationFloorRetrofittedArea" | "windowsRetrofittedArea";
 export const buildingMeasureCategories: TBuildingMeasureCategory[] = [
-  "roof", "facade", "foundation", "windows", "hvac",
+  "insulation", "windows", "hvac",
+];
+export const buildingMeasureScenarioCategories: TBuildingMeasureScenarioCategory[] = [
+  "facade", "roof", "foundation", "windows", "hvac",
 ];
 
 export interface IBuildingMeasure {
@@ -289,13 +286,10 @@ abstract class BaseBuildingMeasure {
 
 export const createBuildingMeasure = (category: TBuildingMeasureCategory, id: string = uuidv4()) => {
   switch (category) {
-    case "roof":
-    case "facade":
+    case "insulation":
       return new EnvelopeMeasure(category, id);
     case "windows":
       return new WindowMeasure(category, id);
-    case "foundation":
-      return new BasementMeasure(category, id); 
     case "hvac":
       return new HvacMeasure(category, id);
   }
@@ -310,13 +304,6 @@ export class EnvelopeMeasure extends BaseBuildingMeasure {
 export class WindowMeasure extends BaseBuildingMeasure {  
   uValue: number = 0;
   gValue: number = 0;
-
-  [key: string]: WindowMeasure[keyof WindowMeasure];
-}
-
-export class BasementMeasure extends BaseBuildingMeasure {
-  foundationUValue: number = 0;
-  basementWallUValue: number = 0;
 
   [key: string]: WindowMeasure[keyof WindowMeasure];
 }
@@ -354,7 +341,7 @@ export interface IResultSummary {
     maintenanceCost: Record<TCostCurveType, number>;
     embodiedEnergy: Record<TCostCurveType, number>;
   };
-  buildingMeasures: Record<TBuildingMeasureCategory,IBuildingMeasureResult>;
+  buildingMeasures: Record<TBuildingMeasureScenarioCategory,IBuildingMeasureResult>;
   // specificGHGEmissions: number; // todo: implement
   // annualizedSpecificInvestmentCost: number;
   // specificMaintenanceCost: number;
@@ -395,9 +382,9 @@ export class Scenario {
     calculationPeriod: 0,
   }
   energySystems: Record<string,IEnergySystemScenarioInfo> = { };
-  buildingMeasures: Record<TBuildingMeasureCategory, Record<string, IBuildingMeasureScenarioInfo>> = {
-    roof: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
+  buildingMeasures: Record<TBuildingMeasureScenarioCategory, Record<string, IBuildingMeasureScenarioInfo>> = {
     facade: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
+    roof: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
     foundation: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
     hvac: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
     windows: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
@@ -420,12 +407,31 @@ export class ScenarioInfo {
     energySystem: "",
   };
 
-  buildingMeasures: Record<TBuildingMeasureCategory,string> = {
-    roof: "",
-    facade: "",
-    foundation: "",
-    windows: "",
-    hvac: "",
+  buildingMeasures: Record<TBuildingMeasureScenarioCategory, IScenarioBuildingMeasureData> = {
+    roof: {
+      id: "",
+      thickness: 0,
+      area: 0,
+    } as IScenarioEnvelopeMeasureData,
+    facade: {
+      id: "",
+      thickness: 0,
+      area: 0,
+    } as IScenarioEnvelopeMeasureData,
+    foundation: {
+      id: "",
+      wallThickness: 0,
+      wallArea: 0,
+      floorThickness: 0,
+      floorArea: 0,
+    } as IScenarioFoundationMeasureData,
+    windows: {
+      id: "",
+      area: 0,
+    } as IScenarioWindowsMeasureData,
+    hvac: {
+      id: "",
+    }
   };
   [index: string]: ScenarioInfo[keyof ScenarioInfo];
 }
@@ -446,6 +452,28 @@ export interface IScenarioEconomyData {
   calculationPeriod: number;
 }
 
+export type TScenarioBuildingMeasureData = IScenarioBuildingMeasureData | IScenarioEnvelopeMeasureData | IScenarioWindowsMeasureData | IScenarioFoundationMeasureData;
+
+export interface IScenarioBuildingMeasureData {
+  id: string;
+}
+
+export interface IScenarioEnvelopeMeasureData extends IScenarioBuildingMeasureData {
+  thickness: number;
+  area: number;
+}
+
+export interface IScenarioWindowsMeasureData extends IScenarioBuildingMeasureData {
+  area: number;
+}
+
+export interface IScenarioFoundationMeasureData extends IScenarioBuildingMeasureData {
+  wallThickness: number;
+  wallArea: number;
+  floorThickness: number;
+  floorArea: number;
+}
+
 export interface IValidatorResult {
   valid: boolean;
   invalidMsg: string;
@@ -453,11 +481,14 @@ export interface IValidatorResult {
 
 export enum Units {
   none = "",
+  wattPerMeterKelvin = "W/mK",
   wattPerMeterSqKelvin = "W/m²K",
   years = "a",
   nonDimensional = "-",
   euro = "€",
   euroPerKiloWattHour = "€/kWh",
+  euroPerSqMeter = "€/m²",
+  euroPerCentimeterSqMeter = "€/(cm, m²)",
   percent = "%",
   airChangesHourly = "ACH",
   degC = "°C",
@@ -465,7 +496,9 @@ export enum Units {
   kiloWattHourPerKiloWattHour = "kWh/kWh",
   kiloWattHourPerYear = "kWh/a",
   kiloWattHourPerMeterSq = "kWh/m²",
+  kiloWattHourPerCentimeterMeterSq = "kWh/(cm, m²)",
   meter = "m",
+  centimeter = "cm",
   meterSq = "m²",
   meterCubed = "m³",
   personsPerMeterSq = "persons/m²",

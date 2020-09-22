@@ -293,53 +293,43 @@ abstract class BaseBuildingMeasureParameters {
     label: "Measure name",
     unit: "none",
   };
-  refurbishmentCost: IBuildingMeasureInfo = {
-    key: "refurbishmentCost",
-    type: String,
-    label: "Refurbishment cost",
-    unit: "euro",
-  };
   lifeTime: IBuildingMeasureInfo = {
     key: "lifeTime",
     type: Number,
     label: "Life time",
     unit: "years",
   };
+}
+
+export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
+  refurbishmentCost: IBuildingMeasureInfo = {
+    key: "refurbishmentCost",
+    type: String,
+    label: "Refurbishment cost",
+    unit: "euroPerCentimeterSqMeter",
+  };
+  lambdaValue: IBuildingMeasureInfo = {
+    key: "lambdaValue",
+    type: Number,
+    label: "λ-value",
+    unit: "wattPerMeterKelvin",
+  };
   embodiedEnergy: IBuildingMeasureInfo = {
     key: "embodiedEnergy",
     type: Number,
     label: "Embodied energy",
-    unit: "kiloWattHour",
-  }
-}
-
-export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
-  uValue: IBuildingMeasureInfo = {
-    key: "uValue",
-    type: Number,
-    label: "U-value",
-    unit: "wattPerMeterSqKelvin",
+    unit: "kiloWattHourPerCentimeterMeterSq",
   };
   [key: string]: EnvelopeMeasureParameters[keyof EnvelopeMeasureParameters];
 }
 
-export class BasementMeasureParameters extends BaseBuildingMeasureParameters {
-  foundationUValue: IBuildingMeasureInfo = {
-    key: "foundationUValue",
-    type: Number,
-    label: "Foundation U-value",
-    unit: "wattPerMeterSqKelvin",
-  };
-  basementWallUValue: IBuildingMeasureInfo = {
-    key: "basementUValue",
-    type: Number,
-    label: "Basement wall U-value",
-    unit: "wattPerMeterSqKelvin",
-  };
-  [key: string]: BasementMeasureParameters[keyof BasementMeasureParameters];
-}
-
 export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
+  refurbishmentCost: IBuildingMeasureInfo = {
+    key: "refurbishmentCost",
+    type: String,
+    label: "Refurbishment cost",
+    unit: "euroPerSqMeter",
+  };
   uValue: IBuildingMeasureInfo = {
     key: "uValue",
     type: Number,
@@ -352,63 +342,81 @@ export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
     label: "g-value",
     unit: "nonDimensional",
   };
+  embodiedEnergy: IBuildingMeasureInfo = {
+    key: "embodiedEnergy",
+    type: Number,
+    label: "Embodied energy",
+    unit: "kiloWattHourPerMeterSq",
+  };
   [key: string]: WindowMeasureParameters[keyof WindowMeasureParameters];
 }
 
 // todo: a lot of data validation is needed here
 export class HvacMeasureParameters extends BaseBuildingMeasureParameters {
-  ventilationType: IInput = {
+  refurbishmentCost: IBuildingMeasureInfo = {
+    key: "refurbishmentCost",
+    type: String,
+    label: "Refurbishment cost",
+    unit: "euro",
+  };
+  embodiedEnergy: IBuildingMeasureInfo = {
+    key: "embodiedEnergy",
+    type: Number,
+    label: "Embodied energy",
+    unit: "kiloWattHour",
+  };
+  ventilationType: IBuildingMeasureInfo = {
     key: "ventilationType",
     type: String,
     label: "Ventilation system type",
     unit: "none",
   };
-  coolingType: IInput = {
+  coolingType: IBuildingMeasureInfo = {
     key: "coolingType",
     type: String,
     label: "Cooling system type",
     disabled: true,
     unit: "none",
   };
-  heatingType: IInput = {
+  heatingType: IBuildingMeasureInfo = {
     key: "heatingType",
     type: String,
     label: "Heating system type",
     disabled: true,
     unit: "none",
   };
-  energyCarrier: IInput = {
+  energyCarrier: IBuildingMeasureInfo = {
     key: "energyCarrier",
     type: String,
     label: "Energy carrier",
     disabled: true,
     unit: "none",
   };
-  efficiency: IInput = {
+  efficiency: IBuildingMeasureInfo = {
     key: "efficiency",
     type: Number,
     label: "Efficiency of heating system",
     unit: "percent",
   };
-  recoveryEfficiency: IInput = {
+  recoveryEfficiency: IBuildingMeasureInfo = {
     key: "recoveryEfficiency",
     type: Number,
     label: "Efficiency of heat recovery",
     unit: "percent",
   };
-  coldWaterTemp: IInput = {
+  coldWaterTemp: IBuildingMeasureInfo = {
     key: "coldWaterTemp",
     type: Number,
     label: "Cold water temperature",
     unit: "degC",
   };
-  hotWaterTemp: IInput = {
+  hotWaterTemp: IBuildingMeasureInfo = {
     key: "hotWaterTemp",
     type: Number,
     label: "Hot water temperature",
     unit: "degC",
   };
-  ventilationRate: IInput = {
+  ventilationRate: IBuildingMeasureInfo = {
     key: "ventilationRate",
     type: Number,
     label: "Ventilation rate",
@@ -447,11 +455,13 @@ export interface IScenarioInput extends IInput {
   type: StringConstructor | NumberConstructor;
   mode: "input";
   label: string;
+  subPath?: string;
   validator?: (val: string) => IValidatorResult;
 }
 
 export interface IScenarioDropdown extends IDropdown {
   optionPath: string; 
+  subPath?: string;
   nameKey: "name" | "measureName";
   mode: "dropdownOptionPath";
 }

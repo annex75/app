@@ -9,7 +9,7 @@ import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 //import { CalcData } from '@annex-75/calculation-model/';
 
 import * as config from '../../config.json';
-import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure, BasementMeasure, WindowMeasure, EnergyCarrier, ISystemSizeCurve, TCostCurveCategory, TCostCurveScale } from '../../types';
+import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure, WindowMeasure, EnergyCarrier, ISystemSizeCurve, TCostCurveCategory, TCostCurveScale } from '../../types';
 import { DistrictCard } from './cards/DistrictCard';
 import { BuildingTypeCard } from './cards/BuildingTypeCard';
 import { AppToaster } from '../../toaster';
@@ -249,12 +249,12 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
 
   getBuildingMeasure(category: TBuildingMeasureCategory) {
     switch(category) {
+      case "insulation":
+        return new EnvelopeMeasure(category);
       case "hvac":
         return new HvacMeasure(category);
       case "windows":
         return new WindowMeasure(category);
-      case "foundation":
-        return new BasementMeasure(category);
       default:
         return new EnvelopeMeasure(category);
     }
