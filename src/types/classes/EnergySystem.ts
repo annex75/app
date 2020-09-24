@@ -4,9 +4,12 @@ import { v4 as uuidv4 } from 'uuid';
 const defSystemSizes = [ 50, 100, 150, 200, 250 ];
 const defCostCurve = [ 50, 100, 150, 200, 250];
 
-export type TCostCurveCategory = "investmentCost" | "maintenanceCost" | "embodiedEnergy";
-export type TCostCurveType = "intake" | "circulation" | "generation" | "substation";
-export type TCostCurveScale = "centralized" | "substation";
+export const costCurveCategories = [ "investmentCost", "maintenanceCost", "embodiedEnergy" ] as const;
+export type TCostCurveCategory = typeof costCurveCategories[number];
+export const costCurveTypes = [ "intake", "circulation", "generation", "substation" ] as const;
+export type TCostCurveType = typeof costCurveTypes[number];
+export const costCurveScales = [ "centralized", "substation" ] as const;
+export type TCostCurveScale = typeof costCurveScales[number];
 
 export class EnergySystem {
   constructor(id: string = uuidv4()) {

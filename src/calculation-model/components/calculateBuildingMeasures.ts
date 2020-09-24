@@ -1,4 +1,4 @@
-import { IProject, IBuildingMeasure, TBuildingMeasureScenarioCategory, buildingMeasureScenarioCategories, IScenarioEnvelopeMeasureData, IScenarioFoundationMeasureData, IScenarioWindowsMeasureData } from "../../types";
+import { IProject, IBuildingMeasure, TBuildingMeasureScenarioCategory, buildingMeasureScenarioCategories, IScenarioEnvelopeMeasureData, IScenarioFoundationMeasureData, IScenarioWindowsMeasureData, convertTypes } from "../../types";
 
 export interface IBuildingMeasureScenarioInfo {
   refurbishmentCost: number;
@@ -23,18 +23,20 @@ export const calculateBuildingMeasures = (project: IProject) => {
       hvac: {},
       windows: {},
     };
-    buildingMeasureScenarioCategories.forEach(cat => {
-      buildingMeasuresInUse[scenarioId][cat] = {};
+    buildingMeasureScenarioCategories.forEach(scenarioCat => {
+      buildingMeasuresInUse[scenarioId][scenarioCat] = {};
       Object.keys(project.calcData.buildingTypes).forEach(buildingTypeId => {
         const buildingType = project.calcData.buildingTypes[buildingTypeId];
         const scenarioInfo = buildingType.scenarioInfos[scenarioId];
         const numBuildings = scenarioInfo.buildingType.numberOfBuildings;
         
-        const buildingMeasureId = scenarioInfo.buildingMeasures[cat].id;
+        const buildingMeasureId = scenarioInfo.buildingMeasures[scenarioCat].id;
         if (!buildingMeasureId) {
           return;
         }
-  
+        
+        let cat = convertTypes("TBuildingMeasureScenarioCategory", "TBuildingMeasureCategory", scenarioCat);
+
         const buildingMeasure = project.calcData.buildingMeasures[cat][buildingMeasureId];
   
         if (!buildingMeasure) {
@@ -42,42 +44,42 @@ export const calculateBuildingMeasures = (project: IProject) => {
         }
         
         let factor = 0;
-        switch(cat) {
+        switch(scenarioCat) {
           case "facade":
           case "roof":
           {
-            const { thickness, area } = scenarioInfo.buildingMeasures[cat] as IScenarioEnvelopeMeasureData;
+            const { thickness, area } = scenarioInfo.buildingMeasures[scenarioCat] as IScenarioEnvelopeMeasureData;
             const volume = thickness * area;
             factor = volume * numBuildings;
             break;
           } case "foundation": {
-            const { wallThickness, wallArea, floorThickness, floorArea } = scenarioInfo.buildingMeasures[cat] as IScenarioFoundationMeasureData;
+            const { wallThickness, wallArea, floorThickness, floorArea } = scenarioInfo.buildingMeasures[scenarioCat] as IScenarioFoundationMeasureData;
             const volume = wallThickness*wallArea + floorThickness*floorArea;
             factor = volume * numBuildings;
             break;
           } case "windows":  {
-            const area = (scenarioInfo.buildingMeasures[cat] as IScenarioWindowsMeasureData).area;
+            const area = (scenarioInfo.buildingMeasures[scenarioCat] as IScenarioWindowsMeasureData).area;
             factor = area * numBuildings;
             break;
           } case "hvac" : {
             factor = numBuildings;
             break;
           } default: {
-            throw new Error(`${cat} has not been defined`);
+            throw new Error(`${scenarioCat} has not been defined`);
           }
         }
 
         const cost = buildingMeasure.refurbishmentCost * factor;
         const embodiedEnergy = buildingMeasure.embodiedEnergy * factor;
 
-        if (!Object.keys(buildingMeasuresInUse[scenarioId][cat]).includes(buildingMeasure.id)) {
-          buildingMeasuresInUse[scenarioId][cat][buildingMeasureId] = {
+        if (!Object.keys(buildingMeasuresInUse[scenarioId][scenarioCat]).includes(buildingMeasure.id)) {
+          buildingMeasuresInUse[scenarioId][scenarioCat][buildingMeasureId] = {
             refurbishmentCost: cost,
             embodiedEnergy: 0,
           };
         } else {
-          buildingMeasuresInUse[scenarioId][cat][buildingMeasureId].refurbishmentCost += cost;
-          buildingMeasuresInUse[scenarioId][cat][buildingMeasureId].embodiedEnergy += embodiedEnergy;
+          buildingMeasuresInUse[scenarioId][scenarioCat][buildingMeasureId].refurbishmentCost += cost;
+          buildingMeasuresInUse[scenarioId][scenarioCat][buildingMeasureId].embodiedEnergy += embodiedEnergy;
         }
       });
     });

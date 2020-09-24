@@ -5,8 +5,8 @@ import xlsx from 'xlsx';
 // internal
 import { APP_VERSION } from '../../constants';
 import { updateFromWorkbook } from '../../WorkbookImport';
-import { IProject, OverviewData, CalcData, ScenarioData, ScenarioInfo, Scenario, toXlsx, BuildingInformation, BuildingGeometry, ResultSummary, buildingMeasureScenarioCategories, TBuildingMeasureScenarioCategory, } from '../Data';
-import { TCostCurveCategory, TCostCurveType } from './EnergySystem';
+import { IProject, OverviewData, CalcData, ScenarioData, ScenarioInfo, Scenario, toXlsx, BuildingInformation, BuildingGeometry, ResultSummary, buildingMeasureScenarioCategories, TBuildingMeasureScenarioCategory, convertTypes } from '../Data';
+import { TCostCurveType, costCurveTypes, costCurveCategories } from './EnergySystem';
 import { calculateEnergySystems, calculateEnergySystemAnnualizedSpecificInvestmentCost, calculateEnergySystemSpecificMaintenanceCost, calculateBuildingMeasures, calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost, calculateBuildingMeasureSpecificEmbodiedEnergy, calculateSpecificValueFromEnergySystemScenarioInfo, IBuildingMeasureScenarioInfo } from '../../calculation-model/calculate';
 
 export class Project implements IProject {
@@ -106,8 +106,8 @@ export class Project implements IProject {
         scenario.total.heatingNeed = numBuildings*heatingNeed;
       });
 
-      const keys: TCostCurveType[] = ["intake", "generation", "circulation", "substation"];
-      const costCurveCats: TCostCurveCategory[] = ["investmentCost", "maintenanceCost", "embodiedEnergy"];
+      const keys = costCurveTypes;
+      const costCurveCats = costCurveCategories;
 
       // energy systems
       const totalBuildingArea = scenario.total.buildingArea;
@@ -136,12 +136,13 @@ export class Project implements IProject {
       
       // renovation measures
       
-      buildingMeasureScenarioCategories.forEach(cat => {
-        Object.keys(scenario.buildingMeasures[cat]).forEach(buildingMeasureId => {
-          const buildingMeasure = this.calcData.buildingMeasures[cat][buildingMeasureId];
-          const buildingMeasureScenarioInfo = scenario.buildingMeasures[cat][buildingMeasureId];
-          scenario.total.buildingMeasures[cat].refurbishmentCost += +buildingMeasureScenarioInfo.refurbishmentCost;
-          scenario.total.buildingMeasures[cat].embodiedEnergy += +buildingMeasureScenarioInfo.embodiedEnergy;
+      buildingMeasureScenarioCategories.forEach(scenarioCat => {
+        let category = convertTypes("TBuildingMeasureScenarioCategory", "TBuildingMeasureCategory", scenarioCat);
+        Object.keys(scenario.buildingMeasures[scenarioCat]).forEach(buildingMeasureId => {
+          const buildingMeasure = this.calcData.buildingMeasures[category][buildingMeasureId];
+          const buildingMeasureScenarioInfo = scenario.buildingMeasures[scenarioCat][buildingMeasureId];
+          scenario.total.buildingMeasures[scenarioCat].refurbishmentCost += +buildingMeasureScenarioInfo.refurbishmentCost;
+          scenario.total.buildingMeasures[scenarioCat].embodiedEnergy += +buildingMeasureScenarioInfo.embodiedEnergy;
           const annualizedSpecificRefurbishmentCost = calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost(buildingMeasureScenarioInfo, buildingMeasure, totalBuildingArea);
           scenario.total.annualizedSpecificCost += annualizedSpecificRefurbishmentCost;
           scenario.total.specificEmbodiedEnergy += calculateBuildingMeasureSpecificEmbodiedEnergy(buildingMeasureScenarioInfo, totalBuildingArea);

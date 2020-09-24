@@ -250,15 +250,41 @@ export interface IDictBuildingMeasure {
   [index: string]: IBuildingMeasure;
 }
 
-export type TBuildingMeasureCategory = "insulation" | "windows" | "hvac";
-export type TBuildingMeasureScenarioCategory = "facade" | "roof" | "foundation" | "windows" | "hvac";
-export type TBuildingMeasureScenarioData = "facadeInsulationThickness" | "facadeRetrofittedArea" | "roofInsulationThickness" | "roofRetrofittedArea" | "foundationWallInsulationThickness" | "foundationWallRetrofittedArea" | "foundationFloorInsulationThickness" | "foundationFloorRetrofittedArea" | "windowsRetrofittedArea";
-export const buildingMeasureCategories: TBuildingMeasureCategory[] = [
-  "insulation", "windows", "hvac",
-];
-export const buildingMeasureScenarioCategories: TBuildingMeasureScenarioCategory[] = [
+export const buildingMeasureCategories = [ "insulation", "windows", "hvac" ] as const;
+export const buildingMeasureScenarioCategories = [
   "facade", "roof", "foundation", "windows", "hvac",
-];
+] as const;
+export type TBuildingMeasureCategory = typeof buildingMeasureCategories[number];
+export type TBuildingMeasureScenarioCategory = typeof buildingMeasureScenarioCategories[number];
+
+export const convertTypes = (t1: string, t2: string, val: any) => {
+  if (t1 === "TBuildingMeasureScenarioCategory" && t2 === "TBuildingMeasureCategory") {
+    const guard = (v: any): v is TBuildingMeasureScenarioCategory  => {
+      return buildingMeasureScenarioCategories.includes(v);
+    }
+    if (guard(val)) {
+      return buildingMeasureScenarioCatToBuildingMeasureCat(val);
+    } else {
+      throw new Error(`Attempted conversion from ${t1} to ${t2} failed`);
+    }
+  } else {
+    throw new Error(`Attempted conversion from ${t1} to ${t2} failed`);
+  }
+}
+
+const buildingMeasureScenarioCatToBuildingMeasureCat = (cat: TBuildingMeasureScenarioCategory) => {
+  switch(cat) {
+    case "facade": case "roof": case "foundation": {
+      return "insulation";
+    } case "windows": case "hvac": {
+      return cat;
+    }
+  }
+}
+
+export type TBuildingMeasureScenarioData = "facadeInsulationThickness" | "facadeRetrofittedArea" | "roofInsulationThickness" | "roofRetrofittedArea" | "foundationWallInsulationThickness" | "foundationWallRetrofittedArea" | "foundationFloorInsulationThickness" | "foundationFloorRetrofittedArea" | "windowsRetrofittedArea";
+
+
 
 export interface IBuildingMeasure {
   id: string;
