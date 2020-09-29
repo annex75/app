@@ -221,12 +221,17 @@ export interface IEnergySystemsCardProps extends ICalcDataCardProps {
   addEnergyCarrier(): void;
   editCostCurve(id: string): void;
   editSystemSizeCurve(id: string): void;
+  copyEnergySystem(id: string): void;
+  deleteEnergySystem(id: string): void;
+  copyEnergyCarrier(id: string): void;
+  deleteEnergyCarrier(id: string): void;
   data: Record<string,IDictEnergySystem | IDictEnergyCarrier>;
   project: IProject;
 }
 
 export interface IEnergySystemsCardState extends ICalcDataCardState {
-  energySystemsAdvancedOptions: Record<string,ICalcDataAdvancedOptionsCard>; 
+  energyCarriersOpen: boolean;
+  deleteWarningOpen: IDictBool;
 }
 
 export interface ICostCurveEditorProps {
@@ -257,19 +262,25 @@ export interface ISystemSizeCurveEditorState {
 
 export interface IBuildingMeasuresCardProps extends ICalcDataCardProps {
   handleChange(e: ChangeEvent<HTMLInputElement>): void;
-  addBuildingMeasure(category: string): void;
+  addBuildingMeasure(category: TBuildingMeasureCategory): void;
+  copyBuildingMeasure(id: string, category: TBuildingMeasureCategory): void;
+  deleteBuildingMeasure(id: string, category: TBuildingMeasureCategory): void;
   data: Record<string, IDictBuildingMeasure>;
 }
 
 export interface IBuildingMeasuresCardState extends ICalcDataCardState {
-  buildingMeasureCategories: Record<string, IBuildingMeasureCategoryCard>;
+  buildingMeasureCategories: Record<TBuildingMeasureCategory, IBuildingMeasureCategoryCard>;
+  deleteWarningOpen: IDictBool;
 }
 
 export interface IBuildingMeasureCategoryCard {
   name: string;
   title: string;
   isOpen: boolean;
-  eventHandlers: IDictEventHandler;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleAddBuildingMeasureClick: (category: TBuildingMeasureCategory) => void;
+  copyBuildingMeasure(id: string, category: TBuildingMeasureCategory): void;
+  deleteBuildingMeasure(id: string, category: TBuildingMeasureCategory): void;
   parameters: IBuildingMeasureParameters;
 }
 
@@ -306,7 +317,7 @@ export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
     key: "refurbishmentCost",
     type: String,
     label: "Refurbishment cost",
-    unit: "euroPerCentimeterSqMeter",
+    unit: "euroPerCentimeterMeterSq",
   };
   lambdaValue: IBuildingMeasureInfo = {
     key: "lambdaValue",
@@ -328,7 +339,7 @@ export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
     key: "refurbishmentCost",
     type: String,
     label: "Refurbishment cost",
-    unit: "euroPerSqMeter",
+    unit: "euroPerMeterSq",
   };
   uValue: IBuildingMeasureInfo = {
     key: "uValue",
@@ -435,6 +446,7 @@ export interface IScenariosPanelProps extends IPanelProps {
 export interface IScenariosPanelState extends IPanelState {
   project: IProject;
   scenarioOptions: IScenarioOptionsCard;
+  deleteWarningOpen: IDictBool;
 }
 
 export type TScenarioParamCategory = "buildingType" | "economy" | "energySystem" | "buildingMeasures";

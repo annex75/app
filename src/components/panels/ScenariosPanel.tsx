@@ -1,10 +1,13 @@
+// external
 import React, { Component, ChangeEvent } from 'react';
 import { set as _fpSet, get as _fpGet, equals as _fpEquals } from 'lodash/fp';
-import { pickBy as _pickBy, debounce as _debounce } from 'lodash';
+import { cloneDeep as _cloneDeep, pickBy as _pickBy, debounce as _debounce } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
+import { InputGroup, FormGroup, Button, Intent, Collapse, Position, Tooltip, Alert } from '@blueprintjs/core';
 
+// internal
 import * as config from '../../config.json';
-import { IScenariosPanelProps, IScenariosPanelState, Scenario, IScenarioOptionsCard, ScenarioInfo, TScenarioParamCategory, IScenarioInput, } from '../../types';
-import { InputGroup, FormGroup, Button, Intent, Collapse } from '@blueprintjs/core';
+import { IScenariosPanelProps, IScenariosPanelState, Scenario, IScenarioOptionsCard, ScenarioInfo, TScenarioParamCategory, IScenarioInput, IDictBool, } from '../../types';
 import { AppToaster } from '../../toaster';
 import { renderInputField, renderDropdown, IDropdownAlt, renderInputLabel } from '../../helpers';
 
@@ -254,9 +257,15 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
       },
     }
 
+    let deleteWarningOpen: IDictBool = {};
+    Object.keys(props.project.scenarioData.scenarios).forEach((id: string) => {
+      deleteWarningOpen[id] = false;
+    });
+
     this.state = {
       project,
       scenarioOptions,
+      deleteWarningOpen,
     }
   }
 
@@ -284,31 +293,55 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
   handleDropdownChange = (item: IDropdownAlt) => {
     const path = this.formatPath(item.path);
     const newState = _fpSet(path, item.id, this.state);
-    this.setState(newState);
-    this.updateProjectDebounce();
+    this.setStateAndUpdate(newState);
   }
 
   handleAddScenarioClick = (e: React.MouseEvent<HTMLElement>) => {
     this.addScenario();
   }
 
-  addScenario = () => {
-    let newState = { ...this.state };
-
-    if (Object.keys(newState.project.scenarioData.scenarios).length >= config.MAX_SCENARIOS) {
-      AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_SCENARIOS} scenarios are currently allowed`});
-      return;
-    }
-    
-    const scenario = new Scenario();
-    newState.project.scenarioData.scenarios[scenario.id] = scenario;
-    for (const buildingTypeId in newState.project.calcData.buildingTypes) {
-      let buildingType = newState.project.calcData.buildingTypes[buildingTypeId];
-      buildingType.scenarioInfos[scenario.id] = new ScenarioInfo();
-    } 
-    
+  setStateAndUpdate = (newState: IScenariosPanelState) => {
     this.setState(newState);
-    this.props.updateProject(newState.project);
+    this.updateProjectDebounce();
+  }
+
+  performDatabaseOperation = (checkValidOperation: (newState: IScenariosPanelState) => boolean, operation: (newState: IScenariosPanelState) => void) => {
+    let newState = { ...this.state };
+    if (!checkValidOperation(newState)) return;
+    operation(newState); // we allow this operation to mutate the newState object
+    this.setStateAndUpdate(newState);
+  }
+
+  addScenario = (id: string = "") => {
+    const valid = (newState: IScenariosPanelState) => {
+      if (Object.keys(newState.project.scenarioData.scenarios).length >= config.MAX_SCENARIOS) {
+        AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_SCENARIOS} scenarios are currently allowed`});
+        return false;
+      }
+      return true;
+    }
+    const operation = (newState: IScenariosPanelState) => {
+      let scenario;
+      if (id) {
+        const scenarioOriginal = newState.project.scenarioData.scenarios[id];
+        if (!scenarioOriginal) {
+          throw new Error(`Scenario ${id} could not be found`);
+        } 
+        const copyName = `${scenarioOriginal.name} - copy`;
+        scenario = _cloneDeep(scenarioOriginal);
+        scenario.id = uuidv4();
+        scenario.name = copyName;
+      } else {
+        scenario = new Scenario();
+
+      }
+      newState.project.scenarioData.scenarios[scenario.id] = scenario;
+      for (const buildingTypeId in newState.project.calcData.buildingTypes) {
+        let buildingType = newState.project.calcData.buildingTypes[buildingTypeId];
+        buildingType.scenarioInfos[scenario.id] = new ScenarioInfo();
+      } 
+    }
+    this.performDatabaseOperation(valid, operation);
   }
 
   handleExpandClick = (buildingId: string) => {
@@ -317,6 +350,47 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
 
     this.setState(newState);
   }
+
+  handleAlertOpen = (id: string) => {
+    let newState = { ...this.state };
+    newState.deleteWarningOpen[id] = true;
+    this.setState(newState);
+  }
+
+  // todo: cancel and confirm could share function
+  handleAlertCancel = (id: string) => {
+    let newState = { ...this.state };
+    newState.deleteWarningOpen[id] = false;
+    this.setState(newState);
+  }
+
+  handleAlertConfirm = (id: string) => {
+    let newState = { ...this.state };
+    newState.deleteWarningOpen[id] = false;
+    this.setState(newState);
+    this.deleteScenario(id);
+  }
+
+  // todo: actually delete it from the database (similar to deleting projects)
+  deleteScenario = (id: string) => {
+    const valid = (newState: IScenariosPanelState) => {
+      if (Object.keys(newState.project.scenarioData.scenarios).filter(id => !newState.project.scenarioData.scenarios[id].deleted).length <= 1) {
+        AppToaster.show({ intent: Intent.DANGER, message: `The last scenario can not be deleted.`});
+        return false;
+      }
+      return true;
+    }
+    const operation = (newState: IScenariosPanelState) => {
+      const scenario = newState.project.scenarioData.scenarios[id];
+      if (!scenario) {
+        throw new Error(`Scenario ${id} could not be found`);
+      }
+      newState.project.scenarioData.scenarios[id].deleted = true;
+    }
+    this.performDatabaseOperation(valid, operation);
+  }
+
+  copyScenario = (id: string) => this.addScenario(id);
 
   createValidator = (path: string, name: string, key: string) => {
     return (val: string) => {
@@ -342,6 +416,43 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                 <FormGroup
                   inline
                   className="inline-input"
+                  key={`energy-systems-buttons-header`}
+                  label=" "
+                  labelFor={`energy-systems-buttons-header`}>
+                {
+                  Object.keys(scenarios).filter(id => !scenarios[id].deleted).map(id => {
+                    return (
+                      <div key={`scenarios-button-header-${id}`} className="building-type-button-header-div">
+                        <Tooltip content={`Copy Scenario "${scenarios[id].name}"`} position={Position.TOP}>
+                          <Button onClick={() => this.copyScenario(id)} className="bp3-minimal building-type-header-button bp3-icon-duplicate"></Button>
+                        </Tooltip>
+                        <Alert
+                          cancelButtonText="Cancel"
+                          confirmButtonText="Delete Scenario"
+                          intent={Intent.DANGER}
+                          isOpen={this.state.deleteWarningOpen[id]}
+                          onCancel={() => this.handleAlertCancel(id)}
+                          onConfirm={() => this.handleAlertConfirm(id)}>
+                          <p>
+                            Are you sure you want to delete this Scenario? This action is irreversible!
+                          </p>
+                        </Alert>
+                        <Tooltip intent={Intent.WARNING} content={`Delete scenario "${scenarios[id].name}"`} position={Position.TOP}>
+                          <Button className="bp3-minimal building-type-header-button bp3-icon-delete" onClick={() => this.handleAlertOpen(id)}></Button>
+                        </Tooltip>
+                      </div>
+                    )
+                  })
+                }
+                <span className="empty-button"/>
+              </FormGroup>
+              }
+            </div>
+            <div className="panel-list-header">
+              {
+                <FormGroup
+                  inline
+                  className="inline-input"
                   key={`scenario-name-input`}
                   label={(
                     <div className="label-with-add-button">
@@ -356,7 +467,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                   )}
                   labelFor="scenario-name-input">
                   {
-                    Object.keys(scenarios).map(id => {
+                    Object.keys(scenarios).filter(id => !scenarios[id].deleted).map(id => {
                       return (
                         <InputGroup
                           key={`scenario-${id}-name-input`}
@@ -394,7 +505,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                               label={renderInputLabel(param)}
                               labelFor={`scenario-global-${paramName}-input`}>
                               {
-                                Object.keys(scenarios).map(id => {
+                                Object.keys(scenarios).filter(id => !scenarios[id].deleted).map(id => {
                                   param.localPath = `${id}.${paramCategoryName}.${paramName}`;
                                   return renderInputField(`scenario-global-${paramName}-${id}`, param, scenarios, this.handleChange)
                                 })
@@ -442,7 +553,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                                       label={renderInputLabel(param)}
                                       labelFor={`scenario-${buildingTypeId}-${paramName}-input`}>
                                       {
-                                        Object.keys(scenarios).map(id => {
+                                        Object.keys(scenarios).filter(id => !scenarios[id].deleted).map(id => {
                                           param.path = `calcData.buildingTypes.${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${param.subPath || paramName}`;
                                           switch (param.mode) {
                                             case "input": {

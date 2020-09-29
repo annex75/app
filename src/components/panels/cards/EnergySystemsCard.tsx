@@ -1,79 +1,28 @@
 // external
 import React, { Component, ChangeEvent } from 'react';
 import { get as _fpGet } from 'lodash/fp';
-import { Button, FormGroup, Collapse } from '@blueprintjs/core';
+import { Button, FormGroup, Collapse, Position, Tooltip, Alert, Intent } from '@blueprintjs/core';
 
 // internal
-import { IEnergySystemsCardProps, IEnergySystemParameter, IEnergySystemsCardState, ICalcDataAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictEnergyCarrier, IEnergySystemDropdown, energySystemTypes, EnergySystemType, EnergySystemCategory, energySystemCategories } from "../../../types";
+import { IEnergySystemsCardProps, IEnergySystemParameter, IEnergySystemsCardState, IEnergySystemDropdown, energySystemTypes, EnergySystemType, EnergySystemCategory, energySystemCategories, IDictBool } from "../../../types";
 import { renderInputField, renderDropdown, renderInputLabel, } from '../../../helpers';
 
 export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnergySystemsCardState> {
 
   constructor(props: IEnergySystemsCardProps) {
     super(props);
-    const energySystemsAdvancedOptions: Record<string,ICalcDataAdvancedOptionsCard> = {
-      "energyCarriers": {
-        name: "energyCarriers",
-        title: "Energy carriers",
-        isOpen: false,
-        eventHandlers: {
-          handleChange: this.props.handleChange,
-          handleAddEnergyCarrierClick: this.handleAddEnergyCarrierClick,
-        },
-        parameters: {
-          name: {
-            key: "name",
-            unit: "none",
-            type: String,
-            label: "Energy carrier name",
-            rootPath: "",
-          },
-          /*
-          primaryEnergyFactorRe: {
-            key: "primaryEnergyFactorRe",
-            type: Number,
-            label: "Primary energy factor (renewables)",
-            rootPath: "",
-          },
-          primaryEnergyFactorNonRe: {
-            key: "primaryEnergyFactorNonRe",
-            type: Number,
-            label: "Primary energy factor (non-renewables)",
-            rootPath: "",
-          }, */
-          primaryEnergyFactorTotal: {
-            key: "primaryEnergyFactorTotal",
-            unit: "kiloWattHourPerKiloWattHour",
-            type: Number,
-            label: "Primary energy factor",
-            rootPath: "",
-          },
-          emissionFactor: {
-            key: "emissionFactor",
-            type: String,
-            unit: "kiloGramCO2EqPerKiloWattHour",
-            label: "Emission factor",
-            rootPath: "",
-          },
-          currentPrice: {
-            key: "currentPrice",
-            unit: "euroPerKiloWattHour",
-            type: Number,
-            label: "Current price",
-            rootPath: "",
-          },
-          projectedPrice: {
-            key: "projectedPrice",
-            unit: "euroPerKiloWattHour",
-            type: Number,
-            label: "Projected price in 2030",
-            rootPath: "",
-          }
-        }
-      },
-    };
+
+    let deleteWarningOpen: IDictBool = {};
+    Object.keys(props.data.energySystems).forEach((id: string) => {
+      deleteWarningOpen[id] = false;
+    });
+    Object.keys(props.data.energyCarriers).forEach((id: string) => {
+      deleteWarningOpen[id] = false;
+    });
+
     this.state = {
-      energySystemsAdvancedOptions,
+      energyCarriersOpen: false,
+      deleteWarningOpen,
     };
   }
 
@@ -134,11 +83,94 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
       label: "Energy carrier",
     }
   }
+  
+  energyCarrierParameters: Record<string, IEnergySystemParameter> = {
+    name: {
+      key: "name",
+      unit: "none",
+      type: String,
+      mode: "input",
+      label: "Energy carrier name",
+      rootPath: "",
+    },
+    /*
+    primaryEnergyFactorRe: {
+      key: "primaryEnergyFactorRe",
+      type: Number,
+      label: "Primary energy factor (renewables)",
+      rootPath: "",
+    },
+    primaryEnergyFactorNonRe: {
+      key: "primaryEnergyFactorNonRe",
+      type: Number,
+      label: "Primary energy factor (non-renewables)",
+      rootPath: "",
+    }, */
+    primaryEnergyFactorTotal: {
+      key: "primaryEnergyFactorTotal",
+      unit: "kiloWattHourPerKiloWattHour",
+      type: Number,
+      mode: "input",
+      label: "Primary energy factor",
+      rootPath: "",
+    },
+    emissionFactor: {
+      key: "emissionFactor",
+      type: String,
+      mode: "input",
+      unit: "kiloGramCO2EqPerKiloWattHour",
+      label: "Emission factor",
+      rootPath: "",
+    },
+    currentPrice: {
+      key: "currentPrice",
+      unit: "euroPerKiloWattHour",
+      type: Number,
+      mode: "input",
+      label: "Current price",
+      rootPath: "",
+    },
+    projectedPrice: {
+      key: "projectedPrice",
+      unit: "euroPerKiloWattHour",
+      type: Number,
+      mode: "input",
+      label: "Projected price in 2030",
+      rootPath: "",
+    }
+  }
 
-  handleExpandClick = (e: React.MouseEvent<HTMLElement>, name: string) => {
+  handleExpandClick = () => {
     let newState = { ...this.state };
-    newState.energySystemsAdvancedOptions[name].isOpen = !newState.energySystemsAdvancedOptions[name].isOpen;
+    newState.energyCarriersOpen = !newState.energyCarriersOpen;
     this.setState(newState);
+  }
+  
+  handleAlertOpen = (id: string) => {
+    let newState = { ...this.state };
+    newState.deleteWarningOpen[id] = true;
+    this.setState(newState);
+  }
+
+  // todo: cancel and confirm could share function
+  handleAlertCancel = (id: string) => {
+    let newState = { ...this.state };
+    newState.deleteWarningOpen[id] = false;
+    this.setState(newState);
+  }
+
+  handleAlertConfirm = (id: string, mode: "energyCarrier" | "energySystem") => {
+    let newState = { ...this.state };
+    newState.deleteWarningOpen[id] = false;
+    this.setState(newState);
+    switch(mode) {
+      case "energyCarrier":
+        this.props.deleteEnergyCarrier(id);
+        break;
+      case "energySystem":
+        this.props.deleteEnergySystem(id);
+        break;
+    }
   }
 
   handleAddEnergySystemClick = (e: React.MouseEvent<HTMLElement>) => {
@@ -162,6 +194,43 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
     return (
       <div>
         <div className="scrollable-panel-content">
+          <div className="panel-list-header">
+            {
+              <FormGroup
+                inline
+                className="inline-input"
+                key={`energy-systems-buttons-header`}
+                label=" "
+                labelFor={`energy-systems-buttons-header`}>
+              {
+                Object.keys(energySystems).filter(id => !energySystems[id].deleted).map(id => {
+                  return (
+                    <div key={`energy-systems-button-header-${id}`} className="building-type-button-header-div">
+                      <Tooltip content={`Copy energy system "${energySystems[id].name}"`} position={Position.TOP}>
+                        <Button onClick={() => this.props.copyEnergySystem(id)} className="bp3-minimal building-type-header-button bp3-icon-duplicate"></Button>
+                      </Tooltip>
+                      <Alert
+                        cancelButtonText="Cancel"
+                        confirmButtonText="Delete energy system"
+                        intent={Intent.DANGER}
+                        isOpen={this.state.deleteWarningOpen[id]}
+                        onCancel={() => this.handleAlertCancel(id)}
+                        onConfirm={() => this.handleAlertConfirm(id, "energySystem")}>
+                        <p>
+                          Are you sure you want to delete this energy system? This action is irreversible!
+                        </p>
+                      </Alert>
+                      <Tooltip intent={Intent.WARNING} content={`Delete energy system "${energySystems[id].name}"`} position={Position.TOP}>
+                        <Button className="bp3-minimal building-type-header-button bp3-icon-delete" onClick={() => this.handleAlertOpen(id)}></Button>
+                      </Tooltip>
+                    </div>
+                  )
+                })
+              }
+              <span className="empty-button"/>
+            </FormGroup>
+            }
+          </div>
           {
             Object.keys(this.energySystemParameters).map((paramName: string, i: number) => {
               const param = this.energySystemParameters[paramName];
@@ -183,7 +252,7 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
                   )}
                   labelFor={`energy-system-${paramName}-input`}>
                   {
-                    Object.keys(energySystems).map(id => {
+                    Object.keys(energySystems).filter(id => !energySystems[id].deleted).map(id => {
                       param.path = `energySystems.${id}.${paramName}`;
                       switch (param.mode) {
                         case "input": {
@@ -255,7 +324,7 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
             labelFor=""
             key={`edit-cost-curve-button-form`}>
             {
-              Object.keys(energySystems).map(id => {
+              Object.keys(energySystems).filter(id => !energySystems[id].deleted).map(id => {
                 return (
                   <div key={`energy-systems-button-container-${id}`} className="energy-systems-button-container">
                     <Button
@@ -277,91 +346,109 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
             <span className="empty-button"/>
           </FormGroup>
         </div>
-
-        {
-          Object.keys(this.state.energySystemsAdvancedOptions).map(id => {
-            const card = this.state.energySystemsAdvancedOptions[id];
-            const data = energyCarriers as IDictEnergyCarrier; // todo: not great that we pass all the energySystems data in. samme issue in BuildingTypeCard
-            return (
-              <div className="advanced-options-wrapper" key={`${id}-div`}>
-                <Button
-                  minimal
-                  className="bp3-button"
-                  name={card.name}
-                  icon={card.isOpen ? "arrow-up" : "arrow-down"}
-                  onClick={(e: React.MouseEvent<HTMLElement>) => this.handleExpandClick(e, id)}>
-                  <h4>{card.title}</h4 >
-                </Button>
-                <AdvancedOptionsCard key={id} isOpen={card.isOpen} data={data} eventHandlers={card.eventHandlers} category={id} parameters={card.parameters} />
-              </div>
-            )
-          })
-        }
+        <div className="advanced-options-wrapper" key={`energy-carrier-wrapper-div`}>
+          <Button
+            minimal
+            className="bp3-button"
+            name="energyCarriers"
+            icon={this.state.energyCarriersOpen ? "arrow-up" : "arrow-down"}
+            onClick={(e: React.MouseEvent<HTMLElement>) => this.handleExpandClick()}>
+            <h4>Energy Carriers</h4 >
+          </Button>
+          <Collapse key={`energy-carrier-collapse`} isOpen={this.state.energyCarriersOpen}>
+            <div className="scrollable-panel-content">
+              <div className="panel-list-header">
+              {
+                <FormGroup
+                  inline
+                  className="inline-input"
+                  key={`energy-carriers-buttons-header`}
+                  label=" "
+                  labelFor={`energy-carriers-buttons-header`}>
+                {
+                  Object.keys(energyCarriers).filter(id => !energyCarriers[id].deleted).map(id => {
+                    return (
+                      <div key={`building-type-button-header-${id}`} className="building-type-button-header-div">
+                        <Tooltip content={`Copy energy carrier "${energyCarriers[id].name}"`} position={Position.TOP}>
+                          <Button onClick={() => this.props.copyEnergyCarrier(id)} className="bp3-minimal building-type-header-button bp3-icon-duplicate"></Button>
+                        </Tooltip>
+                        <Alert
+                          cancelButtonText="Cancel"
+                          confirmButtonText="Delete energy carrier"
+                          intent={Intent.DANGER}
+                          isOpen={this.state.deleteWarningOpen[id]}
+                          onCancel={() => this.handleAlertCancel(id)}
+                          onConfirm={() => this.handleAlertConfirm(id, "energyCarrier")}>
+                          <p>
+                            Are you sure you want to delete this energy carrier? This action is irreversible!
+                          </p>
+                        </Alert>
+                        <Tooltip intent={Intent.WARNING} content={`Delete energy carrier "${energyCarriers[id].name}"`} position={Position.TOP}>
+                          <Button className="bp3-minimal building-type-header-button bp3-icon-delete" onClick={() => this.handleAlertOpen(id)}></Button>
+                        </Tooltip>
+                      </div>
+                    )
+                  })
+                }
+                <span className="empty-button"/>
+              </FormGroup>
+              }
+            </div>
+            
+            {
+              Object.keys(this.energyCarrierParameters).map((paramName: string, i: number) => {
+                const param = this.energyCarrierParameters[paramName];
+                return (
+                  <div className={"panel-list-row"} key={`energy-carriers-${paramName}-div`}>
+                    <FormGroup
+                      inline
+                      className="inline-input"
+                      key={`energy-carriers-${paramName}-input`}
+                      label={i? renderInputLabel(param) : (
+                        <div className="label-with-add-button">
+                          <p>{renderInputLabel(param)}</p>
+                          <Button
+                            minimal
+                            className="bp3-button add-button"
+                            icon="add"
+                            onClick={(e: React.MouseEvent<HTMLElement>) => { 
+                              const eventHandler = this.handleAddEnergyCarrierClick as ((e: React.MouseEvent<HTMLElement>) => void);
+                              eventHandler(e);
+                            }}/>
+                          
+                        </div>
+                      )}
+                      labelFor={`energy-carriers-${paramName}-input`}>
+                      {
+                        Object.keys(energyCarriers).filter(id => !energyCarriers[id].deleted).map(id => {
+                          param.path = `energyCarriers.${id}.${paramName}`;
+                          param.localPath = `${id}.${paramName}`;
+                          const eventHandler = this.props.handleChange as ((e: React.ChangeEvent<HTMLInputElement>) => void);
+                          return renderInputField(`energy-carriers-${id}`, param, energyCarriers, eventHandler)
+                        })
+                      }
+                      {
+                      !i?  // only have an add button on the first row (i == 0)
+                        <Button
+                          minimal
+                          className="bp3-button add-button"
+                          icon="add"
+                          onClick={(e: React.MouseEvent<HTMLElement>) => { 
+                            const eventHandler = this.handleAddEnergyCarrierClick as ((e: React.MouseEvent<HTMLElement>) => void);
+                            eventHandler(e);
+                          }}/>
+                        : <span className="empty-button"/>
+                      }
+                    </FormGroup>
+                  </div>
+                )
+              })
+            }
+            </div>
+          </Collapse>
+        </div>
       </div>
     )
   }
 }
 
-interface IEnergySystemsAdvancedOptionsCardProps extends IAdvancedOptionsCardProps {
-  data: IDictEnergyCarrier;
-}
-
-const AdvancedOptionsCard = (props: IEnergySystemsAdvancedOptionsCardProps) => {
-  const energyCarriers = props.data;
-  const category = props.category;
-  return (
-    <Collapse key={`${category}-collapse`} isOpen={props.isOpen}>
-      <div className="scrollable-panel-content">
-      {
-        Object.keys(props.parameters).map( (paramName: string, i: number) => {
-          const param = props.parameters[paramName];
-          return (
-            <div className={"panel-list-row"} key={`energy-carriers-${paramName}-div`}>
-              <FormGroup
-                inline
-                className="inline-input"
-                key={`energy-carriers-${paramName}-input`}
-                label={i? renderInputLabel(param) : (
-                  <div className="label-with-add-button">
-                    <p>{renderInputLabel(param)}</p>
-                    <Button
-                      minimal
-                      className="bp3-button add-button"
-                      icon="add"
-                      onClick={(e: React.MouseEvent<HTMLElement>) => { 
-                        const eventHandler = props.eventHandlers.handleAddEnergyCarrierClick as ((e: React.MouseEvent<HTMLElement>) => void);
-                        eventHandler(e);
-                      }}/>
-                    
-                  </div>
-                )}
-                labelFor={`energy-carriers-${paramName}-input`}>
-                {
-                  Object.keys(energyCarriers).map(id => {
-                    param.path = `energyCarriers.${id}.${paramName}`;
-                    param.localPath = `${id}.${paramName}`;
-                    const eventHandler = props.eventHandlers.handleChange as ((e: React.ChangeEvent<HTMLInputElement>) => void);
-                    return renderInputField(`energy-carriers-${id}`, param, energyCarriers, eventHandler)
-                  })
-                }
-                {
-                !i?  // only have an add button on the first row (i == 0)
-                  <Button
-                    minimal
-                    className="bp3-button add-button"
-                    icon="add"
-                    onClick={(e: React.MouseEvent<HTMLElement>) => { 
-                      const eventHandler = props.eventHandlers.handleAddEnergyCarrierClick as ((e: React.MouseEvent<HTMLElement>) => void);
-                      eventHandler(e);
-                    }}/>
-                  : <span className="empty-button"/>
-                }
-              </FormGroup>
-            </div>
-          )
-        })
-      }
-      </div>
-    </Collapse>
-  )
-}

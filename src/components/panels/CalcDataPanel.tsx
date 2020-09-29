@@ -1,13 +1,13 @@
+// external
 import React, { Component, ChangeEvent } from 'react';
-
 import { set as _fpSet, equals as _fpEquals } from 'lodash/fp';
 import { v4 as uuidv4 } from 'uuid';
-
 import { cloneDeep as _cloneDeep, debounce as _debounce } from 'lodash';
 import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 
-//import { CalcData } from '@annex-75/calculation-model/';
 
+// internal
+//import { CalcData } from '@annex-75/calculation-model/';
 import * as config from '../../config.json';
 import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, ScenarioInfo, HvacMeasure, EnvelopeMeasure, WindowMeasure, EnergyCarrier, ISystemSizeCurve, TCostCurveCategory, TCostCurveScale } from '../../types';
 import { DistrictCard } from './cards/DistrictCard';
@@ -62,6 +62,10 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
           editSystemSizeCurve: this.editSystemSizeCurve,
           handleChange: this.handleChangeEvent,
           handleDropdownChange: this.handleDropdownChange,
+          copyEnergySystem: this.copyEnergySystem,
+          deleteEnergySystem: this.deleteEnergySystem,
+          copyEnergyCarrier: this.copyEnergyCarrier,
+          deleteEnergyCarrier: this.deleteEnergyCarrier,
         },
       },
       "buildingMeasures": {
@@ -72,6 +76,8 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
         eventHandlers: {
           handleChange: this.handleChangeEvent,
           addBuildingMeasure: this.addBuildingMeasure,
+          copyBuildingMeasure: this.copyBuildingMeasure,
+          deleteBuildingMeasure: this.deleteBuildingMeasure,
         },
       },
     }
@@ -186,7 +192,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
   // todo: actually delete it from the database (similar to deleting projects)
   deleteBuildingType = (id: string) => {
     const valid = (newState: ICalcDataPanelState) => {
-      if (Object.keys(newState.project.calcData.buildingTypes).length <= 1) {
+      if (Object.keys(newState.project.calcData.buildingTypes).filter(id => !newState.project.calcData.buildingTypes[id].deleted).length <= 1) {
         AppToaster.show({ intent: Intent.DANGER, message: `The last building type can not be deleted.`});
         return false;
       }
@@ -202,7 +208,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     this.performDatabaseOperation(valid, operation);
   }
 
-  addEnergySystem = () => {
+  addEnergySystem = (id: string = "") => {
     const valid = (newState: ICalcDataPanelState) => {
       if (Object.keys(newState.project.calcData.energySystems).length >= config.MAX_ENERGY_SYSTEMS) {
         AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_ENERGY_SYSTEMS} energy systems are currently allowed`});
@@ -211,13 +217,46 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
       return true;
     }
     const operation = (newState: ICalcDataPanelState) => {
-      const energySystem = new EnergySystem();
+      let energySystem;
+      if (id) {
+        const energySystemOriginal = newState.project.calcData.energySystems[id];
+        if (!energySystemOriginal) {
+          throw new Error(`Energy system ${id} could not be found`);
+        } 
+        const copyName = `${energySystemOriginal.name} - copy`;
+        energySystem = _cloneDeep(energySystemOriginal);
+        energySystem.id = uuidv4();
+        energySystem.name = copyName;
+      } else {
+        energySystem = new EnergySystem();
+      }
       newState.project.calcData.energySystems[energySystem.id] = energySystem;
     }
     this.performDatabaseOperation(valid, operation);
   }
 
-  addEnergyCarrier = () => {
+  copyEnergySystem = (id: string) => this.addEnergySystem(id);
+
+  // todo: actually delete it from the database (similar to deleting projects)
+  deleteEnergySystem = (id: string) => {
+    const valid = (newState: ICalcDataPanelState) => {
+      if (Object.keys(newState.project.calcData.energySystems).filter(id => !newState.project.calcData.energySystems[id].deleted).length <= 1) {
+        AppToaster.show({ intent: Intent.DANGER, message: `The last energy system can not be deleted.`});
+        return false;
+      }
+      return true;
+    }
+    const operation = (newState: ICalcDataPanelState) => {
+      const energySystem = newState.project.calcData.energySystems[id];
+      if (!energySystem) {
+        throw new Error(`Energy system ${id} could not be found`);
+      }
+      newState.project.calcData.energySystems[id].deleted = true;
+    }
+    this.performDatabaseOperation(valid, operation);
+  }
+
+  addEnergyCarrier = (id: string = "") => {
     const valid = (newState: ICalcDataPanelState) => {
       if (Object.keys(newState.project.calcData.energyCarriers).length >= config.MAX_ENERGY_CARRIERS) {
         AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_ENERGY_CARRIERS} energy carriers are currently allowed`});
@@ -226,13 +265,46 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
       return true;
     }
     const operation = (newState: ICalcDataPanelState) => {
-      const energyCarrier = new EnergyCarrier();
+      let energyCarrier;
+      if (id) {
+        const energyCarrierOriginal = newState.project.calcData.energyCarriers[id];
+        if (!energyCarrierOriginal) {
+          throw new Error(`Energy carrier ${id} could not be found`);
+        } 
+        const copyName = `${energyCarrierOriginal.name} - copy`;
+        energyCarrier = _cloneDeep(energyCarrierOriginal);
+        energyCarrier.id = uuidv4();
+        energyCarrier.name = copyName;
+      } else {
+        energyCarrier = new EnergyCarrier();
+      }
       newState.project.calcData.energyCarriers[energyCarrier.id] = energyCarrier;
     }
     this.performDatabaseOperation(valid, operation);
   }
 
-  addBuildingMeasure = (category: TBuildingMeasureCategory) => {
+  copyEnergyCarrier = (id: string) => this.addEnergyCarrier(id);
+
+  // todo: actually delete it from the database (similar to deleting projects)
+  deleteEnergyCarrier = (id: string) => {
+    const valid = (newState: ICalcDataPanelState) => {
+      if (Object.keys(newState.project.calcData.energyCarriers).filter(id => !newState.project.calcData.energyCarriers[id].deleted).length <= 1) {
+        AppToaster.show({ intent: Intent.DANGER, message: `The last energy carrier can not be deleted.`});
+        return false;
+      }
+      return true;
+    }
+    const operation = (newState: ICalcDataPanelState) => {
+      const energyCarrier = newState.project.calcData.energyCarriers[id];
+      if (!energyCarrier) {
+        throw new Error(`Energy carrier ${id} could not be found`);
+      }
+      newState.project.calcData.energyCarriers[id].deleted = true;
+    }
+    this.performDatabaseOperation(valid, operation);
+  }
+
+  addBuildingMeasure = (category: TBuildingMeasureCategory, id: string = "") => {
     const valid = (newState: ICalcDataPanelState) => {
       if (Object.keys(newState.project.calcData.buildingMeasures[category]).length >= config.MAX_BUILDING_MEASURES) {
         AppToaster.show({ intent: Intent.DANGER, message: `Max ${config.MAX_BUILDING_MEASURES} building measures are currently allowed per category`});
@@ -241,8 +313,41 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
       return true;
     }
     const operation = (newState: ICalcDataPanelState) => {
-      const buildingMeasure = this.getBuildingMeasure(category);
+      let buildingMeasure;
+      if (id) {
+        const buildingMeasureOriginal = newState.project.calcData.buildingMeasures[category][id];
+        if (!buildingMeasureOriginal) {
+          throw new Error(`Energy carrier ${id} could not be found`);
+        } 
+        const copyName = `${buildingMeasureOriginal.measureName} - copy`;
+        buildingMeasure = _cloneDeep(buildingMeasureOriginal);
+        buildingMeasure.id = uuidv4();
+        buildingMeasure.measureName = copyName;
+      } else {
+        buildingMeasure = this.getBuildingMeasure(category);
+      }
       newState.project.calcData.buildingMeasures[category][buildingMeasure.id] = buildingMeasure;
+    }
+    this.performDatabaseOperation(valid, operation);
+  }
+
+  copyBuildingMeasure = (id: string, category: TBuildingMeasureCategory) => this.addBuildingMeasure(category, id);
+
+  // todo: actually delete it from the database (similar to deleting projects)
+  deleteBuildingMeasure = (id: string, category: TBuildingMeasureCategory) => {
+    const valid = (newState: ICalcDataPanelState) => {
+      if (Object.keys(newState.project.calcData.buildingMeasures[category]).filter(id => !newState.project.calcData.buildingMeasures[category][id].deleted).length <= 1) {
+        AppToaster.show({ intent: Intent.DANGER, message: `The last building measure of each category can not be deleted.`});
+        return false;
+      }
+      return true;
+    }
+    const operation = (newState: ICalcDataPanelState) => {
+      const buildingMeasure = newState.project.calcData.buildingMeasures[category][id];
+      if (!buildingMeasure) {
+        throw new Error(`Building measure ${id} could not be found`);
+      }
+      newState.project.calcData.buildingMeasures[category][id].deleted = true;
     }
     this.performDatabaseOperation(valid, operation);
   }

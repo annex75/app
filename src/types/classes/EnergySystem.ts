@@ -32,6 +32,7 @@ export class EnergySystem {
     }
   }
   id: string;
+  deleted: boolean = false;
   name: string = "";
   systemType: string = "";
   systemCategory: string = "none";

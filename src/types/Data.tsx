@@ -293,7 +293,7 @@ export interface IBuildingMeasure {
   refurbishmentCost: number;
   lifeTime: number;
   embodiedEnergy: number;
-
+  deleted: boolean;
   [key: string]: IBuildingMeasure[keyof IBuildingMeasure];
 }
 
@@ -308,6 +308,7 @@ abstract class BaseBuildingMeasure {
   refurbishmentCost: number = 0;
   lifeTime: number = 0;
   embodiedEnergy: number = 0;
+  deleted: boolean = false;
 }
 
 export const createBuildingMeasure = (category: TBuildingMeasureCategory, id: string = uuidv4()) => {
@@ -349,7 +350,7 @@ export class HvacMeasure extends BaseBuildingMeasure {
 }
 
 export class ScenarioData {
-  scenarios: Record<string,Scenario> = {};
+  scenarios: Record<string, Scenario> = {};
 }
 
 export interface IBuildingMeasureResult {
@@ -416,6 +417,7 @@ export class Scenario {
     windows: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
   };
   total: ResultSummary = new ResultSummary();
+  deleted: boolean = false;
 }
 
 export class ScenarioInfo {
@@ -513,8 +515,8 @@ export enum Units {
   nonDimensional = "-",
   euro = "€",
   euroPerKiloWattHour = "€/kWh",
-  euroPerSqMeter = "€/m²",
-  euroPerCentimeterSqMeter = "€/(cm, m²)",
+  euroPerMeterSq = "€/m²",
+  euroPerCentimeterMeterSq = "€/(cm, m²)",
   percent = "%",
   airChangesHourly = "ACH",
   degC = "°C",
