@@ -1,8 +1,10 @@
 // external
 import { v4 as uuidv4 } from 'uuid';
+import { Units } from '../Data';
 
 const defSystemSizes = [ 50, 100, 150, 200, 250 ];
 const defCostCurve = [ 50, 100, 150, 200, 250];
+const defEfficiencies = [ 1, 1, 1, 1, 1 ]
 
 export const costCurveCategories = [ "investmentCost", "maintenanceCost", "embodiedEnergy" ] as const;
 export type TCostCurveCategory = typeof costCurveCategories[number];
@@ -17,13 +19,13 @@ export class EnergySystem {
     this.costCurves = {
       substation: {
         investmentCost: new CostCurveIndividual("euro"),
-        maintenanceCost: new CostCurveIndividual("euro/a"),
-        embodiedEnergy: new CostCurveIndividual("co2eq/a"),
+        maintenanceCost: new CostCurveIndividual("euroPerYear"),
+        embodiedEnergy: new CostCurveIndividual("kiloGramCO2EqPerYear"),
       },
       centralized: {
         investmentCost: new CostCurveCentralized("euro"),
-        maintenanceCost: new CostCurveCentralized("euro/a"),
-        embodiedEnergy: new CostCurveCentralized("co2eq/a"),
+        maintenanceCost: new CostCurveCentralized("euroPerYear"),
+        embodiedEnergy: new CostCurveCentralized("kiloGramCO2EqPerYear"),
       },
     };
     this.systemSizeCurves = {
@@ -45,69 +47,75 @@ export class EnergySystem {
 }
 
 export class CostCurveCentralized {
-  constructor(unit: string) {
+  constructor(unit: keyof typeof Units) {
     this.intake.unit = unit;
     this.generation.unit = unit;
     this.circulation.unit = unit;
   }
   systemSize: ICostCurve = {
-    label: "System size [kW]",
+    label: "System size",
     value: defSystemSizes,
     index: 0,
-    unit: "kW",
+    unit: "kiloWatt",
   };
   intake: ICostCurve = {
     label: "Intake",
     value: defCostCurve,
     index: 1,
-    unit: "",
+    unit: "none",
   };
   generation: ICostCurve = {
     label: "Generation",
     value: defCostCurve,
     index: 2,
-    unit: "",
+    unit: "none",
   };
   circulation: ICostCurve = {
     label: "Circulation",
     value: defCostCurve,
     index: 3,
-    unit: "",
+    unit: "none",
   };
   [key: string]: CostCurveCentralized[keyof CostCurveCentralized];
 }
 
 export class CostCurveIndividual {
-  constructor(unit: string) {
+  constructor(unit: keyof typeof Units) {
     this.substation.unit = unit;
   }
   systemSize: ICostCurve = {
-    label: "System size [kW]",
+    label: "System size",
     value: defSystemSizes,
     index: 0,
-    unit: "kW",
+    unit: "kiloWatt",
   };
   substation: ICostCurve = {
     label: "Substation",
     value: defCostCurve,
     index: 1,
-    unit: "",
+    unit: "none",
   };
   [key: string]: CostCurveIndividual[keyof CostCurveIndividual];
 }
 
 export class SystemSizeCurveDict {
   heatingNeed: ISystemSizeCurve = {
-    label: "Heating need [kWh]",
+    label: "Heating need",
     value: defCostCurve,
     index: 0,
-    unit: "kWh",
+    unit: "kiloWattHour",
   };
   systemSize: ISystemSizeCurve = {
-    label: "System size [kW]",
+    label: "System size",
     value: defSystemSizes,
     index: 1,
-    unit: "kW",
+    unit: "kiloWatt",
+  };
+  efficiency: ISystemSizeCurve = {
+    label: "System efficiency",
+    value: defEfficiencies,
+    index: 2,
+    unit: "nonDimensional",
   };
 
   // todo: this is a bit type unsafe, 
@@ -117,7 +125,7 @@ export class SystemSizeCurveDict {
 
 export interface ICostCurve {
   label: string;
-  unit: string;
+  unit: keyof typeof Units;
   value: number[];
   index: number;
 }
@@ -132,7 +140,7 @@ export class EnergySystemType {
 export interface ICostCurveCategory {
   name: TCostCurveCategory;
   label: string;
-  unit: string;
+  unit: keyof typeof Units;
 }
 
 export interface ICostCurveScale {

@@ -5,7 +5,7 @@ import { Classes, FormGroup, Button,  } from '@blueprintjs/core';
 import { Table, Column, EditableCell, ColumnHeaderCell } from '@blueprintjs/table';
 
 // internal
-import { ISystemSizeCurveEditorProps, ISystemSizeCurveEditorState, ISystemSizeCurve, getEnergySystemType, getEnergySystemCategory, ICostCurveScale } from '../../../types';
+import { ISystemSizeCurveEditorProps, ISystemSizeCurveEditorState, ISystemSizeCurve, getEnergySystemType, getEnergySystemCategory, ICostCurveScale, Units } from '../../../types';
 import { IChartSetup, getNewColor, renderScatterChart } from '../../../helpers';
 import { CostCurveScaleSelect, renderCostCurveScale } from './CostCurveEditor';
 
@@ -44,12 +44,12 @@ export class SystemSizeCurveEditor extends Component<ISystemSizeCurveEditorProps
     return (
       <EditableCell
         value={systemSizeCurve.value[rowIndex] == null ? String(0) : String(systemSizeCurve.value[rowIndex])}
-        onChange={this.handleValueChange(rowIndex, columnIndex, id, systemSizeCurve)}
+        onConfirm={this.handleValueChange(rowIndex, columnIndex, id, systemSizeCurve)}
       />
     );
   };
 
-  renderColumnHeader = (columnIndex: number, label: string) => {
+  renderColumnHeader = (columnIndex: number, label: string, unit: keyof typeof Units) => {
     
     
     /*const nameRenderer = (name: string) => {
@@ -59,7 +59,7 @@ export class SystemSizeCurveEditor extends Component<ISystemSizeCurveEditorProps
         />
       );
     };*/
-    return <ColumnHeaderCell name={label} />;
+    return <ColumnHeaderCell name={`${label}${unit? ` [${Units[unit]}]`: ''}`} />;
   };
 
   render() {
@@ -79,7 +79,7 @@ export class SystemSizeCurveEditor extends Component<ISystemSizeCurveEditorProps
         <Column
           key={String(index)}
           cellRenderer={(r: number, c: number) => this.renderCell(r, c, id, systemSizeCurve)} 
-          columnHeaderCellRenderer={(index: number) => this.renderColumnHeader(index, systemSizeCurve.label)}/>
+          columnHeaderCellRenderer={(index: number) => this.renderColumnHeader(index, systemSizeCurve.label, systemSizeCurve.unit)}/>
       )
     });
 
@@ -96,7 +96,8 @@ export class SystemSizeCurveEditor extends Component<ISystemSizeCurveEditorProps
       name: "Scatter chart"
     }
 
-    const graphData = systemSizeCurvesSorted.slice(1).map((id: string, index: number) => {
+    // a little hack here to only get the system size curve
+    const graphData = [systemSizeCurvesSorted[1]].map((id: string, index: number) => {
 
       const costCurve = activeSystem.systemSizeCurves[costCurveScale.name][id] as ISystemSizeCurve;
       return {

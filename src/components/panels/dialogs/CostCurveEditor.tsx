@@ -6,7 +6,7 @@ import { Select, ItemRenderer } from '@blueprintjs/select';
 import { Table, Column, EditableCell, ColumnHeaderCell } from '@blueprintjs/table';
 
 // internal
-import { ICostCurveCategory, ICostCurveEditorProps, ICostCurveEditorState, ICostCurve, getEnergySystemCategory, getEnergySystemType, ICostCurveScale } from '../../../types';
+import { ICostCurveCategory, ICostCurveEditorProps, ICostCurveEditorState, ICostCurve, getEnergySystemCategory, getEnergySystemType, ICostCurveScale, Units } from '../../../types';
 import { renderScatterChart, getNewColor, IChartSetup } from '../../../helpers';
 
 // todo: replace this local thing with renderDropdown() from helpers.tsx
@@ -48,17 +48,17 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
       {
         name: "investmentCost",
         label: "Investment cost",
-        unit: "€"
+        unit: "euro",
       },
       {
         name: "maintenanceCost",
         label: "Maintenance cost",
-        unit: "€/a"
+        unit: "euroPerYear"
       },
       {
         name: "embodiedEnergy",
         label: "Embodied energy",
-        unit: "kWh/m²a"
+        unit: "kiloWattHourPerMeterSqYear"
       }
     ];
     this.costCurveScales = [
@@ -97,12 +97,12 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
     return (
       <EditableCell
         value={costCurve.value[rowIndex] == null ? String(0) : String(costCurve.value[rowIndex])}
-        onChange={this.handleValueChange(rowIndex, columnIndex, id, costCurve)}
+        onConfirm={this.handleValueChange(rowIndex, columnIndex, id, costCurve)}
       />
     );
   };
 
-  renderColumnHeader = (columnIndex: number, label: string) => {
+  renderColumnHeader = (columnIndex: number, label: string, unit: keyof typeof Units) => {
     
     
     /*const nameRenderer = (name: string) => {
@@ -112,7 +112,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
         />
       );
     };*/
-    return <ColumnHeaderCell name={label} />;
+    return <ColumnHeaderCell name={`${label}${unit? ` [${Units[unit]}]`: ''}`} />;
   };
 
   render() {
@@ -132,7 +132,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
         <Column
           key={String(index)}
           cellRenderer={(r: number, c: number) => this.renderCell(r, c, id, costCurve)} 
-          columnHeaderCellRenderer={(index: number) => this.renderColumnHeader(index, costCurve.label)}/>
+          columnHeaderCellRenderer={(index: number) => this.renderColumnHeader(index, costCurve.label, costCurve.unit)}/>
       )
     });
 
