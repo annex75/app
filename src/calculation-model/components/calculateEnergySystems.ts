@@ -35,8 +35,7 @@ export const calculateEnergySystems = (project: IProject) => {
     energySystemsInUse[scenarioId] = {};
     // find which energy systems serve which building and what their heat need is
     Object.keys(project.calcData.buildingTypes).forEach(buildingTypeId => {
-      const buildingType = project.calcData.buildingTypes[buildingTypeId];
-      const scenarioInfo = buildingType.scenarioInfos[scenarioId];
+      const scenarioInfo = project.scenarioData.scenarios[scenarioId].buildingTypes[buildingTypeId];
       
       const energySystemId = scenarioInfo.energySystem.energySystem;
       if (!energySystemId) {

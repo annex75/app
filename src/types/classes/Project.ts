@@ -34,11 +34,10 @@ export class Project implements IProject {
     if (newScenarios) {
       // create scenarios
       const scenarioId = uuidv4();
-      for (const buildingTypeId in this.calcData.buildingTypes) {
-        let buildingType = this.calcData.buildingTypes[buildingTypeId];
-        buildingType.scenarioInfos[scenarioId] = new ScenarioInfo();
-      } 
       this.scenarioData.scenarios[scenarioId] = new Scenario(scenarioId);
+      for (const buildingTypeId in this.calcData.buildingTypes) {
+        this.scenarioData.scenarios[scenarioId].buildingTypes[buildingTypeId] = new ScenarioInfo();
+      } 
     }
   }
 
@@ -99,8 +98,8 @@ export class Project implements IProject {
 
       Object.keys(this.calcData.buildingTypes).forEach(buildingTypeId => {
         const buildingType = this.calcData.buildingTypes[buildingTypeId];
-        const numBuildings = buildingType.scenarioInfos[scenarioId].buildingType.numberOfBuildings;
-        const heatingNeed = buildingType.scenarioInfos[scenarioId].buildingType.heatingNeed;
+        const numBuildings = this.scenarioData.scenarios[scenarioId].buildingTypes[buildingTypeId].buildingType.numberOfBuildings;
+        const heatingNeed = this.scenarioData.scenarios[scenarioId].buildingTypes[buildingTypeId].buildingType.heatingNeed;
         const area = buildingType.buildingGeometry.grossFloorArea;
         scenario.total.buildingArea += numBuildings*area;
         scenario.total.heatingNeed = numBuildings*heatingNeed;

@@ -182,7 +182,7 @@ export class BuildingType {
   buildingInformation = new BuildingInformation();
   buildingGeometry = new BuildingGeometry();
   //buildingOccupancy = new BuildingOccupancy(); // modify in scenarios?
-  scenarioInfos: Record<string,ScenarioInfo> = {};
+  //scenarioInfos: Record<string,ScenarioInfo> = {};
   deleted: boolean = false;
   [key: string]: BuildingType[keyof BuildingType];
 }
@@ -416,6 +416,7 @@ export class Scenario {
     hvac: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
     windows: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
   };
+  buildingTypes: Record<string, ScenarioInfo> = {}; 
   total: ResultSummary = new ResultSummary();
   deleted: boolean = false;
 }

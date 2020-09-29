@@ -26,8 +26,7 @@ export const calculateBuildingMeasures = (project: IProject) => {
     buildingMeasureScenarioCategories.forEach(scenarioCat => {
       buildingMeasuresInUse[scenarioId][scenarioCat] = {};
       Object.keys(project.calcData.buildingTypes).forEach(buildingTypeId => {
-        const buildingType = project.calcData.buildingTypes[buildingTypeId];
-        const scenarioInfo = buildingType.scenarioInfos[scenarioId];
+        const scenarioInfo = project.scenarioData.scenarios[scenarioId].buildingTypes[buildingTypeId];
         const numBuildings = scenarioInfo.buildingType.numberOfBuildings;
         
         const buildingMeasureId = scenarioInfo.buildingMeasures[scenarioCat].id;

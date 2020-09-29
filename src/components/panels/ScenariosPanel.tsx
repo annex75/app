@@ -32,7 +32,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               type: Number,
               unit: "none",
               mode: "input",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               label: "Number of buildings",
             },
             heatingNeed: {
@@ -41,13 +41,13 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               mode: "input",
               unit: "kiloWattHourPerYear",
               label: "Heating need",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
             },
             occupancy: {
               key: "occupancy",
               type: String,
               mode: "input",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               label: "Occupancy"
             },
             occupants: {
@@ -55,7 +55,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               type: Number,
               mode: "input",
               unit: "personsPerMeterSq",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               label: "Number of occupants",
             },
             setPointTemp: {
@@ -63,7 +63,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               type: Number,
               mode: "input",
               unit: "degC",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               label: "Set point temperature (heating)",
             },
             appliancesElectricityUsage: {
@@ -71,7 +71,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               type: Number,
               mode: "input",
               unit: "kiloWattHourPerMeterSq",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               label: "Domestic electricity usage",
             },
             domesticHotWaterUsage: {
@@ -79,7 +79,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               type: Number,
               mode: "input",
               unit: "kiloWattHourPerMeterSq",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               label: "Domestic hot water usage",
             },
 
@@ -143,7 +143,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "facadeInsulationThickness",
               type: Number,
               unit: "centimeter",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               subPath: "facade.thickness",
               mode: "input",
               label: "Thickness of façade insulation",
@@ -152,7 +152,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "facadeRetrofittedArea",
               type: Number,
               unit: "meterSq",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               subPath: "facade.area",
               mode: "input",
               label: "Retrofitted façade area (per building)",
@@ -169,7 +169,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "roofInsulationThickness",
               type: Number,
               unit: "centimeter",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               subPath: "roof.thickness",
               mode: "input",
               label: "Thickness of roof insulation",
@@ -178,7 +178,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "roofRetrofittedArea",
               type: Number,
               unit: "meterSq",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               subPath: "roof.area",
               mode: "input",
               label: "Retrofitted roof area (per building)",
@@ -195,7 +195,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "foundationWallInsulationThickness",
               type: Number,
               unit: "centimeter",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               subPath: "foundation.wallThickness",
               mode: "input",
               label: "Thickness of cellar wall insulation",
@@ -204,7 +204,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "foundationRetrofittedWallArea",
               type: Number,
               unit: "meterSq",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               subPath: "foundation.wallArea",
               mode: "input",
               label: "Retrofitted cellar wall area (per building)",
@@ -213,7 +213,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "foundationFloorInsulationThickness",
               type: Number,
               unit: "centimeter",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               subPath: "foundation.floorThickness",
               mode: "input",
               label: "Thickness of cellar floor insulation",
@@ -222,7 +222,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "facade",
               type: Number,
               unit: "meterSq",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               subPath: "foundation.floorArea",
               mode: "input",
               label: "Retrofitted cellar floor area (per building)",
@@ -239,7 +239,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "windowsRetrofittedArea",
               type: Number,
               unit: "meterSq",
-              rootPath: "calcData.buildingTypes",
+              rootPath: "scenarioData.scenarios",
               subPath: "windows.area",
               mode: "input",
               label: "Retrofitted window area",
@@ -279,7 +279,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
     const path = this.formatPath(e.target.name);
     const newState = _fpSet(path, e.target.value, this.state);
     this.setState(newState, () => {
-      this.updateProject();
+      this.updateProjectDebounce();
     });
   }
   updateProject = () => this.props.updateProject(this.state.project);
@@ -333,13 +333,11 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
         scenario.name = copyName;
       } else {
         scenario = new Scenario();
-
+        for (const buildingTypeId in newState.project.calcData.buildingTypes) {
+          scenario.buildingTypes[buildingTypeId] = new ScenarioInfo();
+        } 
       }
       newState.project.scenarioData.scenarios[scenario.id] = scenario;
-      for (const buildingTypeId in newState.project.calcData.buildingTypes) {
-        let buildingType = newState.project.calcData.buildingTypes[buildingTypeId];
-        buildingType.scenarioInfos[scenario.id] = new ScenarioInfo();
-      } 
     }
     this.performDatabaseOperation(valid, operation);
   }
@@ -554,11 +552,11 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                                       labelFor={`scenario-${buildingTypeId}-${paramName}-input`}>
                                       {
                                         Object.keys(scenarios).filter(id => !scenarios[id].deleted).map(id => {
-                                          param.path = `calcData.buildingTypes.${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${param.subPath || paramName}`;
+                                          param.path = `scenarioData.scenarios.${id}.buildingTypes.${buildingTypeId}.${paramCategoryName}.${param.subPath || paramName}`;
                                           switch (param.mode) {
                                             case "input": {
-                                              param.localPath = `${buildingTypeId}.scenarioInfos.${id}.${paramCategoryName}.${param.subPath || paramName}`;
-                                              return renderInputField(`scenario-${buildingTypeId}-${paramName}-${id}`, param, buildingTypes, this.handleChange, param.validator)
+                                              param.localPath = `${id}.buildingTypes.${buildingTypeId}.${paramCategoryName}.${param.subPath || paramName}`;
+                                              return renderInputField(`scenario-${buildingTypeId}-${paramName}-${id}`, param, scenarios, this.handleChange, param.validator)
                                             } case "dropdownOptionPath": {
                                               const data = _fpGet(param.optionPath, this.state.project);
                                               const alts = Object.keys(data).map((key) => {
