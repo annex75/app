@@ -1,10 +1,12 @@
 // external
 import React, { Component } from 'react';
 import { get as _fpGet } from 'lodash/fp';
+import html2pdf from 'html2pdf.js';
 
 // internal
 import { IResultsPanelProps, IResultsPanelState } from '../../types';
 import { renderScatterChart, IChartSetup } from '../../helpers';
+import { Button } from '@blueprintjs/core';
 
 interface IResultGraph {
   id: string;
@@ -98,44 +100,61 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
         label: true,
       }
     },
-  ]
+  ];
+
+  printPdf = () => {    
+    const worker = html2pdf();
+    const options = {
+      margin:       1,
+      filename:     'myfile.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'cm', format: 'a4', orientation: 'portrait' }
+    };
+    worker.from(document.getElementById("results-graph-container")).using(options).save();
+  }
   
   render() {
     return (
       <div>
         <h1>{this.props.title}</h1>
         <div className="bp3-card panel-card">
-          {
-            this.resultGraphs.map(graph => {
-              const data = [
-                {
-                  name: graph.label,
-                  data: Object.keys(this.props.project.scenarioData.scenarios).map(scenarioId => {
-                    const scenario = this.props.project.scenarioData.scenarios[scenarioId];
-                    return {
-                      x: _fpGet(graph.xDataObj.dataPath, scenario),
-                      y: _fpGet(graph.yDataObj.dataPath, scenario),
-                    }
-                  }),
-              
-                }
-              ];
-              let chartSetup: IChartSetup = Object.assign(defChartSetup, graph.chartSetup);
-              chartSetup.xUnit = graph.xDataObj.unit;
-              chartSetup.yUnit = graph.yDataObj.unit;
-              chartSetup.xLabel = graph.xDataObj.label;
-              chartSetup.yLabel = graph.yDataObj.label;
-              return (
-                <div key={`result-graph-${graph.id}-container`} className="result-graph-container">
+          <div id="results-graph-container" >
+            {
+              this.resultGraphs.map(graph => {
+                const data = [
                   {
-                    renderScatterChart(data, chartSetup, )
+                    name: graph.label,
+                    data: Object.keys(this.props.project.scenarioData.scenarios).map(scenarioId => {
+                      const scenario = this.props.project.scenarioData.scenarios[scenarioId];
+                      return {
+                        x: _fpGet(graph.xDataObj.dataPath, scenario),
+                        y: _fpGet(graph.yDataObj.dataPath, scenario),
+                      }
+                    }),
+                
                   }
-                </div>
-              )
-            })
-          }
+                ];
+                let chartSetup: IChartSetup = Object.assign(defChartSetup, graph.chartSetup);
+                chartSetup.xUnit = graph.xDataObj.unit;
+                chartSetup.yUnit = graph.yDataObj.unit;
+                chartSetup.xLabel = graph.xDataObj.label;
+                chartSetup.yLabel = graph.yDataObj.label;
+                return (
+                  <div key={`result-graph-${graph.id}-container`} className="result-graph-container">
+                    {
+                      renderScatterChart(data, chartSetup, )
+                    }
+                  </div>
+                )
+              })
+            }
+          </div>
         </div>
         <div className="bp3-card panel-card">Tabulated results</div>
+        <div id="results-button-container" className="bp3-card panel-card">
+          <Button minimal icon="print" onClick={this.printPdf} style={{ padding: "10px" }}>Save results as PDF</Button>
+        </div>
       </div>
     )
   }

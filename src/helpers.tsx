@@ -1,29 +1,46 @@
 // external
 import React, { ChangeEvent } from 'react'
-import { MenuItem, InputGroup, Intent, Button } from "@blueprintjs/core";
+import { MenuItem, InputGroup, Intent, Button, Popover, PopoverInteractionKind, Position } from "@blueprintjs/core";
 import { Select, ItemRenderer } from '@blueprintjs/select';
 import { get as _fpGet } from 'lodash/fp';
 
 // internal
-import { IInput, IValidatorResult, IDropdown, Units } from './types';
+import { IInputField, IValidatorResult, Units, IInput } from './types';
 import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter, ZAxis, Tooltip, Legend } from 'recharts';
 import { Label } from 'recharts';
 
-export const renderInputLabel = (param: IInput | IDropdown) => {
+export const renderInputLabel = (param: IInput) => {
+  let text;
+
+  // todo: this is not great. we use unit as the typeguard but other types than IInputField may have the unit property
+  if ((param as IInputField).unit) {
+    const paramI = param as IInputField;
+    const unitStr = paramI.unit && paramI.unit !== "none"? ` [${Units[paramI.unit]}]`: "";
+    text = `${param.label}${unitStr}:`;
+  } else {
+    text = `${param.label}:`;
+  }
+
   let out;
 
-  // todo: this is not great. we use unit as the typeguard but other types than IInput may have the unit property
-  if ((param as IInput).unit) {
-    const paramI = param as IInput;
-    const unitStr = paramI.unit && paramI.unit !== "none"? ` [${Units[paramI.unit]}]`: "";
-    out = `${param.label}${unitStr}:`;
+  if (param.info) {
+    out = (<div className="info-label-popover">
+      <Popover
+        content={<p className="popover-content">{param.info}</p>}
+        interactionKind={PopoverInteractionKind.CLICK}
+        onInteraction={() => {console.log(param.info)}}
+        position={Position.RIGHT}>
+        <Button icon="info-sign" className="info-popover-button" minimal>{text}</Button>
+      </Popover>
+    </div>)
   } else {
-    out = `${param.label}:`;
+    out = text;
   }
+
   return out;
 }
 
-export const renderInputField = (parent: string, param: IInput, obj: any, handleChange?: (e: ChangeEvent<HTMLInputElement>) => void, validator?: (val: string) => IValidatorResult ) => {
+export const renderInputField = (parent: string, param: IInputField, obj: any, handleChange?: (e: ChangeEvent<HTMLInputElement>) => void, validator?: (val: string) => IValidatorResult ) => {
   const val = _fpGet(param.localPath || param.path!, obj) as string || '';
 
   const valid = !validator? { valid: true, invalidMsg: "" } : validator(val);
@@ -72,7 +89,7 @@ export interface IDropdownSettings {
   twoLine?: boolean,
 }
 
-export const renderDropdown = (key: string, items: IDropdownAlt[], selected: IDropdownAlt, param: IDropdown, handleSelect: (item: IDropdownAlt) => void, settings: IDropdownSettings = {}) => {
+export const renderDropdown = (key: string, items: IDropdownAlt[], selected: IDropdownAlt, handleSelect: (item: IDropdownAlt) => void, settings: IDropdownSettings = {}) => {
   const TheSelect = Select.ofType<IDropdownAlt>();
   const renderDropdownAlts: ItemRenderer<IDropdownAlt> = (item, { handleClick, modifiers }) => {
     return ( 

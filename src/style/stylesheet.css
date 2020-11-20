@@ -67,8 +67,18 @@ ul {
   width: 100%;
 }
 
-.user-info-content {
+.info-label-popover .bp3-popover-wrapper {
+  margin-top: 0px !important;
+}
+
+.info-popover-button {
+  margin-right: -12px;
+  /*margin-top: -5px; */
+}
+
+.popover-content {
   padding: 10px;
+  margin: 0px;
 }
 
 .help-popover-content {
@@ -181,7 +191,7 @@ ul {
 }
 
 #overview-general-div .bp3-form-group .bp3-label { 
-  width: 100px; /* to make room for map */
+  width: 125px; /* to make room for map */
 }
 
 .label-with-add-button {
@@ -232,6 +242,13 @@ ul {
 
 .inline-input .bp3-form-content .bp3-input-group {
   width: 150px;
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+
+.inline-input .bp3-form-content .bp3-file-input {
+  width: 200px;
   padding-right: 5px;
   padding-left: 5px;
 }

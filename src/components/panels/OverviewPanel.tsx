@@ -7,7 +7,7 @@ import { FormGroup, /* Tooltip */ } from '@blueprintjs/core';
 
 // internal
 import { IOverviewPanelProps, IOverviewPanelState, IOverviewDataCard } from '../../types';
-import { renderInputField, } from '../../helpers';
+import { renderInputField, renderInputLabel, } from '../../helpers';
 import { strings } from '../../constants/textData';
 
 export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanelState> {
@@ -24,32 +24,33 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
           name: {
             key: "name",
             type: String,
-            label: "Name:",
+            label: "Name",
+            info: "Person responsible for assessment",
             path: "project.overviewData.contactInfo.name",
           },
           email: {
             key: "email",
             type: String,
-            label: "E-mail:",
+            label: "E-mail",
             path: "project.overviewData.contactInfo.email",
           },
           phone: {
             key: "phone",
             type: String,
-            label: "Telephone number:",
+            label: "Telephone number",
             path: "project.overviewData.contactInfo.phone",
           },
           affiliation: {
             key: "affiliation",
             type: String,
-            label: "Affiliation/Organisation:",
+            label: "Affiliation/Organisation",
             path: "project.overviewData.contactInfo.affiliation",
           },
           //todo: make this a list instead of just a text area
           toolsUsed: {
             key: "toolsUsed",
             type: String,
-            label: "Tools used:",
+            label: "Tools used",
             path: "project.overviewData.toolsInfo",
           }
         }
@@ -64,28 +65,28 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
             key: "country",
             disabled: true,
             type: String,
-            label: "Country:",
+            label: "Country",
             path: "project.calcData.district.location.country.country",
           },
           place: {
             key: "place",
             disabled: true,
             type: String,
-            label: "City:",
+            label: "City",
             path: "project.calcData.district.location.place",
           },
           latitude: {
             key: "latitude",
             disabled: true,
             type: String,
-            label: "Latitude:",
+            label: "Latitude",
             path: "project.calcData.district.location.lat",
           },
           longitude: {
             key: "longitude",
             disabled: true,
             type: String,
-            label: "Longitude:",
+            label: "Longitude",
             path: "project.calcData.district.location.lon",
           }
         }
@@ -185,7 +186,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
                         inline
                         className="inline-input"
                         key={`overview-${paramId}-input`}
-                        label={param.label}
+                        label={renderInputLabel(param)}
                         labelFor={`overview-${paramId}-input`}>
                         {
                           renderInputField("overview", param, this.state, this.handleChange)

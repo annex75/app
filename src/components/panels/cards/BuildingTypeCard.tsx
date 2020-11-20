@@ -29,19 +29,22 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           buildingClass: {
             key: "buildingClass",
             unit: "none",
-            type: Number,
+            info: "Thermal mass of principal building components",
+            type: String,
             label: "Building class",
             rootPath: "buildingTypes",
           },
           energyPerformanceCertificate: {
             key: "energyPerformanceCertificate",
             unit: "none",
+            info: "E.g. LEED, BREEAM, etc.",
             type: String,
             label: "Energy performance certificates",
             rootPath: "buildingTypes",
           },
           ownership: {
             key: "ownership",
+            info: "E.g. private, public, etc.",
             unit: "none",
             type: String,
             label: "Ownership",
@@ -60,6 +63,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           grossFloorArea: {
             key: "grossFloorArea",
             unit: "meterSq",
+            info: "Gross heated floor area, including exterior walls, stairwells, and other heated spaces",
             type: Number,
             label: "Gross heated floor area",
             rootPath: "buildingTypes",
@@ -67,6 +71,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           heatedVolume: {
             key: "heatedVolume",
             unit: "meterCubed",
+            info: "Air volume of heated spaces",
             type: Number,
             label: "Heated volume",
             rootPath: "buildingTypes",
@@ -74,6 +79,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           facadeAreaN: {
             key: "facadeAreaN",
             unit: "meterSq",
+            info: "Façade area including windows",
             type: Number,
             label: "Façade area to the North",
             rootPath: "buildingTypes",
@@ -81,6 +87,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           facadeAreaE: {
             key: "facadeAreaE",
             unit: "meterSq",
+            info: "Façade area including windows",
             type: Number,
             label: "Façade area to the East",
             rootPath: "buildingTypes",
@@ -88,6 +95,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           facadeAreaS: {
             key: "facadeAreaS",
             unit: "meterSq",
+            info: "Façade area including windows",
             type: Number,
             label: "Façade area to the South",
             rootPath: "buildingTypes",
@@ -95,6 +103,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           facadeAreaW: {
             key: "facadeAreaW",
             unit: "meterSq",
+            info: "Façade area including windows",
             type: Number,
             label: "Façade area to the West",
             rootPath: "buildingTypes",
@@ -109,6 +118,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           windowAreaN: {
             key: "windowAreaN",
             unit: "meterSq",
+            info: "Window area including frames",
             type: Number,
             label: "Window area to the North",
             rootPath: "buildingTypes",
@@ -116,6 +126,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           windowAreaE: {
             key: "windowAreaE",
             unit: "meterSq",
+            info: "Window area including frames",
             type: Number,
             label: "Window area to the East",
             rootPath: "buildingTypes",
@@ -123,6 +134,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           windowAreaS: {
             key: "windowAreaS",
             unit: "meterSq",
+            info: "Window area including frames",
             type: Number,
             label: "Window area to the South",
             rootPath: "buildingTypes",
@@ -130,6 +142,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           windowAreaW: {
             key: "windowAreaW",
             unit: "meterSq",
+            info: "Window area including frames",
             type: Number,
             label: "Window area to the West",
             rootPath: "buildingTypes",
@@ -137,6 +150,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           foundationArea: {
             key: "foundationArea",
             unit: "meterSq",
+            info: "Equal to building footprint",
             type: Number,
             label: "Foundation area",
             rootPath: "buildingTypes",
@@ -158,6 +172,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           floorHeight: {
             key: "floorHeight",
             unit: "meter",
+            info: "Floor height including slab thickness",
             type: Number,
             label: "Average floor height",
             rootPath: "buildingTypes",

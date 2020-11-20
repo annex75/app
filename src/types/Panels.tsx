@@ -35,21 +35,21 @@ export type TInputType = StringConstructor | NumberConstructor | "file";
 export interface IInput {
   key: string;
   disabled?: boolean;
-  type: TInputType;
   label: string;
+  path?: string;
+  info?: string;
+}
+
+export interface IInputField extends IInput {
+  type: TInputType;
   unit?: keyof typeof Units;
   buttonLabel?: string;
-  path?: string;
   localPath?: string;
   rootPath?: string;
   handleChange?(e: ChangeEvent<HTMLInputElement>): void;
 }
 
-export interface IDropdown {
-  key: string;
-  disabled?: boolean;
-  label: string;
-  path?: string; // where to store selected value
+export interface IDropdown extends IInput {
   handleChange?(e: ChangeEvent<HTMLInputElement>): void;
   twoLine?: boolean;
 }
@@ -65,7 +65,7 @@ export interface IDropdownOptions extends IDropdown {
 }
 
 
-export interface IOverviewInfo extends IInput {
+export interface IOverviewInfo extends IInputField {
 
 }
 
@@ -122,7 +122,7 @@ export interface ICalcDataAdvancedOptionsCard {
   title: string;
   isOpen: boolean;
   eventHandlers: IDictEventHandler;
-  parameters: Record<string, IInput>;
+  parameters: Record<string, IInputField>;
 }
 
 export interface IAdvancedOptionsCardProps {
@@ -130,7 +130,7 @@ export interface IAdvancedOptionsCardProps {
   data: any;
   eventHandlers: IDictEventHandler;
   category: string;
-  parameters: Record<string,IInput>;
+  parameters: Record<string,IInputField>;
 }
 
 export interface IDistrictCardProps extends ICalcDataCardProps {
@@ -151,7 +151,7 @@ export interface IDistrictParamCategory {
   parameters: Record<string, IDistrictInfo>,
 }
 
-export interface IDistrictInfo extends IInput {
+export interface IDistrictInfo extends IInputField {
 
 }
 
@@ -190,7 +190,7 @@ export interface IBuildingTypeCardState extends ICalcDataCardState {
   deleteBuildingTypeWarningOpen: IDictBool;
 }
 
-export interface IBuildingInfo extends IInput {
+export interface IBuildingInfo extends IInputField {
 
 }
 
@@ -198,7 +198,7 @@ export interface IBuildingAdvancedOptionsCard extends ICalcDataAdvancedOptionsCa
   parameters: Record<string, IBuildingInfo>;
 }
 
-export interface IEnergySystemParameter extends IInput {
+export interface IEnergySystemParameter extends IInputField {
   mode: "input";
 }
 
@@ -284,7 +284,7 @@ export interface IBuildingMeasureCategoryCard {
   parameters: IBuildingMeasureParameters;
 }
 
-export interface IBuildingMeasureInfo extends IInput {
+export interface IBuildingMeasureInfo extends IInputField {
   type: StringConstructor | NumberConstructor;
   label: string;
   unit: keyof typeof Units;
@@ -316,11 +316,13 @@ export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
   refurbishmentCost: IBuildingMeasureInfo = {
     key: "refurbishmentCost",
     type: String,
+    info: "Cost of adding 1 cm of insulation per square meter",
     label: "Refurbishment cost",
     unit: "euroPerCentimeterMeterSq",
   };
   lambdaValue: IBuildingMeasureInfo = {
     key: "lambdaValue",
+    info: "Thermal conductivity of insulation material",
     type: Number,
     label: "λ-value",
     unit: "wattPerMeterKelvin",
@@ -337,18 +339,21 @@ export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
 export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
   refurbishmentCost: IBuildingMeasureInfo = {
     key: "refurbishmentCost",
+    info: "Cost per square metre of refurbished window",
     type: String,
     label: "Refurbishment cost",
     unit: "euroPerMeterSq",
   };
   uValue: IBuildingMeasureInfo = {
     key: "uValue",
+    info: "Heat transfer coefficient of window including frame",
     type: Number,
     label: "U-value",
     unit: "wattPerMeterSqKelvin",
   };
   gValue: IBuildingMeasureInfo = {
     key: "gValue",
+    info: "Total solar energy transmittance",
     type: Number,
     label: "g-value",
     unit: "nonDimensional",
@@ -366,6 +371,7 @@ export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
 export class HvacMeasureParameters extends BaseBuildingMeasureParameters {
   refurbishmentCost: IBuildingMeasureInfo = {
     key: "refurbishmentCost",
+    info: "Cost of new HVAC system, per building",
     type: String,
     label: "Refurbishment cost",
     unit: "euro",
@@ -378,6 +384,7 @@ export class HvacMeasureParameters extends BaseBuildingMeasureParameters {
   };
   ventilationType: IBuildingMeasureInfo = {
     key: "ventilationType",
+    info: "E.g. exhaust, supply, balanced, natural, etc.",
     type: String,
     label: "Ventilation system type",
     unit: "none",
@@ -463,7 +470,7 @@ export interface IScenarioParamCategory {
   parameters: Record<string, IScenarioInput | IScenarioDropdown>,
 }
 
-export interface IScenarioInput extends IInput {
+export interface IScenarioInput extends IInputField {
   type: StringConstructor | NumberConstructor;
   mode: "input";
   label: string;

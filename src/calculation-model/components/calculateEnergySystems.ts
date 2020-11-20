@@ -113,7 +113,7 @@ export const calculateSystemSize = (energySystem: EnergySystem, systemHeatingNee
           const heatingNeed = individualBuilding.heatingNeed
           systemSize.decentralized.push(extractInterpolatedValueFromCurves(substationHeatingNeedCurve, substationSystemSizeCurve, heatingNeed))
         }
-      })
+      });
     }
   }
   return systemSize;
@@ -179,7 +179,6 @@ export const calculateCentralizedEnergySystemCosts = (type: TCostCurveCategory, 
   return costs;
 }
 
-// todo: implement
 export const calculateIndividualEnergySystemCosts = (type: TCostCurveCategory, energySystem: EnergySystem, systemSizes: number[], ) => {
   const costCurves = energySystem.costCurves.substation[type];
   const systemSizeCurve = costCurves.systemSize;

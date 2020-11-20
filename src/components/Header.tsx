@@ -31,8 +31,8 @@ export class Header extends Component<IHeaderProps, IHeaderState> {
                   this.props.activeProject? (
                     <>
                       <h6 className="header-reminder-text">Project last saved: {(() => {
-                        const date = new Date(this.props.activeProject!.timeStamp);
-                        const dateString = date.toUTCString();
+                        const timeZoneOffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+                        const dateString = (new Date(Date.now() - timeZoneOffset)).toISOString().slice(2,-5);
                         return dateString;
                       })()}</h6>
                       <span className="bp3-navbar-divider"></span>
@@ -65,6 +65,6 @@ export class Header extends Component<IHeaderProps, IHeaderState> {
 
 class UserInfo extends Component<IUserInfoProps, IUserInfoState> {
   render() {
-    return <div className="user-info-content">Current user: {this.props.userData!.email}</div>
+    return <div className="popover-content">Current user: {this.props.userData!.email}</div>
   }
 }

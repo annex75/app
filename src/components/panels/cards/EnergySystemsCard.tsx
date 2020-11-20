@@ -68,13 +68,14 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
       mode: "input",
       label: "Life time"
     },
+    /*
     efficiency: {
       key: "efficiency",
       unit: "nonDimensional",
       type: Number,
       mode: "input",
       label: "Efficiency"
-    },
+    },*/
     energyCarrier: {
       key: "energyCarrier",
       mode: "dropdownOptionPath",
@@ -109,6 +110,7 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
     primaryEnergyFactorTotal: {
       key: "primaryEnergyFactorTotal",
       unit: "kiloWattHourPerKiloWattHour",
+      info: "Includes renewable and renewable sources",
       type: Number,
       mode: "input",
       label: "Primary energy factor",
@@ -281,7 +283,7 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
                             name: "",
                           };
                           const eventHandler = this.props.handleDropdownChange;
-                          return renderDropdown(`energy-system-${paramName}-${id}`, alts, selected, param, eventHandler)
+                          return renderDropdown(`energy-system-${paramName}-${id}`, alts, selected, eventHandler)
                         } case "dropdownOptions": {
                           const alts = param.options.map( option => {
                             const newOption = Object.assign({ ...option }, { path: param.path });
@@ -297,7 +299,7 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
                             name: "",
                           };
                           const eventHandler = this.props.handleDropdownChange;
-                          return renderDropdown(`energy-system-${paramName}-${id}`, alts, selected, param, eventHandler, { twoLine: param.twoLine })
+                          return renderDropdown(`energy-system-${paramName}-${id}`, alts, selected, eventHandler, { twoLine: param.twoLine })
                         } default: {
                           throw new Error(`Param mode is not defined`);
                         }

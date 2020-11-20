@@ -39,12 +39,14 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "heatingNeed",
               type: Number,
               mode: "input",
+              info: "Heating need per building",
               unit: "kiloWattHourPerYear",
               label: "Heating need",
               rootPath: "scenarioData.scenarios",
             },
             occupancy: {
               key: "occupancy",
+              info: "Building use, e.g. housing, office, public, etc.",
               type: String,
               mode: "input",
               rootPath: "scenarioData.scenarios",
@@ -152,10 +154,11 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "facadeRetrofittedArea",
               type: Number,
               unit: "meterSq",
+              info: "Area per building",
               rootPath: "scenarioData.scenarios",
               subPath: "facade.area",
               mode: "input",
-              label: "Retrofitted façade area (per building)",
+              label: "Retrofitted façade area",
             },
             roof: {
               key: "roof",
@@ -180,8 +183,9 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               unit: "meterSq",
               rootPath: "scenarioData.scenarios",
               subPath: "roof.area",
+              info: "Area per building",
               mode: "input",
-              label: "Retrofitted roof area (per building)",
+              label: "Retrofitted roof area",
             },
             foundation: {
               key: "foundation",
@@ -204,10 +208,11 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "foundationRetrofittedWallArea",
               type: Number,
               unit: "meterSq",
+              info: "Area per building",
               rootPath: "scenarioData.scenarios",
               subPath: "foundation.wallArea",
               mode: "input",
-              label: "Retrofitted cellar wall area (per building)",
+              label: "Retrofitted cellar wall area",
             },
             foundationFloorInsulationThickness: {
               key: "foundationFloorInsulationThickness",
@@ -224,8 +229,9 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               unit: "meterSq",
               rootPath: "scenarioData.scenarios",
               subPath: "foundation.floorArea",
+              info: "Area per building",
               mode: "input",
-              label: "Retrofitted cellar floor area (per building)",
+              label: "Retrofitted cellar floor area",
             },
             windows: {
               key: "windows",
@@ -241,6 +247,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               unit: "meterSq",
               rootPath: "scenarioData.scenarios",
               subPath: "windows.area",
+              info: "Area per building",
               mode: "input",
               label: "Retrofitted window area",
             },
@@ -579,7 +586,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
                                                 name: "",
                                               };
 
-                                              return renderDropdown(`scenario-${buildingTypeId}-${paramName}-${id}`, alts, selected, param, this.handleDropdownChange)
+                                              return renderDropdown(`scenario-${buildingTypeId}-${paramName}-${id}`, alts, selected, this.handleDropdownChange)
                                             } default: {
                                               throw new Error(`Param mode is not defined`);
                                             }

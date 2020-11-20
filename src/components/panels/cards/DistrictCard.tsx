@@ -8,7 +8,7 @@ import { default as Mapbox } from '@bimenergy/map';
 
 // internal
 import { IDistrictCardProps, IDistrictCardState, IDistrictParamCategory, IMapBoxState, IMapClickEvent, ICoord } from "../../../types";
-import { renderInputField, } from '../../../helpers';
+import { renderInputField, renderInputLabel, } from '../../../helpers';
 
 export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardState> {
   constructor(props: IDistrictCardProps) {
@@ -18,17 +18,19 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
         label: "General information",
         parameters: {
           country: {
+            info: "Country where district is located",
             key: "country",
             type: String,
-            label: "Country:",
+            label: "Country",
             localPath: "location.country.country",
             rootPath: "district",
             handleChange: this.props.handleChange,
           },
           place: {
+            info: "City, town or municipality where district is located",
             key: "place",
             type: String,
-            label: "City:",
+            label: "Location",
             localPath: "location.place",
             rootPath: "district",
             handleChange: this.props.handleChange,
@@ -37,7 +39,7 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
             disabled: true,
             key: "latitude",
             type: String,
-            label: "Latitude:",
+            label: "Latitude",
             localPath: "location.lat",
             rootPath: "district",
             handleChange: this.props.handleChange,
@@ -46,15 +48,16 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
             disabled: true,
             key: "longitude",
             type: String,
-            label: "Longitude:",
+            label: "Longitude",
             localPath: "location.lon",
             rootPath: "district",
             handleChange: this.props.handleChange,
           },
           climateZone: {
+            info: "According to Köppen climate classification",
             key: "climateZone",
             type: String,
-            label: "Climate zone:",
+            label: "Climate zone",
             localPath: "climate.zone",
             rootPath: "district",
             handleChange: this.props.handleChange,
@@ -62,7 +65,7 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
           climateFile: {
             key: "climateFile",
             type: "file",
-            label: "Climate file:",
+            label: "Climate file",
             buttonLabel: "Upload .epw file",
             disabled: true,
             path: "district.climate.filename",
@@ -76,15 +79,19 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
           pipingLength: {
             key: "pipingLength",
             type: String,
-            label: "Required piping length:",
+            unit: "meter",
+            label: "Required piping length",
             localPath: "geometry.pipingLength",
+            info: "Pipes required between substations and buildings",
             rootPath: "district",
             handleChange: this.props.handleChange,
           },
           distanceToDistrictHeatingNetwork: {
             key: "distanceToDistrictHeatingNetwork",
             type: String,
-            label: "Distance to distr. heating network:",
+            unit: "meter",
+            label: "Distance to DHN",
+            info: "Pipes required between district heating network connection and substations",
             localPath: "geometry.distanceToDistrictHeatingNetwork",
             rootPath: "district",
             handleChange: this.props.handleChange,
@@ -97,7 +104,9 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
           availableSolarPanelArea: {
             key: "availableSolarPanelArea",
             type: String,
-            label: "Available area for solar panels:",
+            unit: "meterSq",
+            info: "Area available for photovoltaic panels on ground and buildings",
+            label: "Available area for solar panels",
             localPath: "geometry.solarPanelArea",
             rootPath: "district",
             handleChange: this.props.handleChange,
@@ -105,7 +114,7 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
           availableHeatSources: {
             key: "availableHeatSources",
             type: String,
-            label: "Available heat sources/sinks:",
+            label: "Available heat sources/sinks",
             localPath: "energy.heatSources",
             rootPath: "district",
             handleChange: this.props.handleChange,
@@ -113,7 +122,9 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
           availableGSHP: {
             key: "availableGSHPArea",
             type: Number,
-            label: "Area for ground source heat pumps",
+            unit: "meterSq",
+            info: "Area available for ground source heat pumps",
+            label: "Available area for GSHP",
             localPath: "energy.gshpArea",
             rootPath: "district",
             handleChange: this.props.handleChange,
@@ -203,7 +214,7 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
                             inline
                             className="inline-input"
                             key={`overview-${param.key}-input`}
-                            label={param.label}
+                            label={renderInputLabel(param)}
                             labelFor={`overview-${param.key}-input`}>
                             {
                               this.renderInputField(param, district)

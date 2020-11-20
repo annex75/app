@@ -9,7 +9,6 @@ import { Table, Column, EditableCell, ColumnHeaderCell } from '@blueprintjs/tabl
 import { ICostCurveCategory, ICostCurveEditorProps, ICostCurveEditorState, ICostCurve, getEnergySystemCategory, getEnergySystemType, ICostCurveScale, Units } from '../../../types';
 import { renderScatterChart, getNewColor, IChartSetup } from '../../../helpers';
 
-// todo: replace this local thing with renderDropdown() from helpers.tsx
 const CostCurveSelect = Select.ofType<ICostCurveCategory>();
 const renderCostCurveType: ItemRenderer<ICostCurveCategory> = (type, { handleClick, modifiers }) => {
   return ( 
@@ -23,7 +22,6 @@ const renderCostCurveType: ItemRenderer<ICostCurveCategory> = (type, { handleCli
   )
 }
 
-// todo: replace this local thing with renderDropdown() from helpers.tsx
 // also in SystemSizeCurveEditor.tsx
 export const CostCurveScaleSelect = Select.ofType<ICostCurveScale>();
 export const renderCostCurveScale: ItemRenderer<ICostCurveScale> = (type, { handleClick, modifiers }) => {
@@ -142,7 +140,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
       xUnit: " kW",
       xLabel: "System size",
       xKey: 'x',
-      yUnit: ` ${costCurveCategory.unit}`,
+      yUnit: ` ${Units[costCurveCategory.unit]}`,
       yLabel: costCurveCategory.label,
       yKey: 'y',
       mode: "2d",
@@ -175,7 +173,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
             className="inline-input"
             key={`cost-curve-category-form`}
             label="Select cost curve scale:"
-            labelFor="cost-curve-category-button">
+            labelFor="cost-curve-scale-select">
             <CostCurveScaleSelect
               items={this.costCurveScales.map( t => {
                 return t;
