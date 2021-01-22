@@ -4,8 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 // internal
 import { EnergySystem, TCostCurveType } from './classes/EnergySystem';
 import { IEnergySystemScenarioInfo, IBuildingMeasureScenarioInfo } from '../calculation-model/calculate';
-export * from './classes/Project';
-export * from './classes/EnergySystem';
 
 // this module defines data containers
 
@@ -123,7 +121,7 @@ export class CalcData {
   buildingTypes: IDictBuildingType;
   energySystems: IDictEnergySystem;
   energyCarriers: IDictEnergyCarrier;
-  buildingMeasures: Record<string,IDictBuildingMeasure>;
+  buildingMeasures: Record<TBuildingMeasureCategory,IDictBuildingMeasure>;
 }
 
 export class District {
@@ -284,8 +282,6 @@ const buildingMeasureScenarioCatToBuildingMeasureCat = (cat: TBuildingMeasureSce
 
 export type TBuildingMeasureScenarioData = "facadeInsulationThickness" | "facadeRetrofittedArea" | "roofInsulationThickness" | "roofRetrofittedArea" | "foundationWallInsulationThickness" | "foundationWallRetrofittedArea" | "foundationFloorInsulationThickness" | "foundationFloorRetrofittedArea" | "windowsRetrofittedArea";
 
-
-
 export interface IBuildingMeasure {
   id: string;
   category: TBuildingMeasureCategory;
@@ -293,7 +289,7 @@ export interface IBuildingMeasure {
   refurbishmentCost: number;
   lifeTime: number;
   embodiedEnergy: number;
-  deleted: boolean;
+  deleted?: boolean;
   [key: string]: IBuildingMeasure[keyof IBuildingMeasure];
 }
 

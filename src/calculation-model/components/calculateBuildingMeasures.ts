@@ -74,7 +74,7 @@ export const calculateBuildingMeasures = (project: IProject) => {
         if (!Object.keys(buildingMeasuresInUse[scenarioId][scenarioCat]).includes(buildingMeasure.id)) {
           buildingMeasuresInUse[scenarioId][scenarioCat][buildingMeasureId] = {
             refurbishmentCost: cost,
-            embodiedEnergy: 0,
+            embodiedEnergy: embodiedEnergy,
           };
         } else {
           buildingMeasuresInUse[scenarioId][scenarioCat][buildingMeasureId].refurbishmentCost += cost;
@@ -84,20 +84,6 @@ export const calculateBuildingMeasures = (project: IProject) => {
     });
   });
   return buildingMeasuresInUse;
-}
-
-export const calculateBuildingMeasureRefurbishingCost = (buildingMeasure: IBuildingMeasure) => {
-  switch(buildingMeasure.category) {
-    case "insulation": {
-      return 0;
-    } case "windows":  {
-      return 0;
-    } case "hvac" : {
-      return 0;
-    } default: {
-      throw new Error(`${buildingMeasure.category} has not been defined`);
-    }
-  }
 }
 
 export const calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost = (

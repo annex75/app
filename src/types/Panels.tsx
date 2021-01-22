@@ -1,7 +1,7 @@
-import { IProject, District, IDictBuildingType, IDictEnergySystem, TCostCurveScale, ICostCurveCategory, ICostCurveScale, ICostCurve, ISystemSizeCurve, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory, IValidatorResult, IDictBool, Units } from "./Data";
+import { IProject, District, IDictBuildingType, IDictEnergySystem, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory, IValidatorResult, IDictBool, Units } from "./Data";
 import { ChangeEvent, ComponentType, ReactNode } from "react";
 import { IDropdownAlt } from "../helpers";
-import { TCostCurveCategory } from "./classes/EnergySystem";
+import { TCostCurveCategory, TCostCurveScale, ICostCurveCategory, ICostCurveScale, ICostCurve, ISystemSizeCurve,  } from "./classes/EnergySystem";
 
 /* Panels */
 

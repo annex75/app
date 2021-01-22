@@ -4,13 +4,13 @@ import { Workspace } from '../Workspace';
 import { IWorkspaceData } from '../../types';
 import { generateDefaultProject } from './testUtils';
 
+import firebase from 'firebase';
+
 describe('<Workspace />', () => {
     const defProj = generateDefaultProject();
 
-    it.skip('renders without crashing', () => {
-        const update = () => { };
-        
-        const editor = shallow(<Workspace item={defProj} updateProject={update} />);
+    it('renders without crashing', () => {        
+        const editor = shallow(<Workspace item={defProj} updateProject={jest.fn()} exitProject={jest.fn()} currentUser={{} as firebase.UserInfo}/>);
         expect(editor.find('#WorkspaceTabs').length).toEqual(1);
     });
     
