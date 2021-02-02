@@ -1,4 +1,4 @@
-import { IProject, IBuildingMeasure, TBuildingMeasureScenarioCategory, buildingMeasureScenarioCategories, IScenarioEnvelopeMeasureData, IScenarioFoundationMeasureData, IScenarioWindowsMeasureData, convertTypes } from "../../types";
+import { IProject, IBuildingMeasure, TBuildingMeasureScenarioCategory, buildingMeasureScenarioCategories, IScenarioEnvelopeMeasureData, IScenarioFoundationMeasureData, IScenarioWindowsMeasureData, convertTypes, TBuildingMeasureCategory } from "../../types";
 
 export interface IBuildingMeasureScenarioInfo {
   refurbishmentCost: number;
@@ -34,7 +34,7 @@ export const calculateBuildingMeasures = (project: IProject) => {
           return;
         }
         
-        let cat = convertTypes("TBuildingMeasureScenarioCategory", "TBuildingMeasureCategory", scenarioCat);
+        let cat = convertTypes("TBuildingMeasureScenarioCategory", "TBuildingMeasureCategory", scenarioCat) as TBuildingMeasureCategory;
 
         const buildingMeasure = project.calcData.buildingMeasures[cat][buildingMeasureId];
   

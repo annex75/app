@@ -17,12 +17,12 @@ windowMeasureA.lifeTime = 25;
 windowMeasureA.embodiedEnergy = 10;
 
 const hvacMeasureA = new HvacMeasure("hvac", "hvacA");
-hvacMeasureA.refurbishmentCost = 100;
+hvacMeasureA.refurbishmentCost = 200;
 hvacMeasureA.lifeTime = 25;
-hvacMeasureA.embodiedEnergy = 200;
+hvacMeasureA.embodiedEnergy = 100;
 
 const scenarioInfo = new ScenarioInfo();
-scenarioInfo.buildingType.numberOfBuildings = 1;
+scenarioInfo.buildingType.numberOfBuildings = 3;
 
 scenarioInfo.buildingMeasures["facade"] = {
   id: insulationMeasureA.id,
@@ -74,16 +74,16 @@ describe('calculateBuildingMeasures', () => {
     const result = calculateBuildingMeasures(project);
 
     // THEN
-    expect(result[scenarioId].facade[insulationMeasureA.id].refurbishmentCost).toBeCloseTo(230);
-    expect(result[scenarioId].facade[insulationMeasureA.id].embodiedEnergy).toBeCloseTo(115);
-    expect(result[scenarioId].roof[insulationMeasureA.id].refurbishmentCost).toBeCloseTo(140);
-    expect(result[scenarioId].roof[insulationMeasureA.id].embodiedEnergy).toBeCloseTo(70);
-    expect(result[scenarioId].foundation[insulationMeasureA.id].refurbishmentCost).toBeCloseTo(240);
-    expect(result[scenarioId].foundation[insulationMeasureA.id].embodiedEnergy).toBeCloseTo(120);
-    expect(result[scenarioId].windows[windowMeasureA.id].refurbishmentCost).toBeCloseTo(2000);
-    expect(result[scenarioId].windows[windowMeasureA.id].embodiedEnergy).toBeCloseTo(1000);
-    expect(result[scenarioId].hvac[hvacMeasureA.id].refurbishmentCost).toBeCloseTo(100);
-    expect(result[scenarioId].hvac[hvacMeasureA.id].embodiedEnergy).toBeCloseTo(200);
+    expect(result[scenarioId].facade[insulationMeasureA.id].refurbishmentCost).toBeCloseTo(690);
+    expect(result[scenarioId].facade[insulationMeasureA.id].embodiedEnergy).toBeCloseTo(345);
+    expect(result[scenarioId].roof[insulationMeasureA.id].refurbishmentCost).toBeCloseTo(420);
+    expect(result[scenarioId].roof[insulationMeasureA.id].embodiedEnergy).toBeCloseTo(210);
+    expect(result[scenarioId].foundation[insulationMeasureA.id].refurbishmentCost).toBeCloseTo(720);
+    expect(result[scenarioId].foundation[insulationMeasureA.id].embodiedEnergy).toBeCloseTo(360);
+    expect(result[scenarioId].windows[windowMeasureA.id].refurbishmentCost).toBeCloseTo(6000);
+    expect(result[scenarioId].windows[windowMeasureA.id].embodiedEnergy).toBeCloseTo(3000);
+    expect(result[scenarioId].hvac[hvacMeasureA.id].refurbishmentCost).toBeCloseTo(600);
+    expect(result[scenarioId].hvac[hvacMeasureA.id].embodiedEnergy).toBeCloseTo(300);
   });
 });
 

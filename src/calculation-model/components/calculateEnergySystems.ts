@@ -94,7 +94,7 @@ export const calculateEnergySystems = (project: IProject) => {
   return energySystemsInUse;
 }
 
-export const calculateSystemSize = (energySystem: EnergySystem, systemHeatingNeed: number, individualBuildingHeatNeed: IIndividualBuildingHeatNeed[]) => {
+const calculateSystemSize = (energySystem: EnergySystem, systemHeatingNeed: number, individualBuildingHeatNeed: IIndividualBuildingHeatNeed[]) => {
   const { systemSizeCurves } = energySystem;
   const centralizedHeatingNeedCurve = systemSizeCurves.centralized.heatingNeed.value;
   const centralizedSystemSizeCurve = systemSizeCurves.centralized.systemSize.value;
@@ -119,15 +119,15 @@ export const calculateSystemSize = (energySystem: EnergySystem, systemHeatingNee
   return systemSize;
 }
 
-export const calculateEnergySystemTotalInvestmentCost = (energySystem: EnergySystem, systemSize: ISystemSize, ) => {
+const calculateEnergySystemTotalInvestmentCost = (energySystem: EnergySystem, systemSize: ISystemSize, ) => {
   return calculateEnergySystemTotalCategoryCost("investmentCost", energySystem, systemSize);
 }
 
-export const calculateEnergySystemTotalMaintenanceCost = (energySystem: EnergySystem, systemSize: ISystemSize, ) => {
+const calculateEnergySystemTotalMaintenanceCost = (energySystem: EnergySystem, systemSize: ISystemSize, ) => {
   return calculateEnergySystemTotalCategoryCost("maintenanceCost", energySystem, systemSize);
 }
 
-export const calculateEnergySystemTotalEmbodiedEnergy = (energySystem: EnergySystem, systemSize: ISystemSize, ) => {
+const calculateEnergySystemTotalEmbodiedEnergy = (energySystem: EnergySystem, systemSize: ISystemSize, ) => {
   return calculateEnergySystemTotalCategoryCost("embodiedEnergy", energySystem, systemSize);
 }
 
@@ -161,7 +161,7 @@ const calculateEnergySystemTotalCategoryCost = (category: TCostCurveCategory, en
   return costs;
 }
 
-export const calculateCentralizedEnergySystemCosts = (type: TCostCurveCategory, energySystem: EnergySystem, systemSize: number, ) => {
+const calculateCentralizedEnergySystemCosts = (type: TCostCurveCategory, energySystem: EnergySystem, systemSize: number, ) => {
   const costCurves = energySystem.costCurves.centralized[type];
   const systemSizeCurve = costCurves.systemSize;
   let costs: Record<TCostCurveType, number> = {
@@ -179,7 +179,7 @@ export const calculateCentralizedEnergySystemCosts = (type: TCostCurveCategory, 
   return costs;
 }
 
-export const calculateIndividualEnergySystemCosts = (type: TCostCurveCategory, energySystem: EnergySystem, systemSizes: number[], ) => {
+const calculateIndividualEnergySystemCosts = (type: TCostCurveCategory, energySystem: EnergySystem, systemSizes: number[], ) => {
   const costCurves = energySystem.costCurves.substation[type];
   const systemSizeCurve = costCurves.systemSize;
   let costs: Record<TCostCurveType, number> = {
@@ -227,17 +227,7 @@ export const calculateSpecificValueFromEnergySystemScenarioInfo = (
   return out/(totalBuildingArea);
 }
 
-export const calculateEnergySystemSpecificEmbodiedEnergy = (
-  energySystemScenarioInfo: IEnergySystemScenarioInfo,
-  totalBuildingArea: number,
-) => {
-  const embodiedEnergy = Object.entries(energySystemScenarioInfo.embodiedEnergy).reduce((memo, [, val]) => {
-    return memo + val;
-  }, 0);
-  return embodiedEnergy/(totalBuildingArea);
-}
-
-export const calculateEnergySystemPrimaryEnergyUse = (
+const calculateEnergySystemPrimaryEnergyUse = (
   energySystem: EnergySystem,
   energyCarrier: EnergyCarrier,
   heatingNeed: number,
@@ -248,7 +238,7 @@ export const calculateEnergySystemPrimaryEnergyUse = (
   return primaryEnergyFactor*heatingNeed/energySystem.efficiency;
 }
 
-export const calculateEnergySystemEmissions = (
+const calculateEnergySystemEmissions = (
   energySystem: EnergySystem,
   energyCarrier: EnergyCarrier,
   heatingNeed: number,
@@ -256,16 +246,26 @@ export const calculateEnergySystemEmissions = (
   return energyCarrier.emissionFactor*heatingNeed/energySystem.efficiency;
 }
 
-export const calculateEnergySystemLifetimeEnergyCost = (
+const calculateEnergySystemLifetimeEnergyCost = (
   energySystem: EnergySystem,
   energyCarrier: EnergyCarrier,
   primaryEnergyUse: number,
   priceIncrease: number,
+  mode: string = "projected",
 ) => {
   let lifetimeEnergyCost = 0;
   for (let i = 0; i < energySystem.lifeTime; i++) {
-    //const energyCost = primaryEnergyUse*energyCarrier.currentPrice*Math.pow(+priceIncrease,i);
-    const energyCost = primaryEnergyUse*energyCarrier.projectedPrice;
+    let energyCost;
+    switch(mode) {
+      case "projected":
+        energyCost = primaryEnergyUse*energyCarrier.projectedPrice;
+        break;
+      case "annualIncrease":
+        energyCost = primaryEnergyUse*energyCarrier.currentPrice*Math.pow(+priceIncrease,i);
+        break;
+      default:
+        throw new Error(`Energy cost mode ${mode} is not defined`);
+    }
     lifetimeEnergyCost += energyCost;
   }
   return lifetimeEnergyCost;

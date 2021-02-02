@@ -13,6 +13,8 @@ export type TCostCurveType = typeof costCurveTypes[number];
 export const costCurveScales = [ "centralized", "substation" ] as const;
 export type TCostCurveScale = typeof costCurveScales[number];
 
+export type TSystemCategory = "centralized" | "decentralized" | "none";
+
 export class EnergySystem {
   constructor(id: string = uuidv4()) {
     this.id = id;
@@ -37,7 +39,7 @@ export class EnergySystem {
   deleted: boolean = false;
   name: string = "";
   systemType: string = "";
-  systemCategory: string = "none";
+  systemCategory: TSystemCategory = "none";
   lifeTime: number = 0;
   energyCarrier: string = "";
   efficiency: number = 1;

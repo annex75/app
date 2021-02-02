@@ -108,12 +108,12 @@ export const updateFromWorkbook = (project: Project, workbook: WorkBook) => {
   // add base case renovation measures
   // remove placeholder building measures
   for (const category in project.calcData.buildingMeasures) {
-    for (const key in project.calcData.buildingMeasures[category]) {
-      delete project.calcData.buildingMeasures[category][key];
+    for (const key in project.calcData.buildingMeasures[category as TBuildingMeasureCategory]) {
+      delete project.calcData.buildingMeasures[category as TBuildingMeasureCategory][key];
       for (let i = 0; i < numBuildingTypes; i++) {
         const measureId = `${bIds[i]}-ref`;
-        project.calcData.buildingMeasures[category][measureId] = createBuildingMeasure(category as TBuildingMeasureCategory, measureId);
-        project.calcData.buildingMeasures[category][measureId].measureName = `${bNames[i]} (reference case)`;
+        project.calcData.buildingMeasures[category as TBuildingMeasureCategory][measureId] = createBuildingMeasure(category as TBuildingMeasureCategory, measureId);
+        project.calcData.buildingMeasures[category as TBuildingMeasureCategory][measureId].measureName = `${bNames[i]} (reference case)`;
       }
     }
   }
@@ -127,7 +127,7 @@ export const updateFromWorkbook = (project: Project, workbook: WorkBook) => {
         const valCell = `${intToChar(firstValueColIndex+i)}${entry.row}`
         if (sheet[valCell]) {
           const mId = `${bIds[i]}-ref`;
-          _.set(project.calcData.buildingMeasures[entry.category][mId], entry.localPath, sheet[valCell].v);
+          _.set(project.calcData.buildingMeasures[entry.category as TBuildingMeasureCategory][mId], entry.localPath, sheet[valCell].v);
         }
       }
     }
@@ -139,9 +139,9 @@ export const updateFromWorkbook = (project: Project, workbook: WorkBook) => {
     const keyCell = `${refCaseKeyCol}${entry.row}`;
     const valCell = `${intToChar(refCaseFirstValueColIndex)}${entry.row}`;
     if (sheet[keyCell] && sheet[keyCell].v === entry.key) {
-      for (const mId in project.calcData.buildingMeasures[entry.category]) {
+      for (const mId in project.calcData.buildingMeasures[entry.category as TBuildingMeasureCategory]) {
         if (sheet[valCell]) {
-          _.set(project.calcData.buildingMeasures[entry.category][mId], entry.localPath, sheet[valCell].v);
+          _.set(project.calcData.buildingMeasures[entry.category as TBuildingMeasureCategory][mId], entry.localPath, sheet[valCell].v);
         }
       }
     }

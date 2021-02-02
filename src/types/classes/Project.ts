@@ -5,7 +5,7 @@ import xlsx from 'xlsx';
 // internal
 import { APP_VERSION } from '../../constants';
 import { updateFromWorkbook } from '../../WorkbookImport';
-import { IProject, OverviewData, CalcData, ScenarioData, ScenarioInfo, Scenario, toXlsx, BuildingInformation, BuildingGeometry, ResultSummary, buildingMeasureScenarioCategories, TBuildingMeasureScenarioCategory, convertTypes } from '../Data';
+import { IProject, OverviewData, CalcData, ScenarioData, ScenarioInfo, Scenario, toXlsx, BuildingInformation, BuildingGeometry, ResultSummary, buildingMeasureScenarioCategories, TBuildingMeasureScenarioCategory, convertTypes, TBuildingMeasureCategory } from '../Data';
 import { TCostCurveType, costCurveTypes, costCurveCategories } from './EnergySystem';
 import { calculateEnergySystems, calculateEnergySystemAnnualizedSpecificInvestmentCost, calculateEnergySystemSpecificMaintenanceCost, calculateBuildingMeasures, calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost, calculateBuildingMeasureSpecificEmbodiedEnergy, calculateSpecificValueFromEnergySystemScenarioInfo, IBuildingMeasureScenarioInfo } from '../../calculation-model/calculate';
 
@@ -136,7 +136,7 @@ export class Project implements IProject {
       // renovation measures
       
       buildingMeasureScenarioCategories.forEach(scenarioCat => {
-        let category = convertTypes("TBuildingMeasureScenarioCategory", "TBuildingMeasureCategory", scenarioCat);
+        let category = convertTypes("TBuildingMeasureScenarioCategory", "TBuildingMeasureCategory", scenarioCat) as TBuildingMeasureCategory;
         Object.keys(scenario.buildingMeasures[scenarioCat]).forEach(buildingMeasureId => {
           const buildingMeasure = this.calcData.buildingMeasures[category][buildingMeasureId];
           const buildingMeasureScenarioInfo = scenario.buildingMeasures[scenarioCat][buildingMeasureId];
