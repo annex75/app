@@ -8,7 +8,7 @@ describe('lerp', () => {
     [[1, 1], [0, 0], 0.25, 0.25],
     [[-1, 1], [0, 0], 0.25, -0.25],
     [[0, 1], [0, 1], 0.25, NaN],
-  ])('correctly interpolates %s', (p1, p2, x, expectedY) => {
+  ])('correctly interpolates', (p1, p2, x, expectedY) => {
     const y = lerp(p1 as [number, number], p2 as [number, number], x);
     expect(y).toEqual(expectedY);
   });
