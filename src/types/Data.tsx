@@ -179,6 +179,7 @@ export class BuildingType {
   name: string = "";
   buildingInformation = new BuildingInformation();
   buildingGeometry = new BuildingGeometry();
+  buildingThermalProperties = new BuildingThermalProperties();
   //buildingOccupancy = new BuildingOccupancy(); // modify in scenarios?
   //scenarioInfos: Record<string,ScenarioInfo> = {};
   deleted: boolean = false;
@@ -187,7 +188,6 @@ export class BuildingType {
 
 export class BuildingInformation {
   constructionYear: number = 1970;
-  buildingClass: string = "";
   energyPerformanceCertificate: string = "";
   ownership: string = "";
   [key: string]: BuildingInformation[keyof BuildingInformation];
@@ -211,6 +211,16 @@ export class BuildingGeometry {
   numberOfFloorsBelow: number = 0;
   floorHeight: number = 0;
   [key: string]: BuildingGeometry[keyof BuildingGeometry];
+}
+
+export class BuildingThermalProperties {
+  buildingClass: string = "";
+  facadeUValue: number = 0;
+  windowUValue: number = 0;
+  roofUValue: number = 0;
+  basementWallUValue: number = 0;
+  foundationUValue: number = 0;
+  [key: string]: BuildingThermalProperties[keyof BuildingThermalProperties];
 }
 
 /* modify in scenarios?

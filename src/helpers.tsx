@@ -41,8 +41,7 @@ export const renderInputLabel = (param: IInput) => {
 }
 
 export const renderInputField = (parent: string, param: IInputField, obj: any, handleChange?: (e: ChangeEvent<HTMLInputElement>) => void, validator?: (val: string) => IValidatorResult ) => {
-  const val = _fpGet(param.localPath || param.path!, obj) as string || '';
-
+  const val = _fpGet(param.localPath || param.path!, obj).toString() || '';
   const valid = !validator? { valid: true, invalidMsg: "" } : validator(val);
 
   const path = param.rootPath && param.localPath? `${param.rootPath}.${param.localPath}`: param.path;
