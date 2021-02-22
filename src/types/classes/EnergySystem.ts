@@ -4,7 +4,6 @@ import { Units } from '../Data';
 
 const defSystemSizes = [ 50, 100, 150, 200, 250 ];
 const defCostCurve = [ 50, 100, 150, 200, 250];
-const defEfficiencies = [ 1, 1, 1, 1, 1 ]
 
 export const costCurveCategories = [ "investmentCost", "maintenanceCost", "embodiedEnergy" ] as const;
 export type TCostCurveCategory = typeof costCurveCategories[number];
@@ -30,10 +29,6 @@ export class EnergySystem {
         embodiedEnergy: new CostCurveCentralized("kiloGramCO2EqPerYear"),
       },
     };
-    this.systemSizeCurves = {
-      substation: new SystemSizeCurveDict(),
-      centralized: new SystemSizeCurveDict(),
-    }
   }
   id: string;
   deleted: boolean = false;
@@ -44,7 +39,6 @@ export class EnergySystem {
   energyCarrier: string = "";
   efficiency: number = 1;
   costCurves: Record<TCostCurveScale,Record<TCostCurveCategory,CostCurveCentralized | CostCurveIndividual>>;
-  systemSizeCurves: Record<TCostCurveScale,SystemSizeCurveDict>;
   [key: string]: EnergySystem[keyof EnergySystem];
 }
 
@@ -100,39 +94,12 @@ export class CostCurveIndividual {
   [key: string]: CostCurveIndividual[keyof CostCurveIndividual];
 }
 
-export class SystemSizeCurveDict {
-  heatingNeed: ISystemSizeCurve = {
-    label: "Heating need",
-    value: defCostCurve,
-    index: 0,
-    unit: "kiloWattHour",
-  };
-  systemSize: ISystemSizeCurve = {
-    label: "System size",
-    value: defSystemSizes,
-    index: 1,
-    unit: "kiloWatt",
-  };
-  efficiency: ISystemSizeCurve = {
-    label: "System efficiency",
-    value: defEfficiencies,
-    index: 2,
-    unit: "nonDimensional",
-  };
-
-  // todo: this is a bit type unsafe, 
-  // cf. https://stackoverflow.com/questions/54438012/an-index-signature-parameter-type-cannot-be-a-union-type-consider-using-a-mappe
-  [key: string]: SystemSizeCurveDict[keyof SystemSizeCurveDict];
-}
-
 export interface ICostCurve {
   label: string;
   unit: keyof typeof Units;
   value: number[];
   index: number;
 }
-
-export interface ISystemSizeCurve extends ICostCurve {}
 
 export class EnergySystemType {
   name: string = "";

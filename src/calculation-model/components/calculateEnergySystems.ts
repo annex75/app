@@ -95,6 +95,8 @@ export const calculateEnergySystems = (project: IProject) => {
 }
 
 const calculateSystemSize = (energySystem: EnergySystem, systemHeatingNeed: number, individualBuildingHeatNeed: IIndividualBuildingHeatNeed[]) => {
+  return { centralized: 0, decentralized: [] };
+  /* todo: implement
   const { systemSizeCurves } = energySystem;
   const centralizedHeatingNeedCurve = systemSizeCurves.centralized.heatingNeed.value;
   const centralizedSystemSizeCurve = systemSizeCurves.centralized.systemSize.value;
@@ -117,6 +119,7 @@ const calculateSystemSize = (energySystem: EnergySystem, systemHeatingNeed: numb
     }
   }
   return systemSize;
+  */
 }
 
 const calculateEnergySystemTotalInvestmentCost = (energySystem: EnergySystem, systemSize: ISystemSize, ) => {

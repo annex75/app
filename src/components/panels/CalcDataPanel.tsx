@@ -9,14 +9,13 @@ import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 // internal
 //import { CalcData } from '@annex-75/calculation-model/';
 import * as config from '../../config.json';
-import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, HvacMeasure, EnvelopeMeasure, WindowMeasure, EnergyCarrier, ISystemSizeCurve, TCostCurveCategory, TCostCurveScale } from '../../types';
+import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, HvacMeasure, EnvelopeMeasure, WindowMeasure, EnergyCarrier, TCostCurveCategory, TCostCurveScale } from '../../types';
 import { DistrictCard } from './cards/DistrictCard';
 import { BuildingTypeCard } from './cards/BuildingTypeCard';
 import { AppToaster } from '../../toaster';
 import { EnergySystemsCard } from './cards/EnergySystemsCard';
 import { CostCurveEditor } from './dialogs/CostCurveEditor';
 import { BuildingMeasuresCard } from './cards/BuildingMeasuresCard';
-import { SystemSizeCurveEditor } from './dialogs/SystemSizeCurveEditor';
 import { IDropdownAlt } from '../../helpers';
 
 export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanelState> {
@@ -59,7 +58,6 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
           addEnergySystem: this.addEnergySystem,
           addEnergyCarrier: this.addEnergyCarrier,
           editCostCurve: this.editCostCurve,
-          editSystemSizeCurve: this.editSystemSizeCurve,
           handleChange: this.handleChangeEvent,
           handleDropdownChange: this.handleDropdownChange,
           copyEnergySystem: this.copyEnergySystem,
@@ -85,7 +83,6 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
       project: props.project,
       cards: cards,
       costCurveEditorIsOpen: false,
-      systemSizeCurveEditorIsOpen: false,
       activeEnergySystemId: "",
     }
   }
@@ -139,12 +136,6 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
   handleCostCurveEdit = (costCurve: ICostCurve, costCurveId: string, activeEnergySystemId: string, costCurveScale: TCostCurveScale, costCurveType: TCostCurveCategory) => {
     let newState = { ...this.state };
     newState.project.calcData.energySystems[activeEnergySystemId].costCurves[costCurveScale][costCurveType][costCurveId] = costCurve;
-    this.setStateAndUpdate(newState);
-  }
-
-  handleSystemSizeCurveEdit = (systemSizeCurve: ISystemSizeCurve, curveId: string, costCurveScale: TCostCurveScale, activeEnergySystemId: string) => {
-    let newState = { ...this.state };
-    newState.project.calcData.energySystems[activeEnergySystemId].systemSizeCurves[costCurveScale][curveId] = systemSizeCurve;
     this.setStateAndUpdate(newState);
   }
 
@@ -378,16 +369,8 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     this.setState({ costCurveEditorIsOpen: true, activeEnergySystemId: id });
   }
 
-  editSystemSizeCurve = (id: string) => {
-    this.setState({ systemSizeCurveEditorIsOpen: true, activeEnergySystemId: id });
-  }
-
   closeEditCostCurve = () => {
     this.setState({ costCurveEditorIsOpen: false })
-  }
-
-  closeEditSystemSizeCurve = () => {
-    this.setState({ systemSizeCurveEditorIsOpen: false })
   }
 
   render() {
@@ -416,12 +399,6 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
             activeEnergySystemId={this.state.activeEnergySystemId}
             energySystems={this.state.project.calcData.energySystems}
             handleCostCurveEdit={this.handleCostCurveEdit}/>
-        </Dialog>
-        <Dialog className="curve-editor-dialog system-size-curve-editor-dialog" isOpen={this.state.systemSizeCurveEditorIsOpen} onClose={this.closeEditSystemSizeCurve} >
-          <SystemSizeCurveEditor
-            activeEnergySystemId={this.state.activeEnergySystemId}
-            energySystems={this.state.project.calcData.energySystems}
-            handleSystemSizeCurveEdit={this.handleSystemSizeCurveEdit}/>
         </Dialog>
       </div>
     )

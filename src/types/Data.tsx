@@ -205,7 +205,8 @@ export class BuildingGeometry {
   windowAreaS: number = 0;
   windowAreaW: number = 0;
   roofArea: number = 0;
-  foundationArea: number = 0;
+  basementFloorArea: number = 0;
+  basementWallArea: number = 0;
   numberOfFloorsAbove: number = 0;
   numberOfFloorsBelow: number = 0;
   floorHeight: number = 0;

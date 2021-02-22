@@ -26,14 +26,6 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             label: "Construction year",
             rootPath: "buildingTypes",
           },
-          buildingClass: {
-            key: "buildingClass",
-            unit: "none",
-            info: "Thermal mass of principal building components",
-            type: String,
-            label: "Building class",
-            rootPath: "buildingTypes",
-          },
           energyPerformanceCertificate: {
             key: "energyPerformanceCertificate",
             unit: "none",
@@ -147,12 +139,20 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             label: "Window area to the West",
             rootPath: "buildingTypes",
           },
-          foundationArea: {
-            key: "foundationArea",
+          basementFloorArea: {
+            key: "basementFloorArea",
             unit: "meterSq",
             info: "Equal to building footprint",
             type: Number,
             label: "Foundation area",
+            rootPath: "buildingTypes",
+          },
+          basementWallArea: {
+            key: "basementFloorArea",
+            unit: "meterSq",
+            info: "Area in all directions",
+            type: Number,
+            label: "Basement wall area",
             rootPath: "buildingTypes",
           },
           numberOfFloorsAbove: {
@@ -175,6 +175,32 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             info: "Floor height including slab thickness",
             type: Number,
             label: "Average floor height",
+            rootPath: "buildingTypes",
+          },
+        }
+      },
+      "buildingThermalProperties": {
+        name: "buildingThermalProperties",
+        title: "Thermal properties",
+        isOpen: false,
+        eventHandlers: {
+          handleChange: this.props.handleChange,
+        },
+        parameters: {
+          buildingClass: {
+            key: "buildingClass",
+            unit: "none",
+            info: "Thermal mass of principal building components",
+            type: String,
+            label: "Building class",
+            rootPath: "buildingTypes",
+          },
+          grossFloorArea: {
+            key: "grossFloorArea",
+            unit: "meterSq",
+            info: "Gross heated floor area, including exterior walls, stairwells, and other heated spaces",
+            type: Number,
+            label: "Gross heated floor area",
             rootPath: "buildingTypes",
           },
         }

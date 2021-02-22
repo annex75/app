@@ -363,7 +363,7 @@ const buildingTypeParamDictionary: IBuildingTypeWorkbookEntry[] = [
   },{
     row: 27,
     key: "Area of basement ceiling",
-    localPath: "buildingGeometry.foundationArea",
+    localPath: "buildingGeometry.basementFloorArea",
   },{
     row: 34,
     key: "Average room height",

@@ -1,7 +1,7 @@
 import { IProject, District, IDictBuildingType, IDictEnergySystem, IDictBuildingMeasure, IDictEnergyCarrier, TBuildingMeasureCategory, IValidatorResult, IDictBool, Units } from "./Data";
 import { ChangeEvent, ComponentType, ReactNode } from "react";
 import { IDropdownAlt } from "../helpers";
-import { TCostCurveCategory, TCostCurveScale, ICostCurveCategory, ICostCurveScale, ICostCurve, ISystemSizeCurve,  } from "./classes/EnergySystem";
+import { TCostCurveCategory, TCostCurveScale, ICostCurveCategory, ICostCurveScale, ICostCurve, } from "./classes/EnergySystem";
 
 /* Panels */
 
@@ -96,7 +96,6 @@ export interface ICalcDataPanelState extends IPanelState {
   project: IProject;
   cards: Record<string, ICalcDataPanelCard>;
   costCurveEditorIsOpen: boolean;
-  systemSizeCurveEditorIsOpen: boolean;
   activeEnergySystemId: string;
 }
 
@@ -220,7 +219,6 @@ export interface IEnergySystemsCardProps extends ICalcDataCardProps {
   addEnergySystem(): void;
   addEnergyCarrier(): void;
   editCostCurve(id: string): void;
-  editSystemSizeCurve(id: string): void;
   copyEnergySystem(id: string): void;
   deleteEnergySystem(id: string): void;
   copyEnergyCarrier(id: string): void;
@@ -246,19 +244,6 @@ export interface ICostCurveEditorState {
   costCurveCategory: ICostCurveCategory;
   costCurveRows: number;
 }
-
-export interface ISystemSizeCurveEditorProps {
-  activeEnergySystemId: string;
-  energySystems: IDictEnergySystem;
-  handleSystemSizeCurveEdit(systemSizeCurve: ISystemSizeCurve, curveId: string, costCurveScale: TCostCurveScale, activeEnergySystemId: string): void
-}
-
-export interface ISystemSizeCurveEditorState {
-  activeEnergySystemId: string;
-  systemSizeCurveRows: number;
-  costCurveScale: ICostCurveScale;
-}
-
 
 export interface IBuildingMeasuresCardProps extends ICalcDataCardProps {
   handleChange(e: ChangeEvent<HTMLInputElement>): void;

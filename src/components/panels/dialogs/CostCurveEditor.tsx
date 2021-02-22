@@ -22,7 +22,6 @@ const renderCostCurveType: ItemRenderer<ICostCurveCategory> = (type, { handleCli
   )
 }
 
-// also in SystemSizeCurveEditor.tsx
 export const CostCurveScaleSelect = Select.ofType<ICostCurveScale>();
 export const renderCostCurveScale: ItemRenderer<ICostCurveScale> = (type, { handleClick, modifiers }) => {
   return ( 
