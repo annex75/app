@@ -1,4 +1,4 @@
-import { IProject, IBuildingMeasure, TBuildingMeasureScenarioCategory, buildingMeasureScenarioCategories, IScenarioEnvelopeMeasureData, IScenarioFoundationMeasureData, IScenarioWindowsMeasureData, convertTypes, TBuildingMeasureCategory } from "../../types";
+import { IProject, IBuildingMeasure, TBuildingMeasureScenarioCategory, buildingMeasureScenarioCategories, IScenarioEnvelopeMeasureData, IScenarioFoundationMeasureData, convertTypes, TBuildingMeasureCategory } from "../../types";
 
 export interface IBuildingMeasureScenarioInfo {
   refurbishmentCost: number;
@@ -26,6 +26,7 @@ export const calculateBuildingMeasures = (project: IProject) => {
     buildingMeasureScenarioCategories.forEach(scenarioCat => {
       buildingMeasuresInUse[scenarioId][scenarioCat] = {};
       Object.keys(project.calcData.buildingTypes).forEach(buildingTypeId => {
+        const buildingType = project.calcData.buildingTypes[buildingTypeId];
         const scenarioInfo = project.scenarioData.scenarios[scenarioId].buildingTypes[buildingTypeId];
         const numBuildings = scenarioInfo.buildingType.numberOfBuildings;
         
@@ -47,17 +48,19 @@ export const calculateBuildingMeasures = (project: IProject) => {
           case "facade":
           case "roof":
           {
-            const { thickness, area } = scenarioInfo.buildingMeasures[scenarioCat] as IScenarioEnvelopeMeasureData;
+            const { thickness } = scenarioInfo.buildingMeasures[scenarioCat] as IScenarioEnvelopeMeasureData;
+            const area = buildingType.buildingGeometry.getArea(scenarioCat);
             const volume = thickness * area;
             factor = volume * numBuildings;
             break;
           } case "foundation": {
-            const { wallThickness, wallArea, floorThickness, floorArea } = scenarioInfo.buildingMeasures[scenarioCat] as IScenarioFoundationMeasureData;
-            const volume = wallThickness*wallArea + floorThickness*floorArea;
+            const { wallThickness, floorThickness } = scenarioInfo.buildingMeasures[scenarioCat] as IScenarioFoundationMeasureData;
+            const areas = buildingType.buildingGeometry.getFoundationArea();
+            const volume = wallThickness*areas.wall + floorThickness*areas.floor;
             factor = volume * numBuildings;
             break;
-          } case "windows":  {
-            const area = (scenarioInfo.buildingMeasures[scenarioCat] as IScenarioWindowsMeasureData).area;
+          } case "windows": {
+            const area = buildingType.buildingGeometry.getArea(scenarioCat);
             factor = area * numBuildings;
             break;
           } case "hvac" : {

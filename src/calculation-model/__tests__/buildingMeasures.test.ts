@@ -27,38 +27,47 @@ scenarioInfo.buildingType.numberOfBuildings = 3;
 scenarioInfo.buildingMeasures["facade"] = {
   id: insulationMeasureA.id,
   thickness: 0.23,
-  area: 100,
 } as IScenarioEnvelopeMeasureData;
 
 scenarioInfo.buildingMeasures["roof"] = {
   id: insulationMeasureA.id,
   thickness: 0.14,
-  area: 100,
 } as IScenarioEnvelopeMeasureData;
 
 scenarioInfo.buildingMeasures["foundation"] = {
   id: insulationMeasureA.id,
   wallThickness: 0.11,
   floorThickness: 0.13,
-  wallArea: 100,
-  floorArea: 100,
 } as IScenarioFoundationMeasureData;
 
 scenarioInfo.buildingMeasures["windows"] = {
   id: windowMeasureA.id,
-  area: 100,
-} as IScenarioWindowsMeasureData;
+} as IScenarioBuildingMeasureData;
 
 scenarioInfo.buildingMeasures["hvac"] = {
   id: hvacMeasureA.id,
 } as IScenarioBuildingMeasureData;
 
+const buildingTypeId = "buildingTypeA";
+const buildingType = new BuildingType(buildingTypeId);
+buildingType.buildingGeometry.facadeAreaE = 50;
+buildingType.buildingGeometry.facadeAreaN = 50;
+buildingType.buildingGeometry.facadeAreaW = 50;
+buildingType.buildingGeometry.facadeAreaS = 50;
+buildingType.buildingGeometry.windowAreaE = 25;
+buildingType.buildingGeometry.windowAreaN = 25;
+buildingType.buildingGeometry.windowAreaW = 25;
+buildingType.buildingGeometry.windowAreaS = 25;
+buildingType.buildingGeometry.roofArea = 100;
+buildingType.buildingGeometry.basementFloorArea = 100;
+buildingType.buildingGeometry.basementWallArea = 100;
+
+
 describe('calculateBuildingMeasures', () => {
   it('calculates building measures', () => {
     // GIVEN
     const project = new Project("project", "owner", false);
-    const buildingTypeId = "buildingTypeA";
-    const buildingType = new BuildingType(buildingTypeId);
+
     const scenarioId = "scenarioA";
     const scenario = new Scenario(scenarioId);
     
@@ -105,7 +114,7 @@ describe('calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost', () => {
 });
 
 describe('calculateBuildingMeasureSpecificEmbodiedEnergy', () => {
-  it('renders without crashing', () => {
+  it('calculates specific embodied energy correctly', () => {
           // GIVEN
     const buildingArea = 1000;
     const measureInfo = {

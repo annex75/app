@@ -211,6 +211,26 @@ export class BuildingGeometry {
   numberOfFloorsBelow: number = 0;
   floorHeight: number = 0;
   [key: string]: BuildingGeometry[keyof BuildingGeometry];
+
+  getArea = (category: TBuildingMeasureScenarioCategory) : number  => {
+    switch (category) {
+      case "facade": 
+        return this.facadeAreaE + this.facadeAreaN + this.facadeAreaW + this.facadeAreaS - this.getArea("windows");
+      case "roof":
+        return this.roofArea;
+      case "windows":
+        return this.windowAreaE + this.windowAreaN + this.windowAreaW + this.windowAreaS;
+      default:
+        throw new Error("Area is undefined for this building measure category");
+    }
+  }
+
+  getFoundationArea = () => {
+    return {
+      wall: this.basementWallArea,
+      floor: this.basementFloorArea,
+    }
+  }
 }
 
 export class BuildingThermalProperties {
@@ -447,24 +467,19 @@ export class ScenarioInfo {
     roof: {
       id: "",
       thickness: 0,
-      area: 0,
     } as IScenarioEnvelopeMeasureData,
     facade: {
       id: "",
       thickness: 0,
-      area: 0,
     } as IScenarioEnvelopeMeasureData,
     foundation: {
       id: "",
       wallThickness: 0,
-      wallArea: 0,
       floorThickness: 0,
-      floorArea: 0,
     } as IScenarioFoundationMeasureData,
     windows: {
       id: "",
-      area: 0,
-    } as IScenarioWindowsMeasureData,
+    } as IScenarioBuildingMeasureData,
     hvac: {
       id: "",
     }
@@ -488,7 +503,7 @@ export interface IScenarioEconomyData {
   calculationPeriod: number;
 }
 
-export type TScenarioBuildingMeasureData = IScenarioBuildingMeasureData | IScenarioEnvelopeMeasureData | IScenarioWindowsMeasureData | IScenarioFoundationMeasureData;
+export type TScenarioBuildingMeasureData = IScenarioBuildingMeasureData | IScenarioEnvelopeMeasureData | IScenarioFoundationMeasureData;
 
 export interface IScenarioBuildingMeasureData {
   id: string;
@@ -496,18 +511,11 @@ export interface IScenarioBuildingMeasureData {
 
 export interface IScenarioEnvelopeMeasureData extends IScenarioBuildingMeasureData {
   thickness: number;
-  area: number;
-}
-
-export interface IScenarioWindowsMeasureData extends IScenarioBuildingMeasureData {
-  area: number;
 }
 
 export interface IScenarioFoundationMeasureData extends IScenarioBuildingMeasureData {
   wallThickness: number;
-  wallArea: number;
   floorThickness: number;
-  floorArea: number;
 }
 
 export interface IValidatorResult {
