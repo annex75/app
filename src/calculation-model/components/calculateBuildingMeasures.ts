@@ -1,4 +1,4 @@
-import { IProject, IBuildingMeasure, TBuildingMeasureScenarioCategory, buildingMeasureScenarioCategories, IScenarioEnvelopeMeasureData, IScenarioFoundationMeasureData, convertTypes, TBuildingMeasureCategory } from "../../types";
+import { IProject, IBuildingMeasure, TBuildingMeasureScenarioCategory, buildingMeasureScenarioCategories, IScenarioEnvelopeMeasureData, IScenarioFoundationMeasureData, convertTypes, TBuildingMeasureCategory, BuildingType, ScenarioInfo, EnvelopeMeasure, WindowMeasure, CalcData, HvacMeasure, getBuildingArea, getBuildingFoundationArea } from "../../types";
 
 export interface IBuildingMeasureScenarioInfo {
   refurbishmentCost: number;
@@ -49,18 +49,18 @@ export const calculateBuildingMeasures = (project: IProject) => {
           case "roof":
           {
             const { thickness } = scenarioInfo.buildingMeasures[scenarioCat] as IScenarioEnvelopeMeasureData;
-            const area = buildingType.buildingGeometry.getArea(scenarioCat);
+            const area = getBuildingArea(buildingType.buildingGeometry, scenarioCat);
             const volume = thickness * area;
             factor = volume * numBuildings;
-            break;
+            break; 
           } case "foundation": {
             const { wallThickness, floorThickness } = scenarioInfo.buildingMeasures[scenarioCat] as IScenarioFoundationMeasureData;
-            const areas = buildingType.buildingGeometry.getFoundationArea();
+            const areas = getBuildingFoundationArea(buildingType.buildingGeometry);
             const volume = wallThickness*areas.wall + floorThickness*areas.floor;
             factor = volume * numBuildings;
             break;
           } case "windows": {
-            const area = buildingType.buildingGeometry.getArea(scenarioCat);
+            const area = getBuildingArea(buildingType.buildingGeometry, scenarioCat);
             factor = area * numBuildings;
             break;
           } case "hvac" : {
@@ -102,4 +102,125 @@ export const calculateBuildingMeasureSpecificEmbodiedEnergy = (
   totalBuildingArea: number,
 ) => {
   return buildingMeasureScenarioInfo.embodiedEnergy/(totalBuildingArea);
+}
+
+
+// calculates the resulting u-value of this with additional insulation
+export const calculateHeatLossCoefficient = (calcData: CalcData, buildingTypeId: string, scenarioInfo: ScenarioInfo) => {
+  const buildingType = calcData.buildingTypes[buildingTypeId];
+  const buildingMeasures = {
+    facade: calcData.buildingMeasures.insulation[scenarioInfo.buildingMeasures.facade.id] as EnvelopeMeasure,
+    roof: calcData.buildingMeasures.insulation[scenarioInfo.buildingMeasures.roof.id] as EnvelopeMeasure,
+    foundation: calcData.buildingMeasures.insulation[scenarioInfo.buildingMeasures.foundation.id] as EnvelopeMeasure,
+    windows: calcData.buildingMeasures.windows[scenarioInfo.buildingMeasures.windows.id] as WindowMeasure,
+    hvac: calcData.buildingMeasures.hvac[scenarioInfo.buildingMeasures.hvac.id] as HvacMeasure,
+  };
+
+  const calcArr: IUValueCalcObj[] = [
+    {
+      rBase: 1/buildingType.buildingThermalProperties.facadeUValue,
+      lambdaAddtl: buildingMeasures.facade.lambdaValue,
+      thicknessAddtl: (scenarioInfo.buildingMeasures.facade as IScenarioEnvelopeMeasureData).thickness,
+      area: getBuildingArea(buildingType.buildingGeometry, "facade"),
+    },{
+      rBase: 1/buildingType.buildingThermalProperties.roofUValue,
+      lambdaAddtl: buildingMeasures.roof.lambdaValue,
+      thicknessAddtl: (scenarioInfo.buildingMeasures.roof as IScenarioEnvelopeMeasureData).thickness,
+      area: getBuildingArea(buildingType.buildingGeometry, "roof"),
+    },{
+      rBase: 1/buildingType.buildingThermalProperties.foundationUValue,
+      lambdaAddtl: buildingMeasures.foundation.lambdaValue,
+      thicknessAddtl: (scenarioInfo.buildingMeasures.foundation as IScenarioFoundationMeasureData).floorThickness,
+      area: getBuildingFoundationArea(buildingType.buildingGeometry).floor,
+    },{
+      rBase: 1/buildingType.buildingThermalProperties.basementWallUValue,
+      lambdaAddtl: buildingMeasures.foundation.lambdaValue,
+      thicknessAddtl: (scenarioInfo.buildingMeasures.foundation as IScenarioFoundationMeasureData).wallThickness,
+      area: getBuildingFoundationArea(buildingType.buildingGeometry).wall,
+    },
+  ];
+
+  const windows = {
+    uValue: buildingMeasures.windows.uValue,
+    area: getBuildingArea(buildingType.buildingGeometry, "windows"),
+  }
+
+  const envelopeHeatLossCoefficient = hlc(calcArr, windows);
+  const thermalBridges = calculateThermalBridges(buildingType);
+  const ventilationLosses = calculateVentilationLosses(buildingType, buildingMeasures.hvac, calcData.district.location.altitude)
+
+  return envelopeHeatLossCoefficient + thermalBridges + ventilationLosses;
+}
+
+interface IUValueCalcObj {
+  rBase: number,
+  lambdaAddtl: number,
+  thicknessAddtl: number,
+  area: number,
+}
+
+interface IUValueWindowObj {
+  uValue: number,
+  area: number,
+}
+
+const hlc = (calcArr: IUValueCalcObj[], windows: IUValueWindowObj) => {
+  const uValuesTimesArea = calcArr.map(o => {
+    const rAddtl = o.thicknessAddtl/o.lambdaAddtl;
+    return o.area/(o.rBase + rAddtl);
+  });
+  const totalHLC = uValuesTimesArea.reduce((a, b) => a + b, 0) + windows.area*windows.uValue;
+  return totalHLC;
+}
+
+// conservative values collected from BIMEnergy database
+// [W/m,K]
+const psiValues = {
+  exteriorWallExteriorWall: 0.2,
+  exteriorWallInteriorFloor: 0.2,
+  windows: 0.04,
+  exteriorWallRoof: 0.14,
+  exteriorWallFoundation: 0.26,
+}
+
+// calculates heat loss coefficient of thermal bridges
+// todo: calculate this based on user inputs
+// todo: include further thermal bridges
+const calculateThermalBridges = (buildingType: BuildingType) => {
+  // assume rectangular building here
+  const exteriorWallExteriorWall = 
+    psiValues.exteriorWallExteriorWall
+    * buildingType.buildingGeometry.floorHeight
+    * buildingType.buildingGeometry.numberOfFloorsAbove
+    * 4;
+  
+  // assume all floors have the same perimeter
+  const exteriorWallInteriorFloor = 
+    psiValues.exteriorWallInteriorFloor
+    * (buildingType.buildingGeometry.numberOfFloorsAbove - 1)
+    * buildingType.buildingGeometry.perimeter;
+
+  // assume all windows are square
+  const windows =
+    psiValues.windows 
+    * Math.sqrt(getBuildingArea(buildingType.buildingGeometry, "windows"))
+    * 4;
+  
+  const exteriorWallRoof =
+    psiValues.exteriorWallRoof
+    * buildingType.buildingGeometry.perimeter;
+
+  const exteriorWallFoundation =
+    psiValues.exteriorWallFoundation
+    * buildingType.buildingGeometry.perimeter;
+
+
+  return exteriorWallExteriorWall + exteriorWallInteriorFloor + windows + exteriorWallRoof + exteriorWallFoundation;
+}
+
+const calculateVentilationLosses = (buildingType: BuildingType, hvacMeasure: HvacMeasure, altitude: number) => {
+  const heatStorageCapacity = 1220 - 0.14 * altitude;
+  const airFlow = hvacMeasure.ventilationRate * buildingType.buildingGeometry.heatedVolume;
+  const ventilationLosses = (heatStorageCapacity * airFlow)/3600;
+  return ventilationLosses;
 }

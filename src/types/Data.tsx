@@ -138,6 +138,7 @@ export class Location {
   place: string = "";
   lat: number = 0;
   lon: number = 0;
+  altitude: number = 0;
 }
 
 export class Country {
@@ -146,12 +147,13 @@ export class Country {
 
 export class Climate {
   zone: string = "";
+  designOutdoorTemperature: number = 0;
   filename: string = "";
 }
 
 export class DistrictGeometry {
   pipingLength: number = 0;
-  districtToDistrictHeatingNetwork: number = 0;
+  distanceToDistrictHeatingNetwork: number = 0;
   solarPanelArea: number = 0;
 }
 
@@ -196,6 +198,7 @@ export class BuildingInformation {
 export class BuildingGeometry {
   grossFloorArea: number = 0;
   heatedVolume: number = 0;
+  perimeter: number = 0;
   facadeAreaN: number = 0;
   facadeAreaE: number = 0;
   facadeAreaS: number = 0;
@@ -211,25 +214,25 @@ export class BuildingGeometry {
   numberOfFloorsBelow: number = 0;
   floorHeight: number = 0;
   [key: string]: BuildingGeometry[keyof BuildingGeometry];
+}
 
-  getArea = (category: TBuildingMeasureScenarioCategory) : number  => {
-    switch (category) {
-      case "facade": 
-        return this.facadeAreaE + this.facadeAreaN + this.facadeAreaW + this.facadeAreaS - this.getArea("windows");
-      case "roof":
-        return this.roofArea;
-      case "windows":
-        return this.windowAreaE + this.windowAreaN + this.windowAreaW + this.windowAreaS;
-      default:
-        throw new Error("Area is undefined for this building measure category");
-    }
+export const getBuildingArea = (buildingGeometry: BuildingGeometry, category: TBuildingMeasureScenarioCategory) : number  => {
+  switch (category) {
+    case "facade": 
+      return buildingGeometry.facadeAreaE + buildingGeometry.facadeAreaN + buildingGeometry.facadeAreaW + buildingGeometry.facadeAreaS - getBuildingArea(buildingGeometry, "windows");
+    case "roof":
+      return buildingGeometry.roofArea;
+    case "windows":
+      return buildingGeometry.windowAreaE + buildingGeometry.windowAreaN + buildingGeometry.windowAreaW + buildingGeometry.windowAreaS;
+    default:
+      throw new Error("Area is undefined for this building measure category");
   }
+}
 
-  getFoundationArea = () => {
-    return {
-      wall: this.basementWallArea,
-      floor: this.basementFloorArea,
-    }
+export const getBuildingFoundationArea = (buildingGeometry: BuildingGeometry) => {
+  return {
+    wall: buildingGeometry.basementWallArea,
+    floor: buildingGeometry.basementFloorArea,
   }
 }
 
@@ -240,6 +243,7 @@ export class BuildingThermalProperties {
   roofUValue: number = 0;
   basementWallUValue: number = 0;
   foundationUValue: number = 0;
+  designIndoorTemperature: number = 20;
   [key: string]: BuildingThermalProperties[keyof BuildingThermalProperties];
 }
 
@@ -350,7 +354,7 @@ export const createBuildingMeasure = (category: TBuildingMeasureCategory, id: st
 } 
 
 export class EnvelopeMeasure extends BaseBuildingMeasure { 
-  uValue: number = 0;
+  lambdaValue: number = 0;
   
   [key: string]: EnvelopeMeasure[keyof EnvelopeMeasure];
 }
@@ -463,23 +467,23 @@ export class ScenarioInfo {
     energySystem: "",
   };
 
-  buildingMeasures: Record<TBuildingMeasureScenarioCategory, IScenarioBuildingMeasureData> = {
+  buildingMeasures: Record<TBuildingMeasureScenarioCategory, TScenarioBuildingMeasureData> = {
     roof: {
       id: "",
       thickness: 0,
-    } as IScenarioEnvelopeMeasureData,
+    },
     facade: {
       id: "",
       thickness: 0,
-    } as IScenarioEnvelopeMeasureData,
+    },
     foundation: {
       id: "",
       wallThickness: 0,
       floorThickness: 0,
-    } as IScenarioFoundationMeasureData,
+    },
     windows: {
       id: "",
-    } as IScenarioBuildingMeasureData,
+    },
     hvac: {
       id: "",
     }

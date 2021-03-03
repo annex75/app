@@ -68,6 +68,14 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             label: "Heated volume",
             rootPath: "buildingTypes",
           },
+          perimeter: {
+            key: "perimeter",
+            unit: "meter",
+            info: "Exterior length of building perimeter",
+            type: Number,
+            label: "Perimeter",
+            rootPath: "buildingTypes",
+          },
           facadeAreaN: {
             key: "facadeAreaN",
             unit: "meterSq",
@@ -233,6 +241,14 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             info: "Average heat transfer coefficient of the building foundation",
             type: String,
             label: "Foundation U-value",
+            rootPath: "buildingTypes",
+          },
+          designIndoorTemperature: {
+            key: "designIndoorTemperature",
+            unit: "degC",
+            //info: "",
+            type: String,
+            label: "Design indoor temperature",
             rootPath: "buildingTypes",
           },
         }

@@ -76,8 +76,10 @@ export class CostCurveCentralized {
 }
 
 export class CostCurveIndividual {
-  constructor(unit: keyof typeof Units) {
+  constructor(unit: keyof typeof Units, curves = { systemSize: defSystemSizes, substation: defCostCurve }) {
     this.substation.unit = unit;
+    this.systemSize.value = curves.systemSize;
+    this.substation.value = curves.substation;
   }
   systemSize: ICostCurve = {
     label: "System size",

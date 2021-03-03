@@ -191,7 +191,7 @@ ul {
 }
 
 #overview-general-div .bp3-form-group .bp3-label { 
-  width: 125px; /* to make room for map */
+  width: 175px; /* to make room for map */
 }
 
 .label-with-add-button {
