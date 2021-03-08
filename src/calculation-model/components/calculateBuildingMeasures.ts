@@ -70,7 +70,6 @@ export const calculateBuildingMeasures = (project: IProject) => {
             throw new Error(`${scenarioCat} has not been defined`);
           }
         }
-
         const cost = buildingMeasure.refurbishmentCost * factor;
         const embodiedEnergy = buildingMeasure.embodiedEnergy * factor;
 
@@ -94,6 +93,12 @@ export const calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost = (
   buildingMeasure: IBuildingMeasure,
   totalBuildingArea: number,
 ) => {
+  if (!totalBuildingArea) {
+    throw new Error("Building area must be positive");
+  }
+  if (!buildingMeasure.lifeTime) {
+    throw new Error("Measure lifetime must be positive");
+  }
   return buildingMeasureScenarioInfo.refurbishmentCost/(totalBuildingArea*buildingMeasure.lifeTime);
 }
 
@@ -101,6 +106,9 @@ export const calculateBuildingMeasureSpecificEmbodiedEnergy = (
   buildingMeasureScenarioInfo: IBuildingMeasureScenarioInfo,
   totalBuildingArea: number,
 ) => {
+  if (!totalBuildingArea) {
+    throw new Error("Building area must be positive");
+  }
   return buildingMeasureScenarioInfo.embodiedEnergy/(totalBuildingArea);
 }
 
@@ -164,6 +172,8 @@ interface IUValueWindowObj {
   area: number,
 }
 
+
+// heat loss coefficient
 const hlc = (calcArr: IUValueCalcObj[], windows: IUValueWindowObj) => {
   const uValuesTimesArea = calcArr.map(o => {
     const rAddtl = o.thicknessAddtl/o.lambdaAddtl;

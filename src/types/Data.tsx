@@ -19,6 +19,7 @@ export interface IDictBool {
 export interface IProject {
   appVersion: string | null;
   calculationActive: boolean;
+  calculationOk: boolean;
   id: string;
   name: string;
   owner: string;
@@ -219,11 +220,22 @@ export class BuildingGeometry {
 export const getBuildingArea = (buildingGeometry: BuildingGeometry, category: TBuildingMeasureScenarioCategory) : number  => {
   switch (category) {
     case "facade": 
-      return buildingGeometry.facadeAreaE + buildingGeometry.facadeAreaN + buildingGeometry.facadeAreaW + buildingGeometry.facadeAreaS - getBuildingArea(buildingGeometry, "windows");
+      const facadeArea = 
+        Number(buildingGeometry.facadeAreaE)
+        + Number(buildingGeometry.facadeAreaN)
+        + Number(buildingGeometry.facadeAreaW)
+        + Number(buildingGeometry.facadeAreaS)
+        - getBuildingArea(buildingGeometry, "windows");
+      return facadeArea;
     case "roof":
-      return buildingGeometry.roofArea;
+      return Number(buildingGeometry.roofArea);
     case "windows":
-      return buildingGeometry.windowAreaE + buildingGeometry.windowAreaN + buildingGeometry.windowAreaW + buildingGeometry.windowAreaS;
+      const windowsArea = 
+        Number(buildingGeometry.windowAreaE)
+        + Number(buildingGeometry.windowAreaN)
+        + Number(buildingGeometry.windowAreaW)
+        + Number(buildingGeometry.windowAreaS);
+      return windowsArea;
     default:
       throw new Error("Area is undefined for this building measure category");
   }
@@ -394,6 +406,8 @@ export interface IResultSummary {
   annualizedSpecificCost: number; // [€/m2a]
   buildingArea: number; // [m2]
   heatingNeed: number; // [kWh]
+  decentralizedSystemSize: number; // [kW]
+  centralizedSystemSize: number; // [kW]
   energySystems: {
     investmentCost: Record<TCostCurveType, number>;
     maintenanceCost: Record<TCostCurveType, number>;
@@ -411,6 +425,8 @@ export class ResultSummary implements IResultSummary {
   annualizedSpecificCost: number = 0;
   buildingArea: number = 0;
   heatingNeed: number = 0;
+  decentralizedSystemSize: number = 0;
+  centralizedSystemSize: number = 0;
   specificPrimaryEnergyUse: number = 0;
   specificEmissions: number = 0;
   energySystems = {

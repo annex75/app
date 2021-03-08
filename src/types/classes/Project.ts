@@ -12,6 +12,7 @@ import { calculateEnergySystems, calculateEnergySystemAnnualizedSpecificInvestme
 export class Project implements IProject {
   appVersion = APP_VERSION;
   calculationActive: boolean = false;
+  calculationOk: boolean = false;
   id: string = uuidv4();
   name: string;
   owner: string;
@@ -57,23 +58,29 @@ export class Project implements IProject {
 
   performCalculations = () => {
     if (this.calculationActive) {
-      const scenarioEnergySystemInfos = calculateEnergySystems(this.jsonData);
-      Object.entries(scenarioEnergySystemInfos).forEach(([key, entry]) => {
-        this.scenarioData.scenarios[key].energySystems = entry;
-      });
-
-
-      const scenarioBuildingMeasureInfos = calculateBuildingMeasures(this.jsonData);
-      Object.entries(scenarioBuildingMeasureInfos).forEach(([key, entry]) => {
-        buildingMeasureScenarioCategories.forEach(cat => {
-          if (!this.scenarioData.scenarios[key].buildingMeasures) {
-            // hack
-            this.scenarioData.scenarios[key].buildingMeasures = {} as Record<TBuildingMeasureScenarioCategory,Record<string, IBuildingMeasureScenarioInfo>>;
-          }
-          this.scenarioData.scenarios[key].buildingMeasures[cat] = entry[cat];
+      try {
+        const scenarioEnergySystemInfos = calculateEnergySystems(this.jsonData);
+        Object.entries(scenarioEnergySystemInfos).forEach(([key, entry]) => {
+          this.scenarioData.scenarios[key].energySystems = entry;
         });
-      });
-      return this._summarize();
+  
+        const scenarioBuildingMeasureInfos = calculateBuildingMeasures(this.jsonData);
+        Object.entries(scenarioBuildingMeasureInfos).forEach(([key, entry]) => {
+          buildingMeasureScenarioCategories.forEach(cat => {
+            if (!this.scenarioData.scenarios[key].buildingMeasures) {
+              // hack
+              this.scenarioData.scenarios[key].buildingMeasures = {} as Record<TBuildingMeasureScenarioCategory,Record<string, IBuildingMeasureScenarioInfo>>;
+            }
+            this.scenarioData.scenarios[key].buildingMeasures[cat] = entry[cat];
+          });
+        });
+        const summarized = this._summarize();
+        this.calculationOk = true;
+        return summarized;
+      } catch (e) {
+        this.calculationOk = false;
+        throw e;
+      }
     } else {
       return this;
     }    
@@ -82,6 +89,7 @@ export class Project implements IProject {
   _summarize = () => {
     Object.keys(this.scenarioData.scenarios).forEach(scenarioId => {
       const scenario = this.scenarioData.scenarios[scenarioId];
+      if (scenario.deleted) return;
       if (!scenario.energySystems || !Object.keys(scenario.energySystems).length) {
         throw new Error("Energy systems have not been properly defined in the scenarios.");
       }
@@ -131,6 +139,18 @@ export class Project implements IProject {
         scenario.total.specificEmbodiedEnergy += calculateSpecificValueFromEnergySystemScenarioInfo(energySystemScenarioInfo, totalBuildingArea, "embodiedEnergy");
         scenario.total.specificPrimaryEnergyUse += energySystemScenarioInfo.primaryEnergyUse/totalBuildingArea;
         scenario.total.specificEmissions += energySystemScenarioInfo.emissions/totalBuildingArea;
+
+        switch(energySystem.systemCategory) {
+          case "decentralized":
+            const decentralizedSystemSize = energySystemScenarioInfo.systemSize.decentralized.reduce((a, b) => a+b.systemSize*b.numberOfBuildings, 0);
+            scenario.total.decentralizedSystemSize += decentralizedSystemSize;
+            break;
+          case "centralized":
+            scenario.total.centralizedSystemSize += energySystemScenarioInfo.systemSize.centralized;
+            break;
+          default:
+            throw new Error("System category has not been defined.");
+        }
       });
       
       // renovation measures
@@ -143,12 +163,12 @@ export class Project implements IProject {
           scenario.total.buildingMeasures[scenarioCat].refurbishmentCost += +buildingMeasureScenarioInfo.refurbishmentCost;
           scenario.total.buildingMeasures[scenarioCat].embodiedEnergy += +buildingMeasureScenarioInfo.embodiedEnergy;
           const annualizedSpecificRefurbishmentCost = calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost(buildingMeasureScenarioInfo, buildingMeasure, totalBuildingArea);
+          console.log(buildingMeasure, annualizedSpecificRefurbishmentCost);
           scenario.total.annualizedSpecificCost += annualizedSpecificRefurbishmentCost;
           scenario.total.specificEmbodiedEnergy += calculateBuildingMeasureSpecificEmbodiedEnergy(buildingMeasureScenarioInfo, totalBuildingArea);
         });
       });
-      
-    })
+    });
     return this;
   }
 

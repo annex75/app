@@ -224,7 +224,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
           >
           {columns}
         </Table>
-        <h2>Cost curves</h2>
+        <h3>Cost curves</h3>
         {
           renderScatterChart(graphData, chartSetup )
         }

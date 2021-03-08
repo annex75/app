@@ -10,6 +10,7 @@ export const generateDefaultProject = (): IProject => {
     const defProject = {
         appVersion: APP_VERSION,
         calculationActive: false,
+        calculationOk: false,
         id: uuid(),
         name: "Default project",
         owner: "defaultOwner",

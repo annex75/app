@@ -160,10 +160,10 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
           } />
           <Tab id="results" title={"Results"} panel={
             <ResultsPanel
-              title="Results" 
+              title="Results"
               project={this.state.project}
               updateProject={this.props.updateProject}/>
-          } />
+          } disabled={!this.state.project.calculationOk}/>
         </Tabs>
       </div>
     );

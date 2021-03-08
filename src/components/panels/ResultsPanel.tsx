@@ -4,9 +4,10 @@ import { get as _fpGet } from 'lodash/fp';
 import html2pdf from 'html2pdf.js';
 
 // internal
-import { IResultsPanelProps, IResultsPanelState } from '../../types';
+import { IResultsPanelProps, IResultsPanelState, Scenario, Units } from '../../types';
 import { renderScatterChart, IChartSetup } from '../../helpers';
 import { Button } from '@blueprintjs/core';
+import { Table, Column, ColumnHeaderCell, Cell } from '@blueprintjs/table';
 
 interface IResultGraph {
   id: string;
@@ -37,7 +38,7 @@ const defChartSetup: IChartSetup = {
 }
 
 export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelState> {
-
+  
   resultGraphs: IResultGraph[] = [
     /*{
       id: "embodiedEnergy",
@@ -76,7 +77,7 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
       chartSetup: {
         mode: "2d",
         name: "Scatter chart",
-        legend: false,
+        legend: true,
         label: true,
       }
     },{
@@ -96,8 +97,14 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
       chartSetup: {
         mode: "2d",
         name: "Scatter chart",
-        legend: false,
+        legend: true,
         label: true,
+        legendSettings: {
+          verticalAlign: "middle",
+          layout: "vertical",
+          align: "right",
+          wrapperStyle: { paddingLeft: "20px" },
+        }
       }
     },
   ];
@@ -113,28 +120,67 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
     };
     worker.from(document.getElementById("results-graph-container")).using(options).save();
   }
+
+  getTableData = (scenarios: Scenario[]) => {
+    const legendColumn = [
+      `Specific primary energy use [${Units.kiloWattHourPerMeterSqYear}]`,
+      `Annualised specific cost [${Units.euroPerMeterSq}]`,
+      `Specific greenhouse gas emissions [${Units.kiloGramCO2EqPerYear}]`,
+      `Total system size (centralised systems) [${Units.kiloWatt}]`,
+      `Total system size (decentralised systems) [${Units.kiloWatt}]`,
+    ]
+    return [legendColumn, ...scenarios.map(scenario => {
+      return [
+        scenario.total.specificPrimaryEnergyUse,
+        scenario.total.annualizedSpecificCost,
+        scenario.total.specificEmissions,
+        scenario.total.centralizedSystemSize,
+        scenario.total.decentralizedSystemSize,
+      ];
+    })];
+  }
   
+  getTableColumns = (tableData: any[][], scenarios: Scenario[]) => {
+    const legendColumn = <Column
+      key={`legend-table-column`}
+      cellRenderer={(r: number, c: number) => <Cell>{tableData[c][r]}</Cell>}
+      columnHeaderCellRenderer={() => <ColumnHeaderCell/>}/>
+    return [legendColumn, ...scenarios.map(scenario => {
+      return (
+      <Column
+        key={`${scenario.id}-table-column`}
+        cellRenderer={(r: number, c: number) => <Cell>{tableData[c][r]}</Cell>} 
+        columnHeaderCellRenderer={(index: number) => <ColumnHeaderCell name={scenario.name}/>}/>
+      )
+    })];
+  }
+        
   render() {
+    const activeScenarioIds = Object.keys(this.props.project.scenarioData.scenarios).filter(id => {
+      return !this.props.project.scenarioData.scenarios[id].deleted;
+    });
+    const activeScenarios = activeScenarioIds.map(id => this.props.project.scenarioData.scenarios[id]);
+    console.log(activeScenarios);
+    const tableData = this.getTableData(activeScenarios);
+    const columns = this.getTableColumns(tableData, activeScenarios);
     return (
       <div>
         <h1>{this.props.title}</h1>
         <div className="bp3-card panel-card">
+          <h3>Graphical results</h3>
           <div id="results-graph-container" >
             {
               this.resultGraphs.map(graph => {
-                const data = [
-                  {
-                    name: graph.label,
-                    data: Object.keys(this.props.project.scenarioData.scenarios).map(scenarioId => {
-                      const scenario = this.props.project.scenarioData.scenarios[scenarioId];
-                      return {
-                        x: _fpGet(graph.xDataObj.dataPath, scenario),
-                        y: _fpGet(graph.yDataObj.dataPath, scenario),
-                      }
-                    }),
-                
+                const data = activeScenarios.map(scenario => {
+                  return {
+                    name: scenario.name,
+                    data: [{
+                      name: scenario.name,
+                      x: _fpGet(graph.xDataObj.dataPath, scenario),
+                      y: _fpGet(graph.yDataObj.dataPath, scenario),
+                    }],
                   }
-                ];
+                });
                 let chartSetup: IChartSetup = Object.assign(defChartSetup, graph.chartSetup);
                 chartSetup.xUnit = graph.xDataObj.unit;
                 chartSetup.yUnit = graph.yDataObj.unit;
@@ -142,16 +188,33 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
                 chartSetup.yLabel = graph.yDataObj.label;
                 return (
                   <div key={`result-graph-${graph.id}-container`} className="result-graph-container">
+                    <h4>{graph.label}</h4>
                     {
-                      renderScatterChart(data, chartSetup, )
+                      renderScatterChart(data, chartSetup)
                     }
+
                   </div>
                 )
               })
             }
           </div>
         </div>
-        <div className="bp3-card panel-card">Tabulated results</div>
+        <div className="bp3-card panel-card">
+          <h3>Tabulated results</h3>
+          <Table
+            columnWidths={[275, ...columns.slice(1).map(() => 100)]}
+            enableColumnResizing={false}
+            numRows={tableData[0].length}
+            enableRowHeader={false}
+            enableFocusedCell={true}
+            getCellClipboardData={(r: number, c: number) => 
+              {
+                return tableData[c][r];
+              }}
+            >
+            {columns}
+          </Table>
+        </div>
         <div id="results-button-container" className="bp3-card panel-card">
           <Button minimal icon="print" onClick={this.printPdf} style={{ padding: "10px" }}>Save results as PDF</Button>
         </div>

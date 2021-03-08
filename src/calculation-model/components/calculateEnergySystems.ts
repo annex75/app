@@ -42,6 +42,7 @@ export const calculateEnergySystems = (project: IProject) => {
   let energySystemsInUse: Record<TScenarioId,Record<TEnergySystemId,IEnergySystemScenarioInfo>> = {};
   Object.keys(project.scenarioData.scenarios).forEach((scenarioId) => {
     const scenario = project.scenarioData.scenarios[scenarioId];
+    if (scenario.deleted) return;
     energySystemsInUse[scenarioId] = {};
     // find which energy systems serve which building and what their heat need is
     Object.keys(project.calcData.buildingTypes).forEach(buildingTypeId => {
@@ -125,7 +126,14 @@ const calculateSystemSize = (energySystem: EnergySystem, individualBuildingHeatN
   switch(energySystem.systemType) {
     default: {
       const centralEfficiency = energySystem.efficiency;
+      
+      if (!centralEfficiency) {
+        throw new Error("Centralized system efficiency must be positive");
+      }
       systemSize.decentralized = individualBuildingHeatNeed.map((heatData) => {
+        if (!heatData.decentralizedSystemEfficiency) {
+          throw new Error("Decentralized system efficiency must be positive");
+        }
         const decentralizedSystemSize = 
           (heatData.indoorTemperature - heatData.outdoorTemperature)
           * heatData.heatLossCoefficient
@@ -228,6 +236,13 @@ export const calculateEnergySystemAnnualizedSpecificInvestmentCost = (
   const costs = Object.entries(energySystemScenarioInfo.investmentCost).reduce((memo, [, val]) => {
     return memo + val;
   }, 0);
+  
+  if (!totalBuildingArea) {
+    throw new Error("Building area must be positive");
+  }
+  if (!energySystem.lifeTime) {
+    throw new Error("Energy system lifetime must be positive");
+  }
   return costs/(totalBuildingArea*energySystem.lifeTime);
 }
 
@@ -239,6 +254,10 @@ export const calculateEnergySystemSpecificMaintenanceCost = (
   const costs = Object.entries(energySystemScenarioInfo.maintenanceCost).reduce((memo, [, val]) => {
     return memo + val*energySystem.lifeTime;
   }, 0);
+  
+  if (!totalBuildingArea) {
+    throw new Error("Building area must be positive");
+  }
   return costs/(totalBuildingArea)
 }
 
@@ -250,6 +269,10 @@ export const calculateSpecificValueFromEnergySystemScenarioInfo = (
   const out = Object.entries(energySystemScenarioInfo[key]).reduce((memo, [, val]) => {
     return memo + val;
   }, 0);
+  
+  if (!totalBuildingArea) {
+    throw new Error("Building area must be positive");
+  }
   return out/(totalBuildingArea);
 }
 
@@ -261,6 +284,11 @@ const calculateEnergySystemPrimaryEnergyUse = (
   // todo: check this calculation
   //const primaryEnergyFactor = +energyCarrier.primaryEnergyFactorNonRe + +energyCarrier.primaryEnergyFactorRe;
   const primaryEnergyFactor = +energyCarrier.primaryEnergyFactorTotal;
+  
+  if (!energySystem.efficiency) {
+    throw new Error("Energy system efficiency must be positive");
+  }
+
   return primaryEnergyFactor*heatingNeed/energySystem.efficiency;
 }
 
@@ -269,6 +297,10 @@ const calculateEnergySystemEmissions = (
   energyCarrier: EnergyCarrier,
   heatingNeed: number,
 ) => {
+  if (!energySystem.efficiency) {
+    throw new Error("Energy system efficiency must be positive");
+  }
+  
   return energyCarrier.emissionFactor*heatingNeed/energySystem.efficiency;
 }
 

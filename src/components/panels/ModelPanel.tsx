@@ -89,7 +89,7 @@ export class ModelPanel extends Component<IModelPanelProps, IModelPanelState> {
       <div>
         <h1>{this.props.title}</h1>
         <div className="bp3-card panel-card" >
-          <h2>Calculations</h2>
+          <h3>Calculations</h3>
           <Switch checked={this.state.project.calculationActive} label="Activate calculations" onChange={this.handleActivateCalculation} />
         </div>
         <div className="bp3-card panel-card" >Energy demand</div>

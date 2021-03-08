@@ -6,7 +6,7 @@ import { get as _fpGet } from 'lodash/fp';
 
 // internal
 import { IInputField, IValidatorResult, Units, IInput } from './types';
-import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter, ZAxis, Tooltip, Legend } from 'recharts';
+import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter, ZAxis, Tooltip, Legend, LegendProps } from 'recharts';
 import { Label } from 'recharts';
 
 export const renderInputLabel = (param: IInput) => {
@@ -30,7 +30,7 @@ export const renderInputLabel = (param: IInput) => {
         interactionKind={PopoverInteractionKind.CLICK}
         onInteraction={() => {console.log(param.info)}}
         position={Position.RIGHT}>
-        <Button icon="info-sign" className="info-popover-button" minimal>{text}</Button>
+        <Button tabIndex={-1} icon="info-sign" className="info-popover-button" minimal>{text}</Button>
       </Popover>
     </div>)
   } else {
@@ -167,6 +167,7 @@ export interface IChartSetup {
   zKey?: string;
   name: string;
   legend?: boolean;
+  legendSettings?: LegendProps;
   label?: boolean
 }
 
@@ -184,15 +185,30 @@ const defChartSetup: IChartSetup = {
 }
 
 const defChartSettings: IChartSettings = {
-    width: 600,
-    height: 400,
-    margin: {
-      top: 20,
-      right: 20,
-      bottom: 20,
-      left: 20,
-    },
+  width: 600,
+  height: 400,
+  margin: {
+    top: 20,
+    right: 20,
+    bottom: 20,
+    left: 20,
+  },
+}
+
+// todo: no types here hmm
+// very hacky in general but label doesn't work for whatever reason
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bp3-card">
+        <p>{payload[0].payload.name}</p>
+        <p>{`${payload[0].name}: ${payload[0].value}`}</p>
+        <p>{`${payload[1].name}: ${payload[1].value}`}</p>
+      </div>
+    )
   }
+  return null;
+}
 
 export const renderScatterChart = (data: IScatterDataset[], chartSetup: IChartSetup = defChartSetup, chartSettings: IChartSettings = defChartSettings,  ) => {
   return (
@@ -215,9 +231,9 @@ export const renderScatterChart = (data: IScatterDataset[], chartSetup: IChartSe
           <ZAxis type="number" dataKey={chartSetup.zKey} range={chartSetup.zRange} name={chartSetup.zLabel} unit={chartSetup.zUnit || '-'} />
         </>) : null
       }
-      <Tooltip />
+      <Tooltip content={<CustomTooltip/>}/>
       {
-        chartSetup.legend? <Legend />: null
+        chartSetup.legend? <Legend {...chartSetup.legendSettings}/>: null
       }
       {
         data.map((dataSet, i) => {
