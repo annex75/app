@@ -25,7 +25,7 @@ export const extractInterpolatedValueFromCurves = (xc: number[], yc: number[], x
     throw new Error("Curves for interpolation must have same non-zero length");
   }
 
-  if (!monotonicIncreasing(xc, true) || !monotonicIncreasing(yc)) {
+  if (!monotonicIncreasing(xc, true)) {
     throw new Error ("Curves for interpolation must be monotonic increasing");
   }
 

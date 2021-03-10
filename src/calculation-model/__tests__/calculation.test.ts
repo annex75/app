@@ -29,7 +29,7 @@ const hvacMeasureA = new HvacMeasure("hvac", "hvacA");
 hvacMeasureA.refurbishmentCost = 200;
 hvacMeasureA.lifeTime = 25;
 hvacMeasureA.embodiedEnergy = 100;
-hvacMeasureA.efficiency = 90;
+hvacMeasureA.efficiency = 0.9;
 
 const project = new Project("project", "owner", false);
 
@@ -108,15 +108,28 @@ energySystemA.energyCarrier = energyCarrierId;
 energySystemA.efficiency = 0.8;
 project.calcData.energySystems[energySystemId] = energySystemA;
 
-const costCurves = {
-  systemSize: [ 10, 20, 30, 40, 50 ],
-  substation: [ 10, 20, 30, 40, 50 ],
+const costCurvesIndividual = {
+  systemSize: [ 1, 2, 3, 4, 5 ],
+  substation: [ 1, 2, 3, 4, 5 ],
+}
+
+const costCurvesCentralized = {
+  systemSize: [ 5, 10, 15, 20, 25 ],
+  intake: [ 5, 10, 15, 20, 25 ],
+  generation: [ 5, 10, 15, 20, 25 ],
+  circulation: [ 5, 10, 15, 20, 25 ],
 }
 
 energySystemA.costCurves.substation = {
-  investmentCost: new CostCurveIndividual("euro", costCurves),
-  maintenanceCost: new CostCurveIndividual("euroPerYear", costCurves),
-  embodiedEnergy: new CostCurveIndividual("kiloGramCO2EqPerYear", costCurves),
+  investmentCost: new CostCurveIndividual("euro", costCurvesIndividual),
+  maintenanceCost: new CostCurveIndividual("euroPerYear", costCurvesIndividual),
+  embodiedEnergy: new CostCurveIndividual("kiloGramCO2EqPerYear", costCurvesIndividual),
+}
+
+energySystemA.costCurves.centralized = {
+  investmentCost: new CostCurveCentralized("euro", costCurvesCentralized),
+  maintenanceCost: new CostCurveCentralized("euroPerYear", costCurvesCentralized),
+  embodiedEnergy: new CostCurveCentralized("kiloGramCO2EqPerYear", costCurvesCentralized),
 }
 
 scenarioInfo.energySystem.energySystem = energySystemId;
@@ -135,7 +148,7 @@ const systemInfo: IEnergySystemScenarioInfo = {
     numBuildings: 3,
     indoorTemperature: 20,
     outdoorTemperature: -10,
-    decentralizedSystemEfficiency: 90,
+    decentralizedSystemEfficiency: 0.90,
     heatLossCoefficient: 0.3,
   }],
   systemSize: { 
@@ -229,7 +242,7 @@ describe('calculateHeatLossCoefficient', () => {
     const hlc = calculateHeatLossCoefficient(project.calcData, buildingTypeId, scenarioInfo);
     // THEN
     // todo: haven't double checked this value, might be wrong
-    expect(hlc).toBeCloseTo(125.393);
+    expect(hlc).toBeCloseTo(193.44);
   });
 
   it('detects faulty indata', () => {
@@ -261,20 +274,20 @@ describe('calculateEnergySystems', () => {
     const result = calculateEnergySystems(project)[scenarioId][energySystemId];
 
     // THEN
-    expect(result.systemSize.centralized).toBeCloseTo(104.494);
+    expect(result.systemSize.centralized).toBeCloseTo(16.12);
     expect(result.systemSize.decentralized.length).toEqual(1);
-    expect(result.systemSize.decentralized[0].systemSize).toBeCloseTo(27.865);
+    expect(result.systemSize.decentralized[0].systemSize).toBeCloseTo(4.298);
     expect(result.systemSize.decentralized[0].numberOfBuildings).toEqual(3);
     Object.keys(result.maintenanceCost).forEach(key => {
-      const exp = key === "substation" ? 83.596: 104.494;
+      const exp = key === "substation" ? 12.896: 16.12;
       expect(result.maintenanceCost[key as TCostCurveType]).toBeCloseTo(exp);
     });
     Object.keys(result.investmentCost).forEach(key => {
-      const exp = key === "substation" ? 83.596: 104.494;
+      const exp = key === "substation" ? 12.896: 16.12;
       expect(result.investmentCost[key as TCostCurveType]).toBeCloseTo(exp);
     });
     Object.keys(result.embodiedEnergy).forEach(key => {
-      const exp = key === "substation" ? 83.596: 104.494;
+      const exp = key === "substation" ? 12.896: 16.12;
       expect(result.embodiedEnergy[key as TCostCurveType]).toBeCloseTo(exp);
     });
     expect(result.primaryEnergyUse).toEqual(28125);
@@ -294,8 +307,8 @@ describe('calculateEnergySystemAnnualizedSpecificInvestmentCost', () => {
 describe('calculateEnergySystemSpecificMaintenanceCost', () => {
   it('calculates maintenance cost correctly', () => {
     const buildingArea = 2000;
-    const result = calculateEnergySystemSpecificMaintenanceCost(systemInfo, energySystemA, buildingArea);
-    expect(result).toEqual(5);
+    const result = calculateEnergySystemSpecificMaintenanceCost(systemInfo, buildingArea);
+    expect(result).toEqual(0.2);
   });
 });
 

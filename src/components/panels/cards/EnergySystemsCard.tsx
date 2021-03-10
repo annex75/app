@@ -68,14 +68,13 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
       mode: "input",
       label: "Life time"
     },
-    /*
     efficiency: {
       key: "efficiency",
       unit: "nonDimensional",
       type: Number,
       mode: "input",
       label: "Efficiency"
-    },*/
+    },
     energyCarrier: {
       key: "energyCarrier",
       mode: "dropdownOptionPath",

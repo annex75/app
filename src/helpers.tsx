@@ -28,7 +28,6 @@ export const renderInputLabel = (param: IInput) => {
       <Popover
         content={<p className="popover-content">{param.info}</p>}
         interactionKind={PopoverInteractionKind.CLICK}
-        onInteraction={() => {console.log(param.info)}}
         position={Position.RIGHT}>
         <Button tabIndex={-1} icon="info-sign" className="info-popover-button" minimal>{text}</Button>
       </Popover>

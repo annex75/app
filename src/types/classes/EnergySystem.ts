@@ -2,8 +2,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Units } from '../Data';
 
-const defSystemSizes = [ 50, 100, 150, 200, 250 ];
-const defCostCurve = [ 50, 100, 150, 200, 250];
+const defSystemSizes = [ 50, 100, 500, 1000, 5000 ];
+const defCostCurve = [ 0, 0, 0, 0, 0];
 
 export const costCurveCategories = [ "investmentCost", "maintenanceCost", "embodiedEnergy" ] as const;
 export type TCostCurveCategory = typeof costCurveCategories[number];
@@ -38,15 +38,19 @@ export class EnergySystem {
   lifeTime: number = 0;
   energyCarrier: string = "";
   efficiency: number = 1;
-  costCurves: Record<TCostCurveScale,Record<TCostCurveCategory,CostCurveCentralized | CostCurveIndividual>>;
+  costCurves: Record<TCostCurveScale,Record<TCostCurveCategory, CostCurveCentralized | CostCurveIndividual>>;
   [key: string]: EnergySystem[keyof EnergySystem];
 }
 
 export class CostCurveCentralized {
-  constructor(unit: keyof typeof Units) {
+  constructor(unit: keyof typeof Units, curves = { systemSize: defSystemSizes, intake: defCostCurve, generation: defCostCurve, circulation: defCostCurve }) {
+    this.systemSize.value = curves.systemSize;
     this.intake.unit = unit;
+    this.intake.value = curves.intake;
     this.generation.unit = unit;
+    this.generation.value = curves.generation;
     this.circulation.unit = unit;
+    this.circulation.value = curves.circulation;
   }
   systemSize: ICostCurve = {
     label: "System size",

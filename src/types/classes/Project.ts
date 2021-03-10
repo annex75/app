@@ -130,7 +130,7 @@ export class Project implements IProject {
         });
 
         const annualizedSpecificInvestmentCost = calculateEnergySystemAnnualizedSpecificInvestmentCost(energySystemScenarioInfo, energySystem, totalBuildingArea);
-        const specificMaintenanceCost = calculateEnergySystemSpecificMaintenanceCost(energySystemScenarioInfo, energySystem, totalBuildingArea);
+        const specificMaintenanceCost = calculateEnergySystemSpecificMaintenanceCost(energySystemScenarioInfo, totalBuildingArea);
         const annualizedSpecificEnergyCost = energySystemScenarioInfo.lifetimeEnergyCost/(totalBuildingArea*energySystem.lifeTime);
         scenario.total.annualizedSpecificCost += 
           annualizedSpecificInvestmentCost
@@ -154,7 +154,6 @@ export class Project implements IProject {
       });
       
       // renovation measures
-      
       buildingMeasureScenarioCategories.forEach(scenarioCat => {
         let category = convertTypes("TBuildingMeasureScenarioCategory", "TBuildingMeasureCategory", scenarioCat) as TBuildingMeasureCategory;
         Object.keys(scenario.buildingMeasures[scenarioCat]).forEach(buildingMeasureId => {
@@ -163,7 +162,6 @@ export class Project implements IProject {
           scenario.total.buildingMeasures[scenarioCat].refurbishmentCost += +buildingMeasureScenarioInfo.refurbishmentCost;
           scenario.total.buildingMeasures[scenarioCat].embodiedEnergy += +buildingMeasureScenarioInfo.embodiedEnergy;
           const annualizedSpecificRefurbishmentCost = calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost(buildingMeasureScenarioInfo, buildingMeasure, totalBuildingArea);
-          console.log(buildingMeasure, annualizedSpecificRefurbishmentCost);
           scenario.total.annualizedSpecificCost += annualizedSpecificRefurbishmentCost;
           scenario.total.specificEmbodiedEnergy += calculateBuildingMeasureSpecificEmbodiedEnergy(buildingMeasureScenarioInfo, totalBuildingArea);
         });

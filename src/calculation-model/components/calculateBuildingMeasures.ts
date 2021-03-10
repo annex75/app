@@ -128,22 +128,22 @@ export const calculateHeatLossCoefficient = (calcData: CalcData, buildingTypeId:
     {
       rBase: 1/buildingType.buildingThermalProperties.facadeUValue,
       lambdaAddtl: buildingMeasures.facade.lambdaValue,
-      thicknessAddtl: (scenarioInfo.buildingMeasures.facade as IScenarioEnvelopeMeasureData).thickness,
+      thicknessAddtl: (scenarioInfo.buildingMeasures.facade as IScenarioEnvelopeMeasureData).thickness/100,
       area: getBuildingArea(buildingType.buildingGeometry, "facade"),
     },{
       rBase: 1/buildingType.buildingThermalProperties.roofUValue,
       lambdaAddtl: buildingMeasures.roof.lambdaValue,
-      thicknessAddtl: (scenarioInfo.buildingMeasures.roof as IScenarioEnvelopeMeasureData).thickness,
+      thicknessAddtl: (scenarioInfo.buildingMeasures.roof as IScenarioEnvelopeMeasureData).thickness/100,
       area: getBuildingArea(buildingType.buildingGeometry, "roof"),
     },{
       rBase: 1/buildingType.buildingThermalProperties.foundationUValue,
       lambdaAddtl: buildingMeasures.foundation.lambdaValue,
-      thicknessAddtl: (scenarioInfo.buildingMeasures.foundation as IScenarioFoundationMeasureData).floorThickness,
+      thicknessAddtl: (scenarioInfo.buildingMeasures.foundation as IScenarioFoundationMeasureData).floorThickness/100,
       area: getBuildingFoundationArea(buildingType.buildingGeometry).floor,
     },{
       rBase: 1/buildingType.buildingThermalProperties.basementWallUValue,
       lambdaAddtl: buildingMeasures.foundation.lambdaValue,
-      thicknessAddtl: (scenarioInfo.buildingMeasures.foundation as IScenarioFoundationMeasureData).wallThickness,
+      thicknessAddtl: (scenarioInfo.buildingMeasures.foundation as IScenarioFoundationMeasureData).wallThickness/100,
       area: getBuildingFoundationArea(buildingType.buildingGeometry).wall,
     },
   ];
@@ -156,7 +156,6 @@ export const calculateHeatLossCoefficient = (calcData: CalcData, buildingTypeId:
   const envelopeHeatLossCoefficient = hlc(calcArr, windows);
   const thermalBridges = calculateThermalBridges(buildingType);
   const ventilationLosses = calculateVentilationLosses(buildingType, buildingMeasures.hvac, calcData.district.location.altitude)
-
   return envelopeHeatLossCoefficient + thermalBridges + ventilationLosses;
 }
 

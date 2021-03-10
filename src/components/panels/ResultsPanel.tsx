@@ -160,7 +160,6 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
       return !this.props.project.scenarioData.scenarios[id].deleted;
     });
     const activeScenarios = activeScenarioIds.map(id => this.props.project.scenarioData.scenarios[id]);
-    console.log(activeScenarios);
     const tableData = this.getTableData(activeScenarios);
     const columns = this.getTableColumns(tableData, activeScenarios);
     return (

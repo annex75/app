@@ -399,13 +399,13 @@ export class HvacMeasureParameters extends BaseBuildingMeasureParameters {
     key: "efficiency",
     type: Number,
     label: "Efficiency of heating system",
-    unit: "percent",
+    unit: "nonDimensional",
   };
   recoveryEfficiency: IBuildingMeasureInfo = {
     key: "recoveryEfficiency",
     type: Number,
     label: "Efficiency of heat recovery",
-    unit: "percent",
+    unit: "nonDimensional",
   };
   coldWaterTemp: IBuildingMeasureInfo = {
     key: "coldWaterTemp",

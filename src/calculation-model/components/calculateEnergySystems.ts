@@ -137,7 +137,8 @@ const calculateSystemSize = (energySystem: EnergySystem, individualBuildingHeatN
         const decentralizedSystemSize = 
           (heatData.indoorTemperature - heatData.outdoorTemperature)
           * heatData.heatLossCoefficient
-          / heatData.decentralizedSystemEfficiency;
+          / heatData.decentralizedSystemEfficiency
+          / 1000; // convert to [kW]
         return {
           systemSize: decentralizedSystemSize,
           numberOfBuildings: heatData.numBuildings,
@@ -248,11 +249,10 @@ export const calculateEnergySystemAnnualizedSpecificInvestmentCost = (
 
 export const calculateEnergySystemSpecificMaintenanceCost = (
   energySystemScenarioInfo: IEnergySystemScenarioInfo,
-  energySystem: EnergySystem,
   totalBuildingArea: number,
 ) => {
   const costs = Object.entries(energySystemScenarioInfo.maintenanceCost).reduce((memo, [, val]) => {
-    return memo + val*energySystem.lifeTime;
+    return memo + val;
   }, 0);
   
   if (!totalBuildingArea) {
