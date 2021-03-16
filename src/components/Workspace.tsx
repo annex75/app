@@ -4,6 +4,7 @@ import classNames from 'classnames'
 // @ts-ignore
 import { Breadcrumb, Classes, ProgressBar, Tab, Tabs, Intent, FileInput, IToastProps } from '@blueprintjs/core';
 import firebase from 'firebase/app';
+import 'firebase/storage';
 import { set as _fpSet } from 'lodash/fp';
 
 // internal
@@ -61,7 +62,7 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
   startUpload = (f: File) => {
     this.handleUploadStart();
     const storageRef = firebase.storage().ref(`epw/${this.props.currentUser!.uid}`);
-    const fileRef = storageRef.child(f.name)
+    const fileRef = storageRef.child(f.name);
     const uploadTask = fileRef.put(f);
     uploadTask.on('state_changed', (snapshot: firebase.storage.UploadTaskSnapshot) => {
         const progress = snapshot.bytesTransferred / snapshot.totalBytes * 100;

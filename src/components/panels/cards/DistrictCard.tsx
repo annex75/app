@@ -75,11 +75,11 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
             handleChange: this.props.handleChange,
           },
           designOutdoorTemperature: {
-            //info: "Design temperature",
+            info: "Outdoor dry bulb temperature exceeded 99% of the year",
             key: "designOutdoorTemperature",
             type: String,
             unit: "degC",
-            label: "Design temperature",
+            label: "Design temp.",
             localPath: "climate.designOutdoorTemperature",
             rootPath: "district",
             handleChange: this.props.handleChange,

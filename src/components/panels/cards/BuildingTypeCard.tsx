@@ -197,7 +197,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
         parameters: {
           buildingClass: {
             key: "buildingClass",
-            unit: "wattPerMeterSqKelvin",
+            unit: "none",
             info: "Thermal mass of principal building components",
             type: String,
             label: "Building class",

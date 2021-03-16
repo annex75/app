@@ -20,7 +20,7 @@ import './style/stylesheet.css';
 import { FirebaseInstance } from './base';
 import { ProjectList } from './components/ProjectList';
 import { AppToaster } from './toaster';
-import { APP_VERSION } from './constants';
+import { SUPPORTED_VERSIONS } from './constants';
 import { exportXlsx } from './WorkbookExport';
 
 // todo: not really typescript, no type safety but couldn't get it to work
@@ -166,7 +166,12 @@ class App extends Component<IAppProps, IAppState> {
     } else {
       const projects = { ...this.state.projects }
       for (const id in projects) {
-        if (id !== projectId && !projects[id].deleted && projects[id].appVersion === APP_VERSION && projects[id].name === projectName) {
+        if (
+          id !== projectId
+          && !projects[id].deleted
+          && SUPPORTED_VERSIONS.includes(projects[id].appVersion!)
+          && projects[id].name === projectName
+        ) {
           valid = false;
           break;
         }

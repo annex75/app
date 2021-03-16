@@ -75,7 +75,7 @@ export class NewProjectForm extends Component<INewProjectFormProps, INewProjectF
             Project name
             <input className="bp3-input" name="name" type="text" ref={(input) => { this.nameInput = input! }} placeholder="Project name"></input>
           </label>
-          <FileInput 
+          <FileInput disabled
             className="bp3-intent-primary"
             text={this.state.xlsxFile || "Upload template .xlsx"}
             onInputChange={this.createProjectFromXlsx}

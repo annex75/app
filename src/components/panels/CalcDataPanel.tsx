@@ -9,7 +9,7 @@ import { Collapse, Button, Card, Intent, Dialog } from '@blueprintjs/core';
 // internal
 //import { CalcData } from '@annex-75/calculation-model/';
 import * as config from '../../config.json';
-import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, HvacMeasure, EnvelopeMeasure, WindowMeasure, EnergyCarrier, TCostCurveCategory, TCostCurveScale } from '../../types';
+import { ICalcDataPanelProps, ICalcDataPanelState, CalcData, BuildingType, ICalcDataPanelCard, EnergySystem, ICostCurve, TBuildingMeasureCategory, HvacMeasure, EnvelopeMeasure, WindowMeasure, EnergyCarrier, TCostCurveCategory, TCostCurveScale, ScenarioInfo } from '../../types';
 import { DistrictCard } from './cards/DistrictCard';
 import { BuildingTypeCard } from './cards/BuildingTypeCard';
 import { AppToaster } from '../../toaster';
@@ -169,6 +169,11 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
       } else {
         buildingType = new BuildingType();
       }
+
+      for (const scenarioId in newState.project.scenarioData.scenarios) {
+        const scenario = newState.project.scenarioData.scenarios[scenarioId];
+        scenario.buildingTypes[buildingType.id] = new ScenarioInfo();
+      } 
 
       newState.project.calcData.buildingTypes[buildingType.id] = buildingType;
     }
