@@ -20,6 +20,7 @@
     "mapbox-gl": "^0.44.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-markdown": "^5.0.3",
     "react-scripts": "3.3.0",
     "typescript": "^3.9.7",
     "xlsx": "^0.15.6"

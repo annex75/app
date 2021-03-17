@@ -2,7 +2,7 @@ import React, { Component, RefObject } from 'react';
 import { Link } from 'react-router-dom';
 import { IProjectListProps, IProjectListState, IProjectSettingsProps, IProjectSettingsState, IProject, IDictProject, IDictPopover } from '../types';
 import { Button, Popover, PopoverInteractionKind, Position, Alert, Intent } from '@blueprintjs/core';
-import { APP_VERSION } from '../constants';
+import { SUPPORTED_VERSIONS } from '../constants';
 import { NewProjectForm } from './NewProjectForm';
 
 export class ProjectList extends Component<IProjectListProps, IProjectListState> {
@@ -166,7 +166,7 @@ const ProjectCards = (props: IProjectCardsProps) => {
 
 // todo: possibly add more checks here
 const isActive = (project: IProject) => {
-  return (!project.deleted && project.appVersion === APP_VERSION);
+  return (!project.deleted && SUPPORTED_VERSIONS.includes(project.appVersion!));
 }
 
 class ProjectSettings extends Component<IProjectSettingsProps, IProjectSettingsState> {

@@ -22,6 +22,8 @@ import { ProjectList } from './components/ProjectList';
 import { AppToaster } from './toaster';
 import { SUPPORTED_VERSIONS } from './constants';
 import { exportXlsx } from './WorkbookExport';
+import { LandingPage } from './components/LandingPage';
+import changelogPath from './changelog.md';
 
 // todo: not really typescript, no type safety but couldn't get it to work
 // cf: https://stackoverflow.com/questions/47747754/how-to-rewrite-the-protected-router-using-typescript-and-react-router-4-and-5/47754325#47754325
@@ -68,6 +70,7 @@ class App extends Component<IAppProps, IAppState> {
       projects: {},
       loading: true,
       updating: false,
+      changelog: "",
       activeProjectId: "",
       currentUser: null,
     };
@@ -98,6 +101,12 @@ class App extends Component<IAppProps, IAppState> {
 
     });
 
+  }
+
+  componentWillMount() {
+    fetch(changelogPath).then((response) => response.text()).then((text) => {
+      this.setState({ changelog: text })
+    })
   }
 
   componentWillUnmount() {
@@ -282,12 +291,7 @@ class App extends Component<IAppProps, IAppState> {
             <div className="main-content">
               <div className="workspace-wrapper">
                 <Route exact path="/" render={ props => {
-                  return (
-                    <div>
-                      <h1>IEA EBC Annex 75 - Cost-effective Building Renovation at District Level Combining Energy Efficiency & Renewables</h1>
-                      <p>Buildings are a major source of greenhouse gas emissions and cost-effectively reducing their energy use and associated emissions is particularly challenging for the existing building stock, mainly because of the existence of many architectural and technical hurdles. The transformation of existing buildings into low-emission and low-energy buildings is particularly challenging in cities, where many buildings continue to rely too much on heat supply by fossil fuels.</p>
-                    </div>
-                  )
+                  return <LandingPage changelog={this.state.changelog}/>
                 }} />
                 <Route exact path="/login" render={ props => {
                   return (

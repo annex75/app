@@ -12,6 +12,7 @@ export interface IAppState {
   updating: boolean;
   activeProjectId: string;
   projects: IDictProject;
+  changelog: string; // md string with changelog
   currentUser: firebase.UserInfo | null;
 }
 
@@ -87,6 +88,16 @@ export interface IFooterProps { }
 export interface IFooterState {
   year: number;
   helpPopoverOpen: boolean;
+}
+
+/* Landing page */
+
+export interface ILandingPageState {
+  changelogOpen: boolean;
+}
+
+export interface ILandingPageProps {
+  changelog: string;
 }
 
 /* Login/Logout */
