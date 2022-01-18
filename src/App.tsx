@@ -212,7 +212,7 @@ class App extends Component<IAppProps, IAppState> {
     console.log(iProject);
     if (!this.validProjectName(iProject.name, iProject.id)) {
       // todo: save warning messages somewhere
-      
+      AppToaster.show({ intent: Intent.DANGER, message: `Invalid project name` });
     } else {
       this.setActiveProject(iProject.id);
       const projects = { ...this.state.projects };

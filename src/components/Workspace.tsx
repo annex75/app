@@ -164,7 +164,7 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
               title="Results"
               project={this.state.project}
               updateProject={this.props.updateProject}/>
-          } disabled={!this.state.project.calculationOk}/>
+          } disabled={!this.state.project.calculationOk && !this.state.project.calculationActive}/>
         </Tabs>
       </div>
     );
