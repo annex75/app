@@ -280,7 +280,7 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
                           const eventHandler = this.props.handleDropdownChange;
                           return renderDropdown(`energy-system-${paramName}-${id}`, alts, selected, eventHandler)
                         } case "dropdownOptions": {
-                          const alts = param.options.map( option => {
+                          const alts = param.options.map(option => {
                             const newOption = Object.assign({ ...option }, { path: param.path });
                             return newOption;
                           });

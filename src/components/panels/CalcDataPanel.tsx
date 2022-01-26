@@ -44,6 +44,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
         component: BuildingTypeCard,
         eventHandlers: {
           handleChange: this.handleChangeEvent,
+          handleDropdownChange: this.handleDropdownChange,
           deleteBuildingType: this.deleteBuildingType,
           copyBuildingType: this.copyBuildingType,
           addBuildingType: this.addBuildingType,

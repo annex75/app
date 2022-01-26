@@ -51,6 +51,7 @@ export interface IInputField extends IInput {
 
 export interface IDropdown extends IInput {
   handleChange?(e: ChangeEvent<HTMLInputElement>): void;
+  localPath?: string;
   twoLine?: boolean;
 }
 
@@ -121,7 +122,7 @@ export interface ICalcDataAdvancedOptionsCard {
   title: string;
   isOpen: boolean;
   eventHandlers: IDictEventHandler;
-  parameters: Record<string, IInputField>;
+  parameters: Record<string, IInputField | IDropdownOptions>;
 }
 
 export interface IAdvancedOptionsCardProps {
@@ -129,7 +130,7 @@ export interface IAdvancedOptionsCardProps {
   data: any;
   eventHandlers: IDictEventHandler;
   category: string;
-  parameters: Record<string,IInputField>;
+  parameters: Record<string,IInputField | IDropdown>;
 }
 
 export interface IDistrictCardProps extends ICalcDataCardProps {
@@ -177,6 +178,7 @@ export interface IMapClickEvent {
 
 export interface IBuildingTypeCardProps extends ICalcDataCardProps {
   handleChange(e: ChangeEvent<HTMLInputElement>): void;
+  handleDropdownChange(item: IDropdownAlt): void;
   addBuildingType(): void;
   copyBuildingType(id: string): void;
   deleteBuildingType(id: string): void;
@@ -189,12 +191,17 @@ export interface IBuildingTypeCardState extends ICalcDataCardState {
   deleteBuildingTypeWarningOpen: IDictBool;
 }
 
-export interface IBuildingInfo extends IInputField {
+export interface IBuildingInfoParameter extends IInputField {
+  mode: "input"; 
+}
 
+export interface IBuildingInfoDropdownOptions extends IDropdownOptions {
+  nameKey: "name";
+  mode: "dropdownOptions";
 }
 
 export interface IBuildingAdvancedOptionsCard extends ICalcDataAdvancedOptionsCard {
-  parameters: Record<string, IBuildingInfo>;
+  parameters: Record<string, IBuildingInfoParameter | IBuildingInfoDropdownOptions>;
 }
 
 export interface IEnergySystemParameter extends IInputField {

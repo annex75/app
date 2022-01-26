@@ -1,7 +1,8 @@
 import React, { Component, ChangeEvent } from "react"
+import { get as _fpGet } from 'lodash/fp';
 
-import { IBuildingTypeCardProps, IBuildingTypeCardState, IBuildingAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictBuildingType, IDictBool } from "../../../types";
-import { renderInputField, renderInputLabel } from '../../../helpers'
+import { IBuildingTypeCardProps, IBuildingTypeCardState, IBuildingAdvancedOptionsCard, IAdvancedOptionsCardProps, IDictBuildingType, IDictBool, IBuildingInfoParameter, IBuildingInfoDropdownOptions, BuildingClass, buildingClasses } from "../../../types";
+import { renderInputField, renderDropdown, renderInputLabel, IDropdownAlt } from '../../../helpers'
 
 import { FormGroup, Button, InputGroup, Collapse, Tooltip, Position, Intent, Alert } from "@blueprintjs/core";
 
@@ -25,6 +26,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Construction year",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           energyPerformanceCertificate: {
             key: "energyPerformanceCertificate",
@@ -33,6 +35,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: String,
             label: "Energy performance certificates",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           ownership: {
             key: "ownership",
@@ -41,6 +44,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: String,
             label: "Ownership",
             rootPath: "buildingTypes",
+            mode: "input",
           }
         }
       },
@@ -59,6 +63,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Gross heated floor area",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           heatedVolume: {
             key: "heatedVolume",
@@ -67,6 +72,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Heated volume",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           perimeter: {
             key: "perimeter",
@@ -75,6 +81,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Perimeter",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           facadeAreaN: {
             key: "facadeAreaN",
@@ -83,6 +90,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Façade area to the North",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           facadeAreaE: {
             key: "facadeAreaE",
@@ -91,6 +99,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Façade area to the East",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           facadeAreaS: {
             key: "facadeAreaS",
@@ -99,6 +108,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Façade area to the South",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           facadeAreaW: {
             key: "facadeAreaW",
@@ -107,6 +117,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Façade area to the West",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           roofArea: {
             key: "roofArea",
@@ -114,6 +125,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Roof area",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           windowAreaN: {
             key: "windowAreaN",
@@ -122,6 +134,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Window area to the North",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           windowAreaE: {
             key: "windowAreaE",
@@ -130,6 +143,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Window area to the East",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           windowAreaS: {
             key: "windowAreaS",
@@ -138,6 +152,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Window area to the South",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           windowAreaW: {
             key: "windowAreaW",
@@ -146,6 +161,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Window area to the West",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           basementFloorArea: {
             key: "basementFloorArea",
@@ -154,6 +170,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Foundation area",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           basementWallArea: {
             key: "basementWallArea",
@@ -162,6 +179,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Basement wall area",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           numberOfFloorsAbove: {
             key: "numberOfFloorsAbove",
@@ -169,6 +187,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Number of floors above ground",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           numberOfFloorsBelow: {
             key: "numberOfFloorsBelow",
@@ -176,6 +195,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Number of floors below ground",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           floorHeight: {
             key: "floorHeight",
@@ -184,6 +204,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: Number,
             label: "Average floor height",
             rootPath: "buildingTypes",
+            mode: "input",
           },
         }
       },
@@ -193,15 +214,16 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
         isOpen: false,
         eventHandlers: {
           handleChange: this.props.handleChange,
+          handleDropdownChange: this.props.handleDropdownChange,
         },
         parameters: {
           buildingClass: {
             key: "buildingClass",
-            unit: "none",
             info: "Thermal mass of principal building components",
-            type: String,
             label: "Building class",
-            rootPath: "buildingTypes",
+            mode: "dropdownOptions",
+            nameKey: "name",
+            options: buildingClasses.map((option) => this.createDropdownInfo(option)),
           },
           facadeUValue: {
             key: "facadeUValue",
@@ -210,6 +232,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: String,
             label: "Façade U-value",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           windowUValue: {
             key: "windowUValue",
@@ -218,6 +241,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: String,
             label: "Window U-value",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           roofUValue: {
             key: "roofUValue",
@@ -226,6 +250,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: String,
             label: "Roof U-value",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           basementWallUValue: {
             key: "basementWallUValue",
@@ -234,6 +259,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: String,
             label: "Basement wall U-value",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           foundationUValue: {
             key: "foundationUValue",
@@ -242,6 +268,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: String,
             label: "Foundation U-value",
             rootPath: "buildingTypes",
+            mode: "input",
           },
           designIndoorTemperature: {
             key: "designIndoorTemperature",
@@ -250,6 +277,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             type: String,
             label: "Design indoor temperature",
             rootPath: "buildingTypes",
+            mode: "input",
           },
         }
       },
@@ -264,6 +292,15 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
       buildingAdvancedOptions,
       deleteBuildingTypeWarningOpen,
     };
+  }
+
+  createDropdownInfo = (option: BuildingClass) => {
+    return {
+      label: option.name || "",
+      id: option.id || "",
+      name: option.name || "",
+      path: "", // has to be set for each energy system
+    }
   }
 
   handleAlertOpen = (id: string) => {
@@ -404,6 +441,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
 }
 
 interface IBuildingAdvancedOptionsCardProps extends IAdvancedOptionsCardProps {
+  parameters: Record<string, IBuildingInfoParameter | IBuildingInfoDropdownOptions>;
   data: IDictBuildingType;
 }
 
@@ -425,9 +463,35 @@ const AdvancedOptionsCard = (props: IBuildingAdvancedOptionsCardProps) => {
                 labelFor={`building-type-${paramName}-input`}>
                 {
                   Object.keys(buildingTypes).filter(id => !buildingTypes[id].deleted).map(id => {
-                    param.localPath = `${id}.${category}.${paramName}`;
-                    const eventHandler = props.eventHandlers.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
-                    return renderInputField(`building-type-${id}`, param, buildingTypes, eventHandler)
+                    param.path = `buildingTypes.${id}.${category}.${paramName}`;
+                    // todo: this code also exists in EnergySystemsCard. Refactor!
+                    switch (param.mode) {
+                      case "input": {
+                        param.localPath = `${id}.${category}.${paramName}`;
+                        const eventHandler = props.eventHandlers.handleChange as ((e: ChangeEvent<HTMLInputElement>) => void);
+                        return renderInputField(`building-type-${id}`, param, buildingTypes, eventHandler)
+                      } case "dropdownOptions": {
+                        param.localPath = `${id}.${category}.${paramName}`;
+                        const alts = param.options.map(option => {
+                          const newOption = Object.assign({ ...option }, { path: param.path });
+                          return newOption;
+                        });
+                        // Todo: no idea why i have to do this to make it work
+                        const selId = _fpGet(param.localPath, buildingTypes as Object);
+                        const selected = alts.find(e => {
+                          return e.id === selId;
+                        }) || {
+                          label: "Select...",
+                          path: "",
+                          id: "",
+                          name: "",
+                        };
+                        const eventHandler = props.eventHandlers.handleDropdownChange as ((item: IDropdownAlt) => void);
+                        return renderDropdown(`building-type-${paramName}-${id}`, alts, selected, eventHandler, { twoLine: param.twoLine })
+                      } default: {
+                        throw new Error(`Param mode is not defined`);
+                      }
+                    }
                   })
                 }
                 <span className="empty-button"/>
