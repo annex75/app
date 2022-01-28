@@ -1,3 +1,8 @@
+## 1.4.3 (2022-01-28)
+
+* Added changelog notifier
+* Building class (thermal properties) is now a dropdown
+
 ## 1.4.2 (2021-03-17)
 
 * Added changelog information

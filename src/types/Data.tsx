@@ -7,6 +7,7 @@ import { IEnergySystemScenarioInfo, IBuildingMeasureScenarioInfo } from '../calc
 
 // this module defines data containers
 
+
 /* Dictionaries */
 export interface IDictProject {
   [index: string]: IProject;
@@ -14,6 +15,10 @@ export interface IDictProject {
 
 export interface IDictBool {
   [index: string]: boolean;
+}
+
+export interface IUserInfo {
+  patchNotification: string;
 }
 
 export interface IProject {

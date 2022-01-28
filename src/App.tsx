@@ -8,6 +8,7 @@ import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { Spinner, Intent } from '@blueprintjs/core';
 import xlsx from 'xlsx';
+import semver from 'semver';
 
 // internal
 import { Header } from './components/Header';
@@ -15,12 +16,12 @@ import { Footer } from './components/Footer';
 import { Login } from './components/Login';
 import { Logout } from './components/Logout';
 import { Workspace } from './components/Workspace';
-import { IProject, IAppProps, IAppState, Project, IDictProject } from './types';
+import { IProject, IAppProps, IAppState, Project, IDictProject, IUserInfo } from './types';
 import './style/stylesheet.css';
 import { FirebaseInstance } from './base';
 import { ProjectList } from './components/ProjectList';
 import { AppToaster } from './toaster';
-import { SUPPORTED_VERSIONS } from './constants';
+import { APP_VERSION, SUPPORTED_VERSIONS } from './constants';
 import { exportXlsx } from './WorkbookExport';
 import { LandingPage } from './components/LandingPage';
 import changelogPath from './changelog.md';
@@ -82,6 +83,21 @@ class App extends Component<IAppProps, IAppState> {
       if (user) {
         this.setState({
           currentUser: user,
+        });
+        this.fb.base.fetch(`users/${user.uid}`, {
+          context: this,
+          then: (data: IUserInfo) => {
+            if (!data || !data.patchNotification || semver.gt(APP_VERSION, data.patchNotification)) {
+              AppToaster.show({ 
+                intent: Intent.NONE,
+                message: `Since your last visit, the application has been updated to version ${APP_VERSION}. Please check the changelog on the frontpage for more information.`,
+                timeout: 10000,
+              })
+              this.fb.base.update(`users/${user.uid}`, {
+                data: { patchNotification: APP_VERSION },
+              });
+            }
+          },
         });
         this.fb.base.fetch(`projects/${user.uid}`, {
           context: this,
