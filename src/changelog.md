@@ -1,3 +1,9 @@
+## 1.4.4 (2022-01-29)
+
+* Fixes for decentralized energy system calculation
+* Introduced COP (coefficient of performance) as a parameter for energy systems
+* Fixed crash when new parameters were added
+
 ## 1.4.3 (2022-01-28)
 
 * Added changelog notifier

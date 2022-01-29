@@ -75,6 +75,14 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
       mode: "input",
       label: "Efficiency"
     },
+    coefficientOfPerformance: {
+      key: "coefficientOfPerformance",
+      unit: "nonDimensional",
+      type: Number,
+      mode: "input",
+      label: "COP",
+      info: "Coefficient of performance",
+    },
     energyCarrier: {
       key: "energyCarrier",
       mode: "dropdownOptionPath",

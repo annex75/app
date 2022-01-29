@@ -137,6 +137,7 @@ const calculateSystemSize = (energySystem: EnergySystem, individualBuildingHeatN
         const decentralizedSystemSize = 
           (heatData.indoorTemperature - heatData.outdoorTemperature)
           * heatData.heatLossCoefficient
+          / (energySystem.systemCategory === "decentralized" ? energySystem.efficiency : 1)
           / heatData.decentralizedSystemEfficiency
           / 1000; // convert to [kW]
         return {
@@ -144,9 +145,9 @@ const calculateSystemSize = (energySystem: EnergySystem, individualBuildingHeatN
           numberOfBuildings: heatData.numBuildings,
         };
       });
-      systemSize.centralized = systemSize.decentralized.reduce((a, b) => {
+      systemSize.centralized = energySystem.systemCategory === "centralized" ? systemSize.decentralized.reduce((a, b) => {
         return a + b.systemSize * b.numberOfBuildings;
-      }, 0) / centralEfficiency;
+      }, 0) / centralEfficiency : 0;
     }
   }
   return systemSize;
@@ -284,12 +285,13 @@ const calculateEnergySystemPrimaryEnergyUse = (
   // todo: check this calculation
   //const primaryEnergyFactor = +energyCarrier.primaryEnergyFactorNonRe + +energyCarrier.primaryEnergyFactorRe;
   const primaryEnergyFactor = +energyCarrier.primaryEnergyFactorTotal;
-  
-  if (!energySystem.efficiency) {
-    throw new Error("Energy system efficiency must be positive");
+  const effectiveEfficiency = energySystem.efficiency * energySystem.coefficientOfPerformance
+
+  if (!effectiveEfficiency) {
+    throw new Error("Energy system efficiency and COP must be positive");
   }
 
-  return primaryEnergyFactor*heatingNeed/energySystem.efficiency;
+  return primaryEnergyFactor*heatingNeed/effectiveEfficiency;
 }
 
 const calculateEnergySystemEmissions = (
@@ -297,11 +299,13 @@ const calculateEnergySystemEmissions = (
   energyCarrier: EnergyCarrier,
   heatingNeed: number,
 ) => {
-  if (!energySystem.efficiency) {
-    throw new Error("Energy system efficiency must be positive");
+  const effectiveEfficiency = energySystem.efficiency * energySystem.coefficientOfPerformance
+
+  if (!effectiveEfficiency) {
+    throw new Error("Energy system efficiency and COP must be positive");
   }
   
-  return energyCarrier.emissionFactor*heatingNeed/energySystem.efficiency;
+  return energyCarrier.emissionFactor*heatingNeed/effectiveEfficiency;
 }
 
 const calculateEnergySystemLifetimeEnergyCost = (

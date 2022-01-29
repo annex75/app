@@ -42,7 +42,7 @@ export const renderInputLabel = (param: IInput) => {
 export const renderInputField = (parent: string, param: IInputField, obj: any, handleChange?: (e: ChangeEvent<HTMLInputElement>) => void, validator?: (val: string) => IValidatorResult ) => {
   let val;
   try {
-    val = _fpGet(param.localPath || param.path!, obj).toString() || '';
+    val = (_fpGet(param.localPath || param.path!, obj) || '').toString();
   } catch (e) {
     throw new Error(`Could not retrieve ${param.localPath} or ${param.path} from ${JSON.stringify(obj)}`)
   }

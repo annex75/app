@@ -1,3 +1,5 @@
+import { cloneDeep } from 'lodash';
+
 import {
   calculateBuildingMeasures,
   calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost,
@@ -106,6 +108,7 @@ energySystemA.systemCategory = "centralized";
 energySystemA.lifeTime = 25;
 energySystemA.energyCarrier = energyCarrierId;
 energySystemA.efficiency = 0.8;
+energySystemA.coefficientOfPerformance = 2;
 project.calcData.energySystems[energySystemId] = energySystemA;
 
 const costCurvesIndividual = {
@@ -177,6 +180,23 @@ const systemInfo: IEnergySystemScenarioInfo = {
     generation: 2500,
   },
 };
+
+const energySystemB = cloneDeep(energySystemA);
+const energySystemIdB = "energySystemB"
+energySystemB.id = energySystemIdB;
+energySystemB.efficiency = 0.95;
+energySystemB.systemCategory = "decentralized";
+project.calcData.energySystems[energySystemIdB] = energySystemB;
+
+const scenarioB = cloneDeep(scenario);
+const scenarioIdB = "ScenarioB"
+scenarioB.id = scenarioIdB;
+const scenarioInfoB = cloneDeep(scenarioInfo);
+scenarioInfoB.energySystem.energySystem = energySystemIdB;
+
+scenarioB.buildingTypes[buildingTypeId] = scenarioInfoB;
+
+project.scenarioData.scenarios[scenarioIdB] = scenarioB;
 
 
 describe('calculateBuildingMeasures', () => {
@@ -290,10 +310,43 @@ describe('calculateEnergySystems', () => {
       const exp = key === "substation" ? 12.896: 16.12;
       expect(result.embodiedEnergy[key as TCostCurveType]).toBeCloseTo(exp);
     });
-    expect(result.primaryEnergyUse).toEqual(28125);
-    expect(result.lifetimeEnergyCost).toEqual(1054687.5);
-    expect(result.emissions).toEqual(1968.75);
+    expect(result.primaryEnergyUse).toEqual(28125/energySystemA.coefficientOfPerformance);
+    expect(result.lifetimeEnergyCost).toEqual(1054687.5/energySystemA.coefficientOfPerformance);
+    expect(result.emissions).toEqual(1968.75/energySystemA.coefficientOfPerformance);
   });
+
+  it('calculates energy decentralized systems', () => {
+    // GIVEN
+    
+
+    // WHEN
+    const result = calculateEnergySystems(project)[scenarioIdB][energySystemIdB];
+
+    // THEN
+    expect(result.systemSize.centralized).toEqual(0);
+    expect(result.systemSize.decentralized.length).toEqual(1);
+    expect(result.systemSize.decentralized[0].systemSize).toBeCloseTo(4.298/energySystemB.efficiency);
+    expect(result.systemSize.decentralized[0].numberOfBuildings).toEqual(3);
+    Object.keys(result.maintenanceCost).forEach(key => {
+      const exp = key === "substation" ? 13.575: 0;
+      expect(result.maintenanceCost[key as TCostCurveType]).toBeCloseTo(exp);
+    });
+    Object.keys(result.investmentCost).forEach(key => {
+      const exp = key === "substation" ? 13.575: 0;
+      expect(result.investmentCost[key as TCostCurveType]).toBeCloseTo(exp);
+    });
+    Object.keys(result.embodiedEnergy).forEach(key => {
+      const exp = key === "substation" ? 13.575: 0;
+      expect(result.embodiedEnergy[key as TCostCurveType]).toBeCloseTo(exp);
+    });
+    expect(result.primaryEnergyUse).toEqual(22500/energySystemB.efficiency/energySystemB.coefficientOfPerformance);
+    expect(result.lifetimeEnergyCost).toBeCloseTo(444078.95);
+    expect(result.emissions).toBeCloseTo(828.95);
+  });
+});
+
+describe('calculateEnergySystems, decentralized', () => {
+  
 });
 
 describe('calculateEnergySystemAnnualizedSpecificInvestmentCost', () => {

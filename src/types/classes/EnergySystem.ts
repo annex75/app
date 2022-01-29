@@ -38,6 +38,7 @@ export class EnergySystem {
   lifeTime: number = 0;
   energyCarrier: string = "";
   efficiency: number = 1;
+  coefficientOfPerformance: number = 1;
   costCurves: Record<TCostCurveScale,Record<TCostCurveCategory, CostCurveCentralized | CostCurveIndividual>>;
   [key: string]: EnergySystem[keyof EnergySystem];
 }
