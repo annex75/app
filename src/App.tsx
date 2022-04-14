@@ -269,7 +269,7 @@ class App extends Component<IAppProps, IAppState> {
     projects[id].deleted = true;
     this.setState(() => ({
       projects: projects
-    }));
+    }), () => this.updateProjectsDatabase(projects));
   }
 
   setCurrentUser = (userCred: firebase.auth.UserCredential) => {
