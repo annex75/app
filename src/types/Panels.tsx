@@ -7,6 +7,7 @@ import { TCostCurveCategory, TCostCurveScale, ICostCurveCategory, ICostCurveScal
 
 export interface IPanelProps {
   title: string;
+  info: string;
 }
 
 export interface IPanelState { }

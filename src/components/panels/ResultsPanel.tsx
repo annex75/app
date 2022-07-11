@@ -5,7 +5,7 @@ import html2pdf from 'html2pdf.js';
 
 // internal
 import { IResultsPanelProps, IResultsPanelState, Scenario, Units } from '../../types';
-import { renderScatterChart, IChartSetup } from '../../helpers';
+import { renderScatterChart, IChartSetup, InfoButton } from '../../helpers';
 import { Button } from '@blueprintjs/core';
 import { Table, Column, ColumnHeaderCell, Cell } from '@blueprintjs/table';
 
@@ -164,7 +164,7 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
     const columns = this.getTableColumns(tableData, activeScenarios);
     return (
       <div>
-        <h1>{this.props.title}</h1>
+        <InfoButton level={1} label={this.props.title}/>
         <div className="bp3-card panel-card">
           <h3>Graphical results</h3>
           <div id="results-graph-container" >

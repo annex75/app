@@ -16,7 +16,7 @@ import { AppToaster } from '../../toaster';
 import { EnergySystemsCard } from './cards/EnergySystemsCard';
 import { CostCurveEditor } from './dialogs/CostCurveEditor';
 import { BuildingMeasuresCard } from './cards/BuildingMeasuresCard';
-import { IDropdownAlt } from '../../helpers';
+import { IDropdownAlt, InfoButton } from '../../helpers';
 
 export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanelState> {
 
@@ -382,7 +382,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
   render() {
     return (
       <div>
-        <h1>{this.props.title}</h1>
+        <InfoButton level={1} label={this.props.title}/>
         {
           Object.keys(this.state.cards).map(id => {
             const card = this.state.cards[id];

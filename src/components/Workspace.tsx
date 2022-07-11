@@ -138,11 +138,13 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
             <OverviewPanel
               updateProject={this.props.updateProject}
               title="Overview"
+              info="hello"
               project={this.state.project}/>
           } />
           <Tab id="calc-data" title={"Calculation data"} panel={
             <CalcDataPanel
               title="Calculation data"
+              info=""
               updateProject={this.props.updateProject}
               renderFileUploader={this.renderFileUploader}
               project={this.state.project}/>
@@ -150,18 +152,21 @@ export class Workspace extends Component<IWorkspaceProps, IWorkspaceState> {
           <Tab id="scenarios" title={"Scenarios"} panel={
             <ScenariosPanel 
               title="Scenarios" 
+              info=""
               updateProject={this.props.updateProject}
               project={this.state.project}/>
           } />
           <Tab id="model" title={"Model settings"} panel={
             <ModelPanel
               title="Calculation model settings"
+              info=""
               updateProject={this.props.updateProject}
               project={this.state.project}/>
           } />
           <Tab id="results" title={"Results"} panel={
             <ResultsPanel
               title="Results"
+              info=""
               project={this.state.project}
               updateProject={this.props.updateProject}/>
           } disabled={!this.state.project.calculationOk && !this.state.project.calculationActive}/>

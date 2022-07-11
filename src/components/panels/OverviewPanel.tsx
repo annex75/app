@@ -7,7 +7,7 @@ import { FormGroup, /* Tooltip */ } from '@blueprintjs/core';
 
 // internal
 import { IOverviewPanelProps, IOverviewPanelState, IOverviewDataCard } from '../../types';
-import { renderInputField, renderInputLabel, } from '../../helpers';
+import { renderInputField, renderInputLabel, InfoButton } from '../../helpers';
 import { strings } from '../../constants/textData';
 
 export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanelState> {
@@ -171,7 +171,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
   render() {
     return (
       <div>
-        <h1>{this.props.title}</h1>
+        <InfoButton level={1} label={this.props.title} info={this.props.info} />
         {
           Object.keys(this.state.overviewDataCards).map(cardId => {
             const card = this.state.overviewDataCards[cardId];

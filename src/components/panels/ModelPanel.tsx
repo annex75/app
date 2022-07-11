@@ -6,6 +6,7 @@ import { debounce as _debounce } from 'lodash';
 // internal
 import { IModelPanelProps, IModelPanelState, IModelOptionsCard, TModelOptionsCategory } from '../../types';
 import { Switch } from '@blueprintjs/core';
+import { InfoButton } from '../../helpers';
 
 export class ModelPanel extends Component<IModelPanelProps, IModelPanelState> {
   constructor(props: IModelPanelProps) {
@@ -87,7 +88,7 @@ export class ModelPanel extends Component<IModelPanelProps, IModelPanelState> {
     //todo: implement this similarly to the ScenariosPanel
     return (
       <div>
-        <h1>{this.props.title}</h1>
+        <InfoButton level={1} label={this.props.title}/>
         <div className="bp3-card panel-card" >
           <h3>Calculations</h3>
           <Switch checked={this.state.project.calculationActive} label="Activate calculations" onChange={this.handleActivateCalculation} />

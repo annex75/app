@@ -332,3 +332,19 @@ input {
 .chart-y-axis-label {
   text-anchor: middle;
 }
+
+h1.info-label {
+  padding: 10px 10px;
+  display: inline-flex;
+  margin: 0 0;
+}
+
+.bp3-button.info-label-button {
+  padding: 10px 10px;
+  height: 56px;
+}
+
+.bp3-button h1 {
+  margin: 0 0;
+  padding: 0 0;
+}

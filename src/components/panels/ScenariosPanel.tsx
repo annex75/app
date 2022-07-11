@@ -9,7 +9,7 @@ import { InputGroup, FormGroup, Button, Intent, Collapse, Position, Tooltip, Ale
 import * as config from '../../config.json';
 import { IScenariosPanelProps, IScenariosPanelState, Scenario, IScenarioOptionsCard, ScenarioInfo, TScenarioParamCategory, IScenarioInput, IDictBool, } from '../../types';
 import { AppToaster } from '../../toaster';
-import { renderInputField, renderDropdown, IDropdownAlt, renderInputLabel } from '../../helpers';
+import { renderInputField, renderDropdown, IDropdownAlt, renderInputLabel, InfoButton } from '../../helpers';
 
 export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPanelState> {
   constructor(props: IScenariosPanelProps) {
@@ -363,7 +363,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
     const buildingTypes = project.calcData.buildingTypes;
     return (
       <div>
-        <h1>{this.props.title}</h1>
+        <InfoButton level={1} label={this.props.title}/>
         <div id="scenarios-card" className="bp3-card panel-card">
           <div className="scrollable-panel-content">
             <div className="panel-list-header">

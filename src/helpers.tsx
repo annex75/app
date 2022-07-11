@@ -1,6 +1,6 @@
 // external
-import React, { ChangeEvent } from 'react'
-import { MenuItem, InputGroup, Intent, Button, Popover, PopoverInteractionKind, Position } from "@blueprintjs/core";
+import React, { ChangeEvent, Component } from 'react'
+import { MenuItem, InputGroup, Intent, Button, Popover, PopoverInteractionKind, Position, Classes, Dialog } from "@blueprintjs/core";
 import { Select, ItemRenderer } from '@blueprintjs/select';
 import { get as _fpGet } from 'lodash/fp';
 
@@ -270,4 +270,50 @@ export const getNewColor = (i: number) => {
     throw new Error(`Only ${colors.length} colors have been defined`);
   }
   return colors[i]
+}
+
+interface IInfoButtonProps {
+  level: number;
+  label: string;
+  info?: string;
+}
+
+interface IInfoButtonState {
+  overlayOpen: boolean;
+}
+
+export class InfoButton extends Component<IInfoButtonProps, IInfoButtonState> {
+  constructor(props: IInfoButtonProps) {
+    super(props);
+    this.state = {
+      overlayOpen: false,
+    }
+  }
+
+  toggleOverlay = () => { this.setState({ overlayOpen: !this.state.overlayOpen })};
+
+  render() {
+    const { level, label, info } = this.props;
+    const Tag = `h${level}` as keyof JSX.IntrinsicElements;
+    const content = (<>
+      <Tag className="info-label">
+        {label}
+      </Tag>
+      {info?
+        <Dialog isOpen={this.state.overlayOpen} onClose={this.toggleOverlay}>
+          <div className={Classes.DIALOG_BODY}>{info}</div>
+        </Dialog>
+      : null}
+    </>);
+    return <div className="info-label-container">{
+      info?
+      (
+        <Button tabIndex={-1} rightIcon="info-sign" className="info-label-button" minimal onClick={this.toggleOverlay}>
+          {content}
+        </Button>
+      ): content}
+    </div>
+  }
+
+
 }

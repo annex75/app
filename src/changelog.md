@@ -1,3 +1,6 @@
+## 1.4.5 (2022-06-10)
+* Included manual for each step
+
 ## 1.4.4 (2022-01-29)
 
 * Fixes for decentralized energy system calculation
