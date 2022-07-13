@@ -24,7 +24,7 @@ import { AppToaster } from './toaster';
 import { APP_VERSION, SUPPORTED_VERSIONS } from './constants';
 import { exportXlsx } from './WorkbookExport';
 import { LandingPage } from './components/LandingPage';
-import changelogPath from './changelog.md';
+import changelogPath from './markdown/changelog.md';
 
 // todo: not really typescript, no type safety but couldn't get it to work
 // cf: https://stackoverflow.com/questions/47747754/how-to-rewrite-the-protected-router-using-typescript-and-react-router-4-and-5/47754325#47754325

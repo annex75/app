@@ -10,6 +10,7 @@ import * as config from '../../config.json';
 import { IScenariosPanelProps, IScenariosPanelState, Scenario, IScenarioOptionsCard, ScenarioInfo, TScenarioParamCategory, IScenarioInput, IDictBool, } from '../../types';
 import { AppToaster } from '../../toaster';
 import { renderInputField, renderDropdown, IDropdownAlt, renderInputLabel, InfoButton } from '../../helpers';
+import { documentation } from '../../constants/textData';
 
 export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPanelState> {
   constructor(props: IScenariosPanelProps) {
@@ -25,6 +26,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
       paramCategories: {
         buildingType: {
           label: "Building type options",
+          info: documentation.buildingTypeScenario,
           global: false,
           parameters: {
             numberOfBuildings: {
@@ -89,6 +91,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
         },
         economy: {
           label: "Economic parameters",
+          info: documentation.economyScenario,
           global: true,
           parameters: {
             interestRate: {
@@ -118,6 +121,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
         },
         energySystem: {
           label: "Energy system options",
+          info: documentation.energySystemScenario,
           global: false,
           parameters: {
             energySystem: {
@@ -131,6 +135,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
         },
         buildingMeasures: {
           label: "Building renovation measures",
+          info: documentation.buildingMeasuresScenario,
           global: false,
           parameters: {
             facade: {
@@ -357,13 +362,22 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
     }
   }
 
+  panelInfo = documentation.scenariosPanel;
+  
+  getInfoText = () => {
+    return `# ${this.props.title}\n\n${this.panelInfo}\n\n${Object.keys(this.state.scenarioOptions.paramCategories).map(catId => {
+      const category = this.state.scenarioOptions.paramCategories[catId as TScenarioParamCategory];
+      return `## ${category.label}\n\n${category.info??""}\n\n`
+    }).join('')}`;
+  }
+
   render() {
     const project = this.state.project;
     const scenarios = project.scenarioData.scenarios;
     const buildingTypes = project.calcData.buildingTypes;
     return (
       <div>
-        <InfoButton level={1} label={this.props.title}/>
+        <InfoButton level={1} label={this.props.title} info={this.getInfoText()}/>
         <div id="scenarios-card" className="bp3-card panel-card">
           <div className="scrollable-panel-content">
             <div className="panel-list-header">

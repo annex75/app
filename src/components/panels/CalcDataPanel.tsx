@@ -17,15 +17,17 @@ import { EnergySystemsCard } from './cards/EnergySystemsCard';
 import { CostCurveEditor } from './dialogs/CostCurveEditor';
 import { BuildingMeasuresCard } from './cards/BuildingMeasuresCard';
 import { IDropdownAlt, InfoButton } from '../../helpers';
+import { documentation } from '../../constants/textData';
 
 export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanelState> {
 
   constructor(props: ICalcDataPanelProps) {
     super(props);
     const cards: Record<string, ICalcDataPanelCard> = {
-      "district": {
+      district: {
         name: "district",
         title: "District",
+        info: documentation.districtCard,
         isOpen: false,
         component: DistrictCard,
         eventHandlers: {
@@ -37,9 +39,10 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
           renderFileUploader: this.props.renderFileUploader,
         }
       },
-      "buildingTypes": {
+      buildingTypes: {
         name: "buildingTypes",
         title: "Building types",
+        info: documentation.buildingTypes,
         isOpen: false,
         component: BuildingTypeCard,
         eventHandlers: {
@@ -50,9 +53,10 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
           addBuildingType: this.addBuildingType,
         },
       },
-      "energySystems": {
+      energySystems: {
         name: "energySystems",
         title: "Energy systems",
+        info: documentation.energySystems,
         isOpen: false,
         component: EnergySystemsCard,
         eventHandlers: {
@@ -67,9 +71,10 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
           deleteEnergyCarrier: this.deleteEnergyCarrier,
         },
       },
-      "buildingMeasures": {
+      buildingMeasures: {
         name: "buildingMeasures",
         title: "Building renovation measures",
+        info: documentation.buildingMeasures,
         isOpen: false,
         component: BuildingMeasuresCard,
         eventHandlers: {
@@ -371,6 +376,15 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
     }
   }
 
+  panelInfo = documentation.calcDataPanel;
+  
+  getInfoText = () => {
+    return `# ${this.props.title}\n\n${this.panelInfo}\n\n${Object.keys(this.state.cards).map(cardId => {
+      const card = this.state.cards[cardId];
+      return `## ${card.title}\n\n${card.info??""}\n\n`
+    }).join('')}`;
+  }
+
   editCostCurve = (id: string) => {
     this.setState({ costCurveEditorIsOpen: true, activeEnergySystemId: id });
   }
@@ -382,7 +396,7 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
   render() {
     return (
       <div>
-        <InfoButton level={1} label={this.props.title}/>
+        <InfoButton level={1} label={this.props.title} info={this.getInfoText()}/>
         {
           Object.keys(this.state.cards).map(id => {
             const card = this.state.cards[id];

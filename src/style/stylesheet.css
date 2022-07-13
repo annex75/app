@@ -339,6 +339,10 @@ h1.info-label {
   margin: 0 0;
 }
 
+.info-dialog.bp3-dialog {
+  width: 800px;
+}
+
 .bp3-button.info-label-button {
   padding: 10px 10px;
   height: 56px;

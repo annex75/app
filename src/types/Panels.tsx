@@ -27,6 +27,7 @@ export interface IOverviewDataCard {
   name: string;
   title: string;
   isOpen: boolean;
+  info?: string;
   eventHandlers: IDictEventHandler;
   parameters: Record<string, IOverviewInfo>;
 }
@@ -107,6 +108,7 @@ export interface ICalcDataPanelCard {
   isOpen: boolean;
   component: ComponentType<any>;
   eventHandlers: IDictEventHandler;
+  info?: string;
   functions?: IDictVoid;
 }
 
@@ -459,6 +461,7 @@ export interface IScenarioOptionsCard {
 
 export interface IScenarioParamCategory {
   label: string,
+  info?: string,
   global: boolean,
   parameters: Record<string, IScenarioInput | IScenarioDropdown>,
 }

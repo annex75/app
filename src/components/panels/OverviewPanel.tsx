@@ -8,7 +8,7 @@ import { FormGroup, /* Tooltip */ } from '@blueprintjs/core';
 // internal
 import { IOverviewPanelProps, IOverviewPanelState, IOverviewDataCard } from '../../types';
 import { renderInputField, renderInputLabel, InfoButton } from '../../helpers';
-import { strings } from '../../constants/textData';
+import { strings, documentation } from '../../constants/textData';
 
 export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanelState> {
 
@@ -18,6 +18,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
       assessmentInfo: {
         name: "assessmentInfo",
         title: "Assessment information",
+        info: documentation.assessmentInfo,
         isOpen: false,
         eventHandlers: { handleChange: this.handleChange },
         parameters: {
@@ -58,6 +59,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
       locationInfo: {
         name: "locationInfo",
         title: "Location information",
+        info: documentation.locationInfo,
         isOpen: false,
         eventHandlers: { handleChange: this.handleChange },
         parameters: {
@@ -168,10 +170,19 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
   }
   */
 
+  panelInfo = documentation.overviewPanel;
+
+  getInfoText = () => {
+    return `# ${this.props.title}\n\n${this.panelInfo}\n\n${Object.keys(this.state.overviewDataCards).map(cardId => {
+      const card = this.state.overviewDataCards[cardId];
+      return `## ${card.title}\n\n${card.info??""}\n\n`
+    }).join('')}`;
+  }
+
   render() {
     return (
       <div>
-        <InfoButton level={1} label={this.props.title} info={this.props.info} />
+        <InfoButton level={1} label={this.props.title} info={this.getInfoText()} />
         {
           Object.keys(this.state.overviewDataCards).map(cardId => {
             const card = this.state.overviewDataCards[cardId];

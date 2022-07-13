@@ -285,7 +285,7 @@ const calculateEnergySystemPrimaryEnergyUse = (
   // todo: check this calculation
   //const primaryEnergyFactor = +energyCarrier.primaryEnergyFactorNonRe + +energyCarrier.primaryEnergyFactorRe;
   const primaryEnergyFactor = +energyCarrier.primaryEnergyFactorTotal;
-  const effectiveEfficiency = energySystem.efficiency * energySystem.coefficientOfPerformance
+  const effectiveEfficiency = energySystem.efficiency * energySystem.coefficientOfPerformance;
 
   if (!effectiveEfficiency) {
     throw new Error("Energy system efficiency and COP must be positive");

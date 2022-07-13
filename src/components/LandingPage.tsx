@@ -33,7 +33,7 @@ export class LandingPage extends Component<ILandingPageProps, ILandingPageState>
             <Button minimal className="bp3-button" icon={this.state.changelogOpen ? "arrow-up" : "arrow-down"}/>
           </div>
           <Collapse key={`changelog-collapse`} isOpen={this.state.changelogOpen}>
-            <ReactMarkdown source={this.props.changelog}/>
+            <ReactMarkdown children={this.props.changelog}/>
           </Collapse>
         </Card>
       </div>

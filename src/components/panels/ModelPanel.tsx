@@ -7,6 +7,8 @@ import { debounce as _debounce } from 'lodash';
 import { IModelPanelProps, IModelPanelState, IModelOptionsCard, TModelOptionsCategory } from '../../types';
 import { Switch } from '@blueprintjs/core';
 import { InfoButton } from '../../helpers';
+import { documentation } from '../../constants/textData';
+import { CalculationModelDocumentation } from '../../calculation-model/documentation';
 
 export class ModelPanel extends Component<IModelPanelProps, IModelPanelState> {
   constructor(props: IModelPanelProps) {
@@ -83,15 +85,22 @@ export class ModelPanel extends Component<IModelPanelProps, IModelPanelState> {
   formatPath = (childPath: string) => {
     return `project.${childPath}`;
   }
+
+  panelInfo = documentation.modelPanel;
+  
+  getInfoText = () => {
+    return `# ${this.props.title}\n\n${this.panelInfo}`;
+  }
   
   render() {
     //todo: implement this similarly to the ScenariosPanel
     return (
       <div>
-        <InfoButton level={1} label={this.props.title}/>
+        <InfoButton level={1} label={this.props.title} info={this.getInfoText()}/>
         <div className="bp3-card panel-card" >
           <h3>Calculations</h3>
           <Switch checked={this.state.project.calculationActive} label="Activate calculations" onChange={this.handleActivateCalculation} />
+          <InfoButton level={3} label="Calculation model documentation" Component={CalculationModelDocumentation}/>
         </div>
         <div className="bp3-card panel-card" >Energy demand</div>
         <div className="bp3-card panel-card" >Energy system output</div>

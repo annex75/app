@@ -1,5 +1,5 @@
 // external
-import React, { ChangeEvent, Component } from 'react'
+import React, { ChangeEvent, Component, ComponentClass } from 'react'
 import { MenuItem, InputGroup, Intent, Button, Popover, PopoverInteractionKind, Position, Classes, Dialog } from "@blueprintjs/core";
 import { Select, ItemRenderer } from '@blueprintjs/select';
 import { get as _fpGet } from 'lodash/fp';
@@ -8,6 +8,7 @@ import { get as _fpGet } from 'lodash/fp';
 import { IInputField, IValidatorResult, Units, IInput } from './types';
 import { ScatterChart, CartesianGrid, XAxis, YAxis, Scatter, ZAxis, Tooltip, Legend, LegendProps } from 'recharts';
 import { Label } from 'recharts';
+import ReactMarkdown from 'react-markdown';
 
 export const renderInputLabel = (param: IInput) => {
   let text;
@@ -276,6 +277,7 @@ interface IInfoButtonProps {
   level: number;
   label: string;
   info?: string;
+  Component?: ComponentClass;
 }
 
 interface IInfoButtonState {
@@ -293,20 +295,29 @@ export class InfoButton extends Component<IInfoButtonProps, IInfoButtonState> {
   toggleOverlay = () => { this.setState({ overlayOpen: !this.state.overlayOpen })};
 
   render() {
-    const { level, label, info } = this.props;
+    const { level, label, info, Component } = this.props;
     const Tag = `h${level}` as keyof JSX.IntrinsicElements;
     const content = (<>
       <Tag className="info-label">
         {label}
       </Tag>
       {info?
-        <Dialog isOpen={this.state.overlayOpen} onClose={this.toggleOverlay}>
-          <div className={Classes.DIALOG_BODY}>{info}</div>
+        <Dialog className="info-dialog" isOpen={this.state.overlayOpen} onClose={this.toggleOverlay}>
+          <div className={Classes.DIALOG_BODY}>
+            <ReactMarkdown children={info}></ReactMarkdown>
+          </div>
         </Dialog>
       : null}
+      { Component?
+        <Dialog className="info-dialog" isOpen={this.state.overlayOpen} onClose={this.toggleOverlay}>
+          <div className={Classes.DIALOG_BODY}>
+            <Component/>
+          </div>
+        </Dialog>
+      : null }
     </>);
     return <div className="info-label-container">{
-      info?
+      info || Component?
       (
         <Button tabIndex={-1} rightIcon="info-sign" className="info-label-button" minimal onClick={this.toggleOverlay}>
           {content}
