@@ -73,12 +73,14 @@ export interface IUserInfoState { }
 
 export interface INewProjectFormState {
   workbook: xlsx.WorkBook | null;
+  jsonProject: IProject | null;
   xlsxFile: string;
+  jsonFile: string;
   uploading: boolean;
 }
 
 export interface INewProjectFormProps {
-  addProject(value: string, workbook: xlsx.WorkBook | null): void;
+  addProject(value: string, workbook: xlsx.WorkBook | null, jsonProject: IProject | null): void;
   postSubmitHandler: any;
 }
 

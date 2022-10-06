@@ -22,20 +22,20 @@ export class CalculationModelDocumentation extends Component<ICalcModDocProps, I
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     fetch(documentationMd).then(res => res.text()).then(text => this.setState({ md: text }));
   }
 
   render() {
     const { md } = this.state;
     return (
-      <div>
+      <div id="calculation-model-documentation">
           <ReactMarkdown 
             children={md}
             remarkPlugins={[remarkMath, remarkGfm]}
             rehypePlugins={[rehypeKatex]}
           />
-        </div>
+      </div>
     ) 
   }
 }

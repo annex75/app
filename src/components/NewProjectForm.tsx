@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 import { Button, FileInput, Spinner } from '@blueprintjs/core';
 
 //internal
-import { INewProjectFormProps, INewProjectFormState } from '../types'
+import { INewProjectFormProps, INewProjectFormState, IProject } from '../types'
 
 export class NewProjectForm extends Component<INewProjectFormProps, INewProjectFormState> {
 
@@ -15,7 +15,9 @@ export class NewProjectForm extends Component<INewProjectFormProps, INewProjectF
     super(props);
     this.state = {
       workbook: null,
+      jsonProject: null,
       xlsxFile: "",
+      jsonFile: "",
       uploading: false,
     };
   }
@@ -24,7 +26,7 @@ export class NewProjectForm extends Component<INewProjectFormProps, INewProjectF
     event.preventDefault();
 
     const name = this.nameInput.value;
-    this.props.addProject(name, this.state.workbook);
+    this.props.addProject(name, this.state.workbook, this.state.jsonProject);
 
     this.projectForm.reset();
     this.props.postSubmitHandler();
@@ -63,8 +65,38 @@ export class NewProjectForm extends Component<INewProjectFormProps, INewProjectF
     })
   }
 
-  createProjectFromJson = (e: React.FormEvent<HTMLInputElement>) => {
+  readJson = (e: ProgressEvent<FileReader>) => {
+    return new Promise<IProject>((resolve, reject) => {
+      const fileContent = e.target!.result;
+      console.log(fileContent);
+      const project = JSON.parse(fileContent as string);
+      // IMPORTANT todo: validate project json here
+      resolve(project);
+    })
+  }
 
+  createProjectFromJson = (e: React.FormEvent<HTMLInputElement>) => {
+    const input = e.target as HTMLInputElement;
+    if (input && input.files && input.files.length) {
+      const file = input.files[0]
+      this.setState({ 
+        jsonFile: file.name,
+        uploading: true,
+      });
+      const reader = new FileReader();
+      new Promise<ProgressEvent<FileReader>>((resolve, reject) => {
+        reader.onload = resolve;
+      }).then(result => {
+        return this.readJson(result);
+      }).then(jsonProject => {
+        this.setState({ jsonProject });
+      }).finally(() => {
+        this.setState({
+          uploading: false,
+        });
+      });
+      reader.readAsText(file);
+    }
   }
 
   render() {
@@ -80,7 +112,8 @@ export class NewProjectForm extends Component<INewProjectFormProps, INewProjectF
             text={this.state.xlsxFile || "Upload template .xlsx"}
             onInputChange={this.createProjectFromXlsx}
             inputProps={{ accept: ".xlsx" }}/>
-          <FileInput disabled
+          <FileInput 
+            disabled
             className="bp3-intent-primary"
             text="Upload project .json"
             onInputChange={this.createProjectFromJson}

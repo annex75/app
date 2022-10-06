@@ -79,6 +79,10 @@ class App extends Component<IAppProps, IAppState> {
   }
 
   componentDidMount() {
+    fetch(changelogPath).then((response) => response.text()).then((text) => {
+      this.setState({ changelog: text })
+    });
+
     this.removeAuthListener = this.fb.app.auth().onAuthStateChanged((user) => {
       if (user) {
         this.setState({
@@ -119,12 +123,6 @@ class App extends Component<IAppProps, IAppState> {
 
   }
 
-  componentWillMount() {
-    fetch(changelogPath).then((response) => response.text()).then((text) => {
-      this.setState({ changelog: text })
-    })
-  }
-
   componentWillUnmount() {
     this.removeAuthListener();
   }
@@ -142,12 +140,18 @@ class App extends Component<IAppProps, IAppState> {
     });
   }
 
-  addProject = (name: string, workbook: xlsx.WorkBook | null) => {
+  addProject = (name: string, workbook: xlsx.WorkBook | null, jsonProject: IProject | null) => {
     if (!this.state.currentUser) {
       AppToaster.show({ intent: Intent.DANGER, message: "Project could not be added: no user signed in" });
     } else if (!this.validProjectName(name)) {
       // todo: save warning messages somewhere
       AppToaster.show({ intent: Intent.DANGER, message: "Project could not be added: project name is empty or is not unique" });
+    } else if (jsonProject) {
+      let project = Project.fromIProject(jsonProject);
+      project.id = uuidv4();
+      const projects = { ...this.state.projects };
+      projects[project.id] = project.jsonData;
+      this.updateProjectsDatabase(projects);
     } else {
       let project = new Project(name, this.state.currentUser!.uid);
       if ( workbook ) try {

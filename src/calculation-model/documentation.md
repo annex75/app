@@ -1,4 +1,3 @@
-
 # Annex 75 Calculation Model Documentation
         
 Author: Toivo Säwén
@@ -13,7 +12,7 @@ For each scenario $S$:
 
 >> $E$ := energy system used in $B$ in scenario $S$.
               
->> $Q$ := heating need [Wh/a] per building of $B$ in scenario $S$.
+>> $Q$ := heating need $[Wh/a]$ per building of $B$ in scenario $S$.
               
 >> $HLC$ := heat loss coefficient $[W/K]$ of $B$, calculated according to Equation (1).
 
@@ -21,7 +20,7 @@ For each scenario $S$:
 
 >>> where $U_c$ is the U-value $[W/m^2K]$ of each component $c$ (roofs, exterior walls, floor, basement wall, ), calculated according to Equation (2), and $A_c$ is the total area of that component, whereas $U_w$ and $A_w$ is the U-value $[W/m^2K]$ and total area $[m^2]$ of windows, respectively, and $q_{v}$ and $q_{\Psi}$ are the heat losses due to ventilation and thermal bridges, respectively.
 
->>> $U_c = 1/R_c$ (2),
+>>> $U_c = 1/R_c$, (2)
 
 >>> where $R_c$ is the thermal resistance of component $c$, calculated according to Equation (3).
 
