@@ -82,11 +82,11 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
       }
     },{
       id: "emissions",
-      label: "Specific greenhouse gas emissions vs. annualized specific cost",
+      label: "Specific carbon emissions vs. annualized specific cost",
       xDataObj: {
         dataPath: "total.specificEmissions",
         unit: " kg CO₂eq/m²,a",
-        label: "Specific greenhouse gas emissions",
+        label: "Specific carbon emissions",
       },
       yDataObj: {
         dataPath: "total.annualizedSpecificCost",
@@ -125,7 +125,7 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
     const legendColumn = [
       `Specific primary energy use [${Units.kiloWattHourPerMeterSqYear}]`,
       `Annualised specific cost [${Units.euroPerMeterSq}]`,
-      `Specific greenhouse gas emissions [${Units.kiloGramCO2EqPerYear}]`,
+      `Specific carbon emissions [${Units.kiloGramCO2EqPerYear}]`,
       `Total system size (centralised systems) [${Units.kiloWatt}]`,
       `Total system size (decentralised systems) [${Units.kiloWatt}]`,
     ]

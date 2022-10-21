@@ -110,9 +110,10 @@ export const renderDropdown = (key: string, items: IDropdownAlt[], selected: IDr
     <TheSelect
       key={`${key}-select`}
       items={items}
-      resetOnQuery={false}
+      resetOnQuery={false}  
       filterable={false}
       itemRenderer={renderDropdownAlts}
+      activeItem={selected}
       onItemSelect={handleSelect}>
       <Button
         className={settings.twoLine? "dropdown-button dropdown-button-twoline" : "dropdown-button"}

@@ -7,7 +7,7 @@ import { APP_VERSION } from '../../constants';
 import { updateFromWorkbook } from '../../WorkbookImport';
 import { IProject, OverviewData, CalcData, ScenarioData, ScenarioInfo, Scenario, toXlsx, BuildingInformation, BuildingGeometry, ResultSummary, buildingMeasureScenarioCategories, TBuildingMeasureScenarioCategory, convertTypes, TBuildingMeasureCategory } from '../Data';
 import { TCostCurveType, costCurveTypes, costCurveCategories } from './EnergySystem';
-import { calculateEnergySystems, calculateEnergySystemAnnualizedSpecificInvestmentCost, calculateEnergySystemSpecificMaintenanceCost, calculateBuildingMeasures, calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost, calculateBuildingMeasureSpecificEmbodiedEnergy, calculateSpecificValueFromEnergySystemScenarioInfo, IBuildingMeasureScenarioInfo } from '../../calculation-model/calculate';
+import { calculateEnergySystems, calculateEnergySystemAnnualizedSpecificInvestmentCost, calculateEnergySystemSpecificMaintenanceCost, calculateBuildingMeasures, calculateBuildingMeasureAnnualizedSpecificRenovationCost, calculateBuildingMeasureSpecificEmbodiedEnergy, calculateSpecificValueFromEnergySystemScenarioInfo, IBuildingMeasureScenarioInfo } from '../../calculation-model/calculate';
 
 export class Project implements IProject {
   appVersion = APP_VERSION;
@@ -159,10 +159,10 @@ export class Project implements IProject {
         Object.keys(scenario.buildingMeasures[scenarioCat]).forEach(buildingMeasureId => {
           const buildingMeasure = this.calcData.buildingMeasures[category][buildingMeasureId];
           const buildingMeasureScenarioInfo = scenario.buildingMeasures[scenarioCat][buildingMeasureId];
-          scenario.total.buildingMeasures[scenarioCat].refurbishmentCost += +buildingMeasureScenarioInfo.refurbishmentCost;
+          scenario.total.buildingMeasures[scenarioCat].renovationCost += +buildingMeasureScenarioInfo.renovationCost;
           scenario.total.buildingMeasures[scenarioCat].embodiedEnergy += +buildingMeasureScenarioInfo.embodiedEnergy;
-          const annualizedSpecificRefurbishmentCost = calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost(buildingMeasureScenarioInfo, buildingMeasure, totalBuildingArea);
-          scenario.total.annualizedSpecificCost += annualizedSpecificRefurbishmentCost;
+          const annualizedSpecificRenovationCost = calculateBuildingMeasureAnnualizedSpecificRenovationCost(buildingMeasureScenarioInfo, buildingMeasure, totalBuildingArea);
+          scenario.total.annualizedSpecificCost += annualizedSpecificRenovationCost;
           scenario.total.specificEmbodiedEnergy += calculateBuildingMeasureSpecificEmbodiedEnergy(buildingMeasureScenarioInfo, totalBuildingArea);
         });
       });
@@ -334,25 +334,25 @@ export class Project implements IProject {
     const buildingParts: IDictBuildingPartKeys = {
       facade: {
         label: "Facade",
-        keys: [ "lifeTime", "refurbishmentCost", "uValue", ],
+        keys: [ "lifeTime", "renovationCost", "uValue", ],
       },
       foundation: {
         label: "Foundation",
-        keys: [ "lifeTime", "refurbishmentCost", "basementWallUValue", "foundationUValue" ],
+        keys: [ "lifeTime", "renovationCost", "basementWallUValue", "foundationUValue" ],
       },
       roof: {
         label: "Roof",
-        keys: [ "lifeTime", "refurbishmentCost", "uValue", ],
+        keys: [ "lifeTime", "renovationCost", "uValue", ],
       },
       windows: {
         label: "Windows",
-        keys: [ "lifeTime", "refurbishmentCost", "uValue", "gValue",  ],
+        keys: [ "lifeTime", "renovationCost", "uValue", "gValue",  ],
       },
       hvac: {
         label: "HVAC",
         keys: [ 
           "lifeTime",
-          "refurbishmentCost",
+          "renovationCost",
           "coldWaterTemp",
           "coolingType",
           "efficiency",

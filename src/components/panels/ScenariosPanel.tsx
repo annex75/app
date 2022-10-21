@@ -52,7 +52,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               type: String,
               mode: "input",
               rootPath: "scenarioData.scenarios",
-              label: "Occupancy"
+              label: "Building use"
             },
             occupants: {
               key: "occupants",

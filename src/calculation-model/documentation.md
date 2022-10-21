@@ -5,6 +5,7 @@ Author: Toivo Säwén
 Last updated: 2022-07-13
 
 ## Energy system size and cost calculations
+In each scenario, the goal to calculate the size of the global system by in turn calculating the power needed to heat each building. Then, the size of the system is matched to the cost curves, which determine the total costs, embodied energy, and emissions of the
 
 For each scenario $S$:
 
@@ -74,6 +75,8 @@ For each scenario $S$:
 
 >>> where $q_{ext, roof}$ is the thermal bridge $[W/K]$ where an exterior wall meets the foundation,  and $p_{storey}$ is the perimeter $[m]$ of building type $B$.
 
+>> Using the heat loss coefficient of each building, we can now calculate the power output needed to ensure an acceptable indoor climate when the outdoor temperature reaches the design temperature.
+
 >> $S_d$ := size $[kW]$ of the subsystem of $E$ dedicated to each building, calculated according to Equation (7).
 
 >> $S_d = \Delta T * HLC / \eta_{system} * 1000$, (7)
@@ -116,13 +119,13 @@ For each scenario $S$:
 
 >> $C_{M,w} = A_w * C_{w} * n_{buildings}$, (11b)
 
->> where $A_w$ is the area $[m^2]$ of replaced windows, , and $C_{w}$ is the cost $[€/m2]$ of window replacement.
+>> where $A_w$ is the area $[m^2]$ of replaced windows, and $C_{w}$ is the cost $[€/m2]$ of window replacement.
 
 >> $C_{M,HVAC} = C_{HVAC} * n_{buildings}$, (11c)
 
 >> where $C_{HVAC}$ is the cost $[€]$ of HVAC system replacement.
 
->> Embodied energy $C_{M,c,embodied}$ for each component is calculated similary, replacing cost $[€]$ by embodied energy $EE_c$ $[kgCO_2eq]$.
+>> Embodied energy $EE_{M,c,embodied}$ for each component is calculated similary, replacing cost $[€]$ by embodied energy $EE_c$ $[kgCO_2eq]$.
 
 ## Summation
 
@@ -130,7 +133,7 @@ For each scenario $S$:
 
 > $C_{E, annualised, specific, investment}$ := annualised specific cost of investment for energy systems in scenario $S$, calculated according to Equation (12)
 
-> $C_{E, annualised, specific, investment} = \sum_E{C_{E, investment} * l}/A_{total, buildings} $, (12)
+> $C_{E, annualised, specific, investment} = \sum_E{C_{E, investment} * l_E}/A_{total, buildings} $, (12)
 
 > where $C_{E, investment}$ is the investment costs $[€]$ for all energy systems $E$ in scenario $S$, $l_E$ is the lifetime of energy system $E$, and $A_{total, buildings}$ is the total floor area of buildings in scenario $S$.
 
@@ -140,7 +143,7 @@ For each scenario $S$:
 
 > where $C_{E, maintenance}$ is the maintenance costs $[€/a]$ for all energy systems $E$ in scenario $S$, and $A_{total, buildings}$ is the total floor area of buildings in scenario $S$.
 
-> Specific energy costs, $C_{specific, energy}$, specific primary energy use, $PEU_{specific}$, specific embodied energy, $EE_{E, specific}$ and specific emissions, $C_{E, specific, embodied}$, are calculated similarly using the energy cost $C_{PE}$, primary energy use $PEU$, embodied energy, $C_{embodied}$ and emissions $EM$, respectively, of each energy system.
+> Specific energy costs, $C_{specific, energy}$, specific primary energy use, $PEU_{specific}$, specific embodied energy, $EE_{E, specific}$ and specific emissions, $EE_{E, specific}$, are calculated similarly using the energy cost $C_{PE}$, primary energy use $PEU$, embodied energy, $EE$ and emissions $EM$, respectively, of each energy system.
 
 > $C_{annualised, specific, renovation}$ := Annualised specific costs for renovation measures are also calculated similarly, according to Equation (14)
 
@@ -154,6 +157,6 @@ For each scenario $S$:
 
 > $C_{total, annualised, specific} = C_{E, annualised, specific, investment} + C_{E, specific, maintenance} + C_{specific, energy} + C_{annualised, specific, renovation}$, (15a)
 
-> $EE_{total, specific} = C_{E, annualised, specific, embodied} + C_{M, annualised, specific, embodied}$, (15b)
+> $EE_{total, specific} = EE_{E, annualised, specific} + EE_{M, annualised, specific}$, (15b)
 
 > $PEU_{total, specific} = \sum_E{PEU} / A_{total, buildings}$. (15c)

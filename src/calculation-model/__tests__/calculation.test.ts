@@ -2,7 +2,7 @@ import { cloneDeep } from 'lodash';
 
 import {
   calculateBuildingMeasures,
-  calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost,
+  calculateBuildingMeasureAnnualizedSpecificRenovationCost,
   calculateBuildingMeasureSpecificEmbodiedEnergy,
   calculateHeatLossCoefficient,
   calculateEnergySystems,
@@ -16,19 +16,19 @@ import { IEnergySystemScenarioInfo } from '../components/calculateEnergySystems'
 import { Project, BuildingType, Scenario, ScenarioInfo, EnvelopeMeasure, WindowMeasure, HvacMeasure, IScenarioBuildingMeasureData, IScenarioFoundationMeasureData, IScenarioEnvelopeMeasureData, EnergySystem, EnergyCarrier, TCostCurveType, CostCurveIndividual, CostCurveCentralized  } from '../../types'
 
 const insulationMeasureA = new EnvelopeMeasure("insulation", "insulationA");
-insulationMeasureA.refurbishmentCost = 10;
+insulationMeasureA.renovationCost = 10;
 insulationMeasureA.lifeTime = 25;
 insulationMeasureA.lambdaValue = 0.036;
 insulationMeasureA.embodiedEnergy = 5;
 
 const windowMeasureA = new WindowMeasure("windows", "windowA");
-windowMeasureA.refurbishmentCost = 20;
+windowMeasureA.renovationCost = 20;
 windowMeasureA.lifeTime = 25;
 windowMeasureA.uValue = 0.5;
 windowMeasureA.embodiedEnergy = 10;
 
 const hvacMeasureA = new HvacMeasure("hvac", "hvacA");
-hvacMeasureA.refurbishmentCost = 200;
+hvacMeasureA.renovationCost = 200;
 hvacMeasureA.lifeTime = 25;
 hvacMeasureA.embodiedEnergy = 100;
 hvacMeasureA.efficiency = 0.9;
@@ -207,30 +207,30 @@ describe('calculateBuildingMeasures', () => {
     const result = calculateBuildingMeasures(project);
 
     // THEN
-    expect(result[scenarioId].facade[insulationMeasureA.id].refurbishmentCost).toBeCloseTo(690);
+    expect(result[scenarioId].facade[insulationMeasureA.id].renovationCost).toBeCloseTo(690);
     expect(result[scenarioId].facade[insulationMeasureA.id].embodiedEnergy).toBeCloseTo(345);
-    expect(result[scenarioId].roof[insulationMeasureA.id].refurbishmentCost).toBeCloseTo(420);
+    expect(result[scenarioId].roof[insulationMeasureA.id].renovationCost).toBeCloseTo(420);
     expect(result[scenarioId].roof[insulationMeasureA.id].embodiedEnergy).toBeCloseTo(210);
-    expect(result[scenarioId].foundation[insulationMeasureA.id].refurbishmentCost).toBeCloseTo(720);
+    expect(result[scenarioId].foundation[insulationMeasureA.id].renovationCost).toBeCloseTo(720);
     expect(result[scenarioId].foundation[insulationMeasureA.id].embodiedEnergy).toBeCloseTo(360);
-    expect(result[scenarioId].windows[windowMeasureA.id].refurbishmentCost).toBeCloseTo(6000);
+    expect(result[scenarioId].windows[windowMeasureA.id].renovationCost).toBeCloseTo(6000);
     expect(result[scenarioId].windows[windowMeasureA.id].embodiedEnergy).toBeCloseTo(3000);
-    expect(result[scenarioId].hvac[hvacMeasureA.id].refurbishmentCost).toBeCloseTo(600);
+    expect(result[scenarioId].hvac[hvacMeasureA.id].renovationCost).toBeCloseTo(600);
     expect(result[scenarioId].hvac[hvacMeasureA.id].embodiedEnergy).toBeCloseTo(300);
   });
 });
 
-describe('calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost', () => {
+describe('calculateBuildingMeasureAnnualizedSpecificRenovationCost', () => {
   it('calculates annualized specific cost correctly', () => {
     // GIVEN
     const buildingArea = 1000;
     const measureInfo = {
-      refurbishmentCost: 50000,
+      renovationCost: 50000,
       embodiedEnergy: 25000,
     }
 
     // WHEN
-    const result = calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost(measureInfo, insulationMeasureA, buildingArea);
+    const result = calculateBuildingMeasureAnnualizedSpecificRenovationCost(measureInfo, insulationMeasureA, buildingArea);
 
     // THEN
     expect(result).toBeCloseTo(2);
@@ -242,7 +242,7 @@ describe('calculateBuildingMeasureSpecificEmbodiedEnergy', () => {
     // GIVEN
     const buildingArea = 1000;
     const measureInfo = {
-      refurbishmentCost: 50000,
+      renovationCost: 50000,
       embodiedEnergy: 25000,
     }
 

@@ -288,7 +288,7 @@ export interface IBuildingMeasureInfo extends IInputField {
 
 export interface IBuildingMeasureParameters {
   measureName: IBuildingMeasureInfo;
-  refurbishmentCost: IBuildingMeasureInfo;
+  renovationCost: IBuildingMeasureInfo;
   [propName: string]: any;
 }
 
@@ -308,11 +308,11 @@ abstract class BaseBuildingMeasureParameters {
 }
 
 export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
-  refurbishmentCost: IBuildingMeasureInfo = {
-    key: "refurbishmentCost",
+  renovationCost: IBuildingMeasureInfo = {
+    key: "renovationCost",
     type: String,
     info: "Cost of adding 1 cm of insulation per square meter",
-    label: "Refurbishment cost",
+    label: "Renovation cost",
     unit: "euroPerCentimeterMeterSq",
   };
   lambdaValue: IBuildingMeasureInfo = {
@@ -332,11 +332,11 @@ export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
 }
 
 export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
-  refurbishmentCost: IBuildingMeasureInfo = {
-    key: "refurbishmentCost",
+  renovationCost: IBuildingMeasureInfo = {
+    key: "renovationCost",
     info: "Cost per square metre of refurbished window",
     type: String,
-    label: "Refurbishment cost",
+    label: "Renovation cost",
     unit: "euroPerMeterSq",
   };
   uValue: IBuildingMeasureInfo = {
@@ -364,11 +364,11 @@ export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
 
 // todo: a lot of data validation is needed here
 export class HvacMeasureParameters extends BaseBuildingMeasureParameters {
-  refurbishmentCost: IBuildingMeasureInfo = {
-    key: "refurbishmentCost",
+  renovationCost: IBuildingMeasureInfo = {
+    key: "renovationCost",
     info: "Cost of new HVAC system, per building",
     type: String,
-    label: "Refurbishment cost",
+    label: "Renovation cost",
     unit: "euro",
   };
   embodiedEnergy: IBuildingMeasureInfo = {

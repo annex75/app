@@ -455,29 +455,29 @@ const referenceCaseParamDictionary: IRenovationMeasureWorkbookEntry[] = [
 const refCaseCostParamDictionary: IRenovationMeasureWorkbookEntry[] = [
   {
     row: 6,
-    key: "Façade refurbishment without energy performance improvement",
+    key: "Façade renovation without energy performance improvement",
     category: "facade",
-    localPath: "refurbishmentCost",
+    localPath: "renovationCost",
   },{
     row: 8,
-    key: "Flat roof refurbishment, without energy performance improvement",
+    key: "Flat roof renovation, without energy performance improvement",
     category: "roof",
-    localPath: "refurbishmentCost",
+    localPath: "renovationCost",
   },{
     row: 11,
     key: "Windows (repainting and repairing only, without energy performance improvement",
     category: "windows",
-    localPath: "refurbishmentCost",
+    localPath: "renovationCost",
   },{
     row: 17,
-    key: "Cellar ceiling refurbishment",
+    key: "Cellar ceiling renovation",
     category: "foundation",
-    localPath: "refurbishmentCost",
+    localPath: "renovationCost",
   },{
     row: 19,
     key: "Replacement of energy system",
     category: "hvac",
-    localPath: "refurbishmentCost",
+    localPath: "renovationCost",
   },
 ];
 
@@ -490,7 +490,7 @@ interface IEnergyCarrierParamWorkbookEntry {
 const energyCarrierParamDictionary: IEnergyCarrierParamWorkbookEntry[] = [
   {
     col: "B",
-    key: "Greenhouse gas emissions",
+    key: "Carbon emissions",
     localPath: "emissionFactor",
   },{
     col: "C",

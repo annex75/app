@@ -1,7 +1,7 @@
 import { IProject, IBuildingMeasure, TBuildingMeasureScenarioCategory, buildingMeasureScenarioCategories, IScenarioEnvelopeMeasureData, IScenarioFoundationMeasureData, convertTypes, TBuildingMeasureCategory, BuildingType, ScenarioInfo, EnvelopeMeasure, WindowMeasure, CalcData, HvacMeasure, getBuildingArea, getBuildingFoundationArea } from "../../types";
 
 export interface IBuildingMeasureScenarioInfo {
-  refurbishmentCost: number;
+  renovationCost: number;
   // maintenanceCost: Record<TBuildingMeasureCategory, number>;
   embodiedEnergy: number;
   [key: string]: number;
@@ -70,16 +70,16 @@ export const calculateBuildingMeasures = (project: IProject) => {
             throw new Error(`${scenarioCat} has not been defined`);
           }
         }
-        const cost = buildingMeasure.refurbishmentCost * factor;
+        const cost = buildingMeasure.renovationCost * factor;
         const embodiedEnergy = buildingMeasure.embodiedEnergy * factor;
 
         if (!Object.keys(buildingMeasuresInUse[scenarioId][scenarioCat]).includes(buildingMeasure.id)) {
           buildingMeasuresInUse[scenarioId][scenarioCat][buildingMeasureId] = {
-            refurbishmentCost: cost,
+            renovationCost: cost,
             embodiedEnergy: embodiedEnergy,
           };
         } else {
-          buildingMeasuresInUse[scenarioId][scenarioCat][buildingMeasureId].refurbishmentCost += cost;
+          buildingMeasuresInUse[scenarioId][scenarioCat][buildingMeasureId].renovationCost += cost;
           buildingMeasuresInUse[scenarioId][scenarioCat][buildingMeasureId].embodiedEnergy += embodiedEnergy;
         }
       });
@@ -88,7 +88,7 @@ export const calculateBuildingMeasures = (project: IProject) => {
   return buildingMeasuresInUse;
 }
 
-export const calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost = (
+export const calculateBuildingMeasureAnnualizedSpecificRenovationCost = (
   buildingMeasureScenarioInfo: IBuildingMeasureScenarioInfo,
   buildingMeasure: IBuildingMeasure,
   totalBuildingArea: number,
@@ -99,7 +99,7 @@ export const calculateBuildingMeasureAnnualizedSpecificRefurbishmentCost = (
   if (!buildingMeasure.lifeTime) {
     throw new Error("Measure lifetime must be positive");
   }
-  return buildingMeasureScenarioInfo.refurbishmentCost/(totalBuildingArea*buildingMeasure.lifeTime);
+  return buildingMeasureScenarioInfo.renovationCost/(totalBuildingArea*buildingMeasure.lifeTime);
 }
 
 export const calculateBuildingMeasureSpecificEmbodiedEnergy = (

@@ -338,7 +338,7 @@ export interface IBuildingMeasure {
   id: string;
   category: TBuildingMeasureCategory;
   measureName: string;
-  refurbishmentCost: number;
+  renovationCost: number;
   lifeTime: number;
   embodiedEnergy: number;
   deleted?: boolean;
@@ -353,7 +353,7 @@ abstract class BaseBuildingMeasure {
   id: string = uuidv4();
   category: TBuildingMeasureCategory;
   measureName: string = "";
-  refurbishmentCost: number = 0;
+  renovationCost: number = 0;
   lifeTime: number = 0;
   embodiedEnergy: number = 0;
   deleted: boolean = false;
@@ -402,7 +402,7 @@ export class ScenarioData {
 }
 
 export interface IBuildingMeasureResult {
-  refurbishmentCost: number;
+  renovationCost: number;
   embodiedEnergy: number;
 }
 
@@ -440,11 +440,11 @@ export class ResultSummary implements IResultSummary {
     embodiedEnergy: { intake: 0, generation: 0, circulation: 0, substation: 0, },
   };
   buildingMeasures = {
-    roof: { refurbishmentCost: 0, embodiedEnergy: 0, },
-    facade: { refurbishmentCost: 0, embodiedEnergy: 0, },
-    foundation: { refurbishmentCost: 0, embodiedEnergy: 0, },
-    windows: { refurbishmentCost: 0, embodiedEnergy: 0, },
-    hvac: { refurbishmentCost: 0, embodiedEnergy: 0, },
+    roof: { renovationCost: 0, embodiedEnergy: 0, },
+    facade: { renovationCost: 0, embodiedEnergy: 0, },
+    foundation: { renovationCost: 0, embodiedEnergy: 0, },
+    windows: { renovationCost: 0, embodiedEnergy: 0, },
+    hvac: { renovationCost: 0, embodiedEnergy: 0, },
   };
   [key: string]: ResultSummary[keyof ResultSummary];
 }
@@ -462,11 +462,11 @@ export class Scenario {
   }
   energySystems: Record<string,IEnergySystemScenarioInfo> = { };
   buildingMeasures: Record<TBuildingMeasureScenarioCategory, Record<string, IBuildingMeasureScenarioInfo>> = {
-    facade: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
-    roof: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
-    foundation: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
-    hvac: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
-    windows: { placeholder: { refurbishmentCost: 0, embodiedEnergy: 0, }},
+    facade: { placeholder: { renovationCost: 0, embodiedEnergy: 0, }},
+    roof: { placeholder: { renovationCost: 0, embodiedEnergy: 0, }},
+    foundation: { placeholder: { renovationCost: 0, embodiedEnergy: 0, }},
+    hvac: { placeholder: { renovationCost: 0, embodiedEnergy: 0, }},
+    windows: { placeholder: { renovationCost: 0, embodiedEnergy: 0, }},
   };
   buildingTypes: Record<string, ScenarioInfo> = {}; 
   total: ResultSummary = new ResultSummary();
