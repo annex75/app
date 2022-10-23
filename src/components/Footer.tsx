@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { IFooterState, IFooterProps } from '../types';
-import { Button, AnchorButton, Popover, PopoverInteractionKind, Position } from '@blueprintjs/core';
+import { Button, AnchorButton, Popover, PopoverInteractionKind, Position, Dialog } from '@blueprintjs/core';
 import { strings } from '../constants/textData'
 import { secureLink } from '../helpers';
 import { APP_VERSION } from '../constants';
+import { PrivacyPolicy } from './PrivacyPolicy';
 
 export class Footer extends Component<IFooterProps, IFooterState> {
   constructor(props: IFooterProps) {
@@ -11,6 +12,7 @@ export class Footer extends Component<IFooterProps, IFooterState> {
     this.state = { 
       year: new Date().getFullYear(),
       helpPopoverOpen: false,
+      privacyDialogOpen: false,
     };
   }
   render() {
@@ -28,8 +30,15 @@ export class Footer extends Component<IFooterProps, IFooterState> {
             position={Position.TOP}>
             <Button minimal icon="help" aria-label="help"></Button>
           </Popover>
-          
+          <Dialog isOpen={this.state.privacyDialogOpen} className="gdpr-dialog">
+            <PrivacyPolicy/>
+            <Button className="gdpr-dialog-button" onClick={() => this.setState({privacyDialogOpen: false})}>Close</Button>
+          </Dialog>
+          <Button 
+            onClick={() => this.setState({privacyDialogOpen: true})}
+            minimal icon="shield" aria-label="shield"/>          
         </div>
+        
         <div className="bp3-navbar-group bp3-align-right" style={{ display: "flex", alignItems: "flex-end", flex: "1 1 auto" }}>
           <ul className="site-link bp3-align-right" style={{ flex: "1 1 auto", paddingInlineEnd: "1em", textAlign: "right", }}>
             <li style={{ display: "inline", }}>

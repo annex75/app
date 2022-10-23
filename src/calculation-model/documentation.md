@@ -2,7 +2,7 @@
         
 Author: Toivo Säwén
 
-Last updated: 2022-07-13
+Last updated: 2022-10-24
 
 ## Energy system size and cost calculations
 In each scenario, the goal to calculate the size of the global system by in turn calculating the power needed to heat each building. Then, the size of the system is matched to the cost curves, which determine the total costs, embodied energy, and emissions of the

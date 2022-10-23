@@ -18,6 +18,7 @@ export interface IDictBool {
 }
 
 export interface IUserInfo {
+  gdprAccept: boolean;
   patchNotification: string;
 }
 

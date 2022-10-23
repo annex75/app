@@ -14,6 +14,7 @@ export interface IAppState {
   projects: IDictProject;
   changelog: string; // md string with changelog
   currentUser: firebase.UserInfo | null;
+  gdprPromptOpen: boolean;
 }
 
 export interface IAppProps { }
@@ -90,6 +91,7 @@ export interface IFooterProps { }
 export interface IFooterState {
   year: number;
   helpPopoverOpen: boolean;
+  privacyDialogOpen: boolean;
 }
 
 /* Landing page */

@@ -6,7 +6,7 @@ import { Unsubscribe } from 'firebase';
 import firebase from 'firebase/app';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { Spinner, Intent } from '@blueprintjs/core';
+import { Spinner, Intent, Dialog, Button } from '@blueprintjs/core';
 import xlsx from 'xlsx';
 import semver from 'semver';
 
@@ -25,6 +25,7 @@ import { APP_VERSION, SUPPORTED_VERSIONS } from './constants';
 import { exportXlsx } from './WorkbookExport';
 import { LandingPage } from './components/LandingPage';
 import changelogPath from './markdown/changelog.md';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
 
 // todo: not really typescript, no type safety but couldn't get it to work
 // cf: https://stackoverflow.com/questions/47747754/how-to-rewrite-the-protected-router-using-typescript-and-react-router-4-and-5/47754325#47754325
@@ -74,6 +75,7 @@ class App extends Component<IAppProps, IAppState> {
       changelog: "",
       activeProjectId: "",
       currentUser: null,
+      gdprPromptOpen: false,
     };
     this.fb = new FirebaseInstance();
   }
@@ -100,6 +102,9 @@ class App extends Component<IAppProps, IAppState> {
               this.fb.base.update(`users/${user.uid}`, {
                 data: { patchNotification: APP_VERSION },
               });
+            }
+            if (!data.gdprAccept) {
+              this.setState({ gdprPromptOpen: true })
             }
           },
         });
@@ -290,6 +295,13 @@ class App extends Component<IAppProps, IAppState> {
     }
   }
 
+  acceptGdpr = () => {
+    this.setState({ gdprPromptOpen: false });
+    this.fb.base.update(`users/${this.state.currentUser!.uid}`, {
+      data: { gdprAccept: true },
+    });
+  }
+
   render() {
     if (this.state.loading) {
       return (
@@ -301,6 +313,11 @@ class App extends Component<IAppProps, IAppState> {
     }
     return (
       <div className="app-body">
+        <Dialog className="gdpr-dialog"
+          isOpen={this.state.gdprPromptOpen}>
+            <PrivacyPolicy/>
+            <Button className="gdpr-dialog-button" onClick={this.acceptGdpr}>Accept Privacy Policy</Button>
+        </Dialog>
         <BrowserRouter>
           <div className="app-container">
             <Header

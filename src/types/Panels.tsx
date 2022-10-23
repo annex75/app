@@ -311,7 +311,7 @@ export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
   renovationCost: IBuildingMeasureInfo = {
     key: "renovationCost",
     type: String,
-    info: "Cost of adding 1 cm of insulation per square meter",
+    info: "Cost of adding 1 cm of insulation per square meter. The thickness of insulation is defined in the Scenarios panel.",
     label: "Renovation cost",
     unit: "euroPerCentimeterMeterSq",
   };
