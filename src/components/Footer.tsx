@@ -28,13 +28,14 @@ export class Footer extends Component<IFooterProps, IFooterState> {
             isOpen={this.state.helpPopoverOpen}
             onInteraction={(state) => this.setState({ helpPopoverOpen: state })}
             position={Position.TOP}>
-            <Button minimal icon="help" aria-label="help"></Button>
+            <Button title="About" minimal icon="help" aria-label="help"></Button>
           </Popover>
           <Dialog isOpen={this.state.privacyDialogOpen} className="gdpr-dialog">
             <PrivacyPolicy/>
             <Button className="gdpr-dialog-button" onClick={() => this.setState({privacyDialogOpen: false})}>Close</Button>
           </Dialog>
-          <Button 
+          <Button
+            title="Privacy"
             onClick={() => this.setState({privacyDialogOpen: true})}
             minimal icon="shield" aria-label="shield"/>          
         </div>
