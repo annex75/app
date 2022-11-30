@@ -21,3 +21,4 @@ The output of the tool is the key performance indicators specific annual primary
 
 
 ### Further documentation
+Detailed documentation/manual of the tool is available at [GitHub](https://github.com/annex75/app/tree/master/docs).

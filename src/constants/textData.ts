@@ -4,6 +4,7 @@ export const strings = {
     },
     supportEMail: "support.bimenergy@strusoft.com",
     githubLink: "https://github.com/annex75/",
+    pdfDocsLink: "https://github.com/annex75/app/tree/master/docs", // if updated, also update in markdown/gettingStarted.md
 }
 
 export const documentation: Record<string, string> = {

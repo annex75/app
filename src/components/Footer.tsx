@@ -61,8 +61,9 @@ const HelpPopoverContent = () => {
   return (
     <div className="help-popover-content">
       This application is developed as part of the IEA EBC Annex 75 project.
-      <br/>The source code is available on {secureLink(strings.githubLink, "GitHub")}
-      <br/>For support, please contact {secureLink(`mailto:${strings.supportEMail}`, strings.supportEMail)}
+      <br/>The source code is available on {secureLink(strings.githubLink, "GitHub")}.
+      <br/>Detailed documentation/manual is available on {secureLink(strings.pdfDocsLink, "GitHub")}.
+      <br/>For support, please contact {secureLink(`mailto:${strings.supportEMail}`, strings.supportEMail)}.
       <br/>App version: {APP_VERSION}
     </div>
   )
