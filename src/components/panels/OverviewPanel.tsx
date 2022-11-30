@@ -52,6 +52,7 @@ export class OverviewPanel extends Component<IOverviewPanelProps, IOverviewPanel
             key: "toolsUsed",
             type: String,
             label: "Tools used",
+            info: "(For reference purposes) what external tools were used for simulations and calculations",
             path: "project.overviewData.toolsInfo",
           }
         }

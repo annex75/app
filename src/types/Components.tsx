@@ -13,6 +13,7 @@ export interface IAppState {
   activeProjectId: string;
   projects: IDictProject;
   changelog: string; // md string with changelog
+  gettingStarted: string; // md string with getting started info
   currentUser: firebase.UserInfo | null;
   gdprPromptOpen: boolean;
 }
@@ -97,11 +98,15 @@ export interface IFooterState {
 /* Landing page */
 
 export interface ILandingPageState {
-  changelogOpen: boolean;
+  open: {
+    changelog: boolean,
+    gettingStarted: boolean,
+  }
 }
 
 export interface ILandingPageProps {
   changelog: string;
+  gettingStarted: string;
 }
 
 /* Login/Logout */

@@ -86,6 +86,7 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
     energyCarrier: {
       key: "energyCarrier",
       mode: "dropdownOptionPath",
+      info: "Energy carrier options are defined at the bottom of the Energy Systems menu.",
       nameKey: "name",
       optionPath: "calcData.energyCarriers",
       label: "Energy carrier",

@@ -1,3 +1,7 @@
+## 1.4.7 (2022-11-30)
+* Added "getting started" information
+* Added more info text
+
 ## 1.4.6 (2022-10-21)
 * Fixed the wrong dropdown option being selected when reopening it
 * Minor changes to documentation

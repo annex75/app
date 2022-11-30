@@ -275,7 +275,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             unit: "degC",
             //info: "",
             type: String,
-            label: "Design indoor temperature",
+            label: "Design indoor temperature (winter case)",
             rootPath: "buildingTypes",
             mode: "input",
           },

@@ -137,6 +137,7 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
             key: "availableHeatSources",
             type: String,
             label: "Available heat sources/sinks",
+            info: "(For reference purposes) if any heat sources or sinks are available for use with heat pumps",
             localPath: "energy.heatSources",
             rootPath: "district",
             handleChange: this.props.handleChange,

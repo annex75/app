@@ -25,6 +25,7 @@ import { APP_VERSION, SUPPORTED_VERSIONS } from './constants';
 import { exportXlsx } from './WorkbookExport';
 import { LandingPage } from './components/LandingPage';
 import changelogPath from './markdown/changelog.md';
+import gettingStartedPath from './markdown/gettingStarted.md';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 
 // todo: not really typescript, no type safety but couldn't get it to work
@@ -73,6 +74,7 @@ class App extends Component<IAppProps, IAppState> {
       loading: true,
       updating: false,
       changelog: "",
+      gettingStarted: "",
       activeProjectId: "",
       currentUser: null,
       gdprPromptOpen: false,
@@ -83,6 +85,10 @@ class App extends Component<IAppProps, IAppState> {
   componentDidMount() {
     fetch(changelogPath).then((response) => response.text()).then((text) => {
       this.setState({ changelog: text })
+    });
+
+    fetch(gettingStartedPath).then((response) => response.text()).then((text) => {
+      this.setState({ gettingStarted: text })
     });
 
     this.removeAuthListener = this.fb.app.auth().onAuthStateChanged((user) => {
@@ -328,7 +334,7 @@ class App extends Component<IAppProps, IAppState> {
             <div className="main-content">
               <div className="workspace-wrapper">
                 <Route exact path="/" render={ props => {
-                  return <LandingPage changelog={this.state.changelog}/>
+                  return <LandingPage changelog={this.state.changelog} gettingStarted={this.state.gettingStarted}/>
                 }} />
                 <Route exact path="/login" render={ props => {
                   return (
