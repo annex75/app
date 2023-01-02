@@ -28,7 +28,7 @@
     "remark-math": "^5.1.1",
     "semver": "^7.3.5",
     "typescript": "^3.9.7",
-    "xlsx": "^0.15.6"
+    "xlsx": "^0.17.0"
   },
   "scripts": {
     "start": "cross-env REACT_APP_ENV=development react-scripts start",
