@@ -326,7 +326,7 @@ export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
     key: "embodiedEmissions",
     type: Number,
     label: "Embodied emissions",
-    unit: "kiloGramCO2PerCentimeterMeterSq",
+    unit: "kiloGramCO2EqPerCentimeterMeterSq",
   };
   [key: string]: EnvelopeMeasureParameters[keyof EnvelopeMeasureParameters];
 }
@@ -357,7 +357,7 @@ export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
     key: "embodiedEmissions",
     type: Number,
     label: "Embodied emissions",
-    unit: "kiloGramCO2PerMeterSq",
+    unit: "kiloGramCO2EqPerMeterSq",
   };
   [key: string]: WindowMeasureParameters[keyof WindowMeasureParameters];
 }

@@ -56,7 +56,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
       {
         name: "embodiedEmissions",
         label: "Embodied emissions",
-        unit: "kilogram"
+        unit: "kiloGramCO2Eq"
       }
     ];
     this.costCurveScales = [
