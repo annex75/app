@@ -584,7 +584,7 @@ export enum Units {
   kiloGramCO2Eq = "kg CO₂eq",
   kiloGramCO2EqPerKiloWattHour = "kg CO₂eq/kWh",
   kiloGramCO2EqPerYear = "kg CO₂eq/a",
-  kiloGramCO2PerCentimeterMeterSq = "kg CO₂eq/(cm, m²)",
-  kiloGramCO2PerMeterSq = "kg CO₂eq/m²",
+  kiloGramCO2EqPerCentimeterMeterSq = "kg CO₂eq/(cm, m²)",
+  kiloGramCO2EqPerMeterSq = "kg CO₂eq/m²",
 }
   
