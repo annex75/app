@@ -7,7 +7,7 @@ import { APP_VERSION } from '../../constants';
 import { updateFromWorkbook } from '../../WorkbookImport';
 import { IProject, OverviewData, CalcData, ScenarioData, ScenarioInfo, Scenario, toXlsx, BuildingInformation, BuildingGeometry, ResultSummary, buildingMeasureScenarioCategories, TBuildingMeasureScenarioCategory, convertTypes, TBuildingMeasureCategory } from '../Data';
 import { TCostCurveType, costCurveTypes, costCurveCategories } from './EnergySystem';
-import { calculateEnergySystems, calculateEnergySystemAnnualizedSpecificInvestmentCost, calculateEnergySystemSpecificMaintenanceCost, calculateBuildingMeasures, calculateBuildingMeasureAnnualizedSpecificRenovationCost, calculateBuildingMeasureSpecificEmbodiedEnergy, calculateSpecificValueFromEnergySystemScenarioInfo, IBuildingMeasureScenarioInfo } from '../../calculation-model/calculate';
+import { calculateEnergySystems, calculateEnergySystemAnnualizedSpecificInvestmentCost, calculateEnergySystemSpecificMaintenanceCost, calculateBuildingMeasures, calculateBuildingMeasureAnnualizedSpecificRenovationCost, calculateBuildingMeasureSpecificEmbodiedEmissions, calculateSpecificValueFromEnergySystemScenarioInfo, IBuildingMeasureScenarioInfo } from '../../calculation-model/calculate';
 
 export class Project implements IProject {
   appVersion = APP_VERSION;
@@ -136,7 +136,7 @@ export class Project implements IProject {
           annualizedSpecificInvestmentCost
           + specificMaintenanceCost
           + annualizedSpecificEnergyCost;
-        scenario.total.specificEmbodiedEnergy += calculateSpecificValueFromEnergySystemScenarioInfo(energySystemScenarioInfo, totalBuildingArea, "embodiedEnergy");
+        scenario.total.specificEmbodiedEmissions += calculateSpecificValueFromEnergySystemScenarioInfo(energySystemScenarioInfo, totalBuildingArea, "embodiedEmissions");
         scenario.total.specificPrimaryEnergyUse += energySystemScenarioInfo.primaryEnergyUse/totalBuildingArea;
         scenario.total.specificEmissions += energySystemScenarioInfo.emissions/totalBuildingArea;
 
@@ -160,10 +160,10 @@ export class Project implements IProject {
           const buildingMeasure = this.calcData.buildingMeasures[category][buildingMeasureId];
           const buildingMeasureScenarioInfo = scenario.buildingMeasures[scenarioCat][buildingMeasureId];
           scenario.total.buildingMeasures[scenarioCat].renovationCost += +buildingMeasureScenarioInfo.renovationCost;
-          scenario.total.buildingMeasures[scenarioCat].embodiedEnergy += +buildingMeasureScenarioInfo.embodiedEnergy;
+          scenario.total.buildingMeasures[scenarioCat].embodiedEmissions += +buildingMeasureScenarioInfo.embodiedEmissions;
           const annualizedSpecificRenovationCost = calculateBuildingMeasureAnnualizedSpecificRenovationCost(buildingMeasureScenarioInfo, buildingMeasure, totalBuildingArea);
           scenario.total.annualizedSpecificCost += annualizedSpecificRenovationCost;
-          scenario.total.specificEmbodiedEnergy += calculateBuildingMeasureSpecificEmbodiedEnergy(buildingMeasureScenarioInfo, totalBuildingArea);
+          scenario.total.specificEmbodiedEmissions += calculateBuildingMeasureSpecificEmbodiedEmissions(buildingMeasureScenarioInfo, totalBuildingArea);
         });
       });
     });
@@ -254,7 +254,7 @@ export class Project implements IProject {
     // cost curves
     // todo: broken as of 200917, needs some work
     /*
-    const costCurveCategories: TCostCurveCategory[] = [ "embodiedEnergy", "investmentCost", "maintenanceCost", ]
+    const costCurveCategories: TCostCurveCategory[] = [ "embodiedEmissions", "investmentCost", "maintenanceCost", ]
     const costCurveScales: TCostCurveScale[] = [ "centralized", "substation" ]
     const costCurveKeys: Record<TCostCurveScale, TCostCurveType[]> = {
       centralized: [ "intake", "generation", "circulation", ],
@@ -265,7 +265,7 @@ export class Project implements IProject {
     energySystemNames.forEach(name => {
       wsDataCostCurves.push(...[
         [name],
-        ["Embodied energy"], [""], [""], [""], [""],
+        ["Embodied Emissions"], [""], [""], [""], [""],
         ["Investment"], [""], [""], [""], [""],
         ["Maintenance"], [""], [""], [""], [""],
       ]);

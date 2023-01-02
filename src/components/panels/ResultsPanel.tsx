@@ -41,17 +41,17 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
   
   resultGraphs: IResultGraph[] = [
     /*{
-      id: "embodiedEnergy",
-      label: "Embodied energy vs. annualized specific cost",
+      id: "embodiedEmissions",
+      label: "Embodied Emissions vs. annualized specific cost",
       xDataObj: {
         dataPath: "total.annualizedSpecificCost",
         unit: " €/m²a",
         label: "Annualized specific cost",
       },
       yDataObj: {
-        dataPath: "total.specificEmbodiedEnergy",
+        dataPath: "total.specificEmbodiedEmissions",
         unit: " kWh/m²",
-        label: "Specific embodied energy",
+        label: "Specific embodied emissions",
       },
       mode: "2d",
       chartSetup: {

@@ -75,17 +75,18 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
             handleChange: this.props.handleChange,
           },
           designOutdoorTemperature: {
-            info: "Outdoor dry bulb temperature exceeded 99% of the year",
+            info: "Outdoor dry bulb temperature exceeded 99% of the year. This is the design temperature for which the design of the heating system is calculated.",
             key: "designOutdoorTemperature",
             type: String,
             unit: "degC",
-            label: "Design temp.",
+            label: "Min. temp.",
             localPath: "climate.designOutdoorTemperature",
             rootPath: "district",
             handleChange: this.props.handleChange,
           },
           climateFile: {
             key: "climateFile",
+            info: "EnergyPlus weather file (.epw), used for reference purposes.",
             type: "file",
             label: "Climate file",
             buttonLabel: "Upload .epw file",
@@ -104,10 +105,11 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
             unit: "meter",
             label: "Required piping length",
             localPath: "geometry.pipingLength",
-            info: "Pipes required between substations and buildings",
+            info: "Piping length required between district heating network connection and substations in each building",
             rootPath: "district",
             handleChange: this.props.handleChange,
           },
+          /*
           distanceToDistrictHeatingNetwork: {
             key: "distanceToDistrictHeatingNetwork",
             type: String,
@@ -118,6 +120,7 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
             rootPath: "district",
             handleChange: this.props.handleChange,
           }
+          */
         },
       },
       renewables: {
@@ -142,6 +145,7 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
             rootPath: "district",
             handleChange: this.props.handleChange,
           },
+          /*
           availableGSHP: {
             key: "availableGSHPArea",
             type: Number,
@@ -152,6 +156,7 @@ export class DistrictCard extends Component<IDistrictCardProps,IDistrictCardStat
             rootPath: "district",
             handleChange: this.props.handleChange,
           }
+          */
         },
       }
     };

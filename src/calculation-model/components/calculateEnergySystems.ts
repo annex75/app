@@ -21,7 +21,7 @@ export interface IEnergySystemScenarioInfo {
   lifetimeEnergyCost: number;
   investmentCost: Record<TCostCurveType, number>;
   maintenanceCost: Record<TCostCurveType, number>;
-  embodiedEnergy: Record<TCostCurveType, number>;
+  embodiedEmissions: Record<TCostCurveType, number>;
   [key: string]: IEnergySystemScenarioInfo[keyof IEnergySystemScenarioInfo];
 }
 
@@ -87,7 +87,7 @@ export const calculateEnergySystems = (project: IProject) => {
           lifetimeEnergyCost: 0,
           investmentCost: { intake: 0, generation: 0, circulation: 0, substation: 0, },
           maintenanceCost: { intake: 0, generation: 0, circulation: 0, substation: 0, },
-          embodiedEnergy: { intake: 0, generation: 0, circulation: 0, substation: 0, },
+          embodiedEmissions: { intake: 0, generation: 0, circulation: 0, substation: 0, },
         };
       } else {
         energySystemsInUse[scenarioId][energySystemId].heatingNeed += totalBuildingTypeHeatNeed;
@@ -106,7 +106,7 @@ export const calculateEnergySystems = (project: IProject) => {
       energySystemScenarioInfo.systemSize = systemSize;
       energySystemScenarioInfo.maintenanceCost = calculateEnergySystemTotalMaintenanceCost(energySystem, systemSize);
       energySystemScenarioInfo.investmentCost = calculateEnergySystemTotalInvestmentCost(energySystem, systemSize);
-      energySystemScenarioInfo.embodiedEnergy = calculateEnergySystemTotalEmbodiedEnergy(energySystem, systemSize);
+      energySystemScenarioInfo.embodiedEmissions = calculateEnergySystemTotalEmbodiedEmissions(energySystem, systemSize);
 
       const energyCarrierId = energySystem.energyCarrier;
       const energyCarrier = project.calcData.energyCarriers[energyCarrierId];
@@ -161,8 +161,8 @@ const calculateEnergySystemTotalMaintenanceCost = (energySystem: EnergySystem, s
   return calculateEnergySystemTotalCategoryCost("maintenanceCost", energySystem, systemSize);
 }
 
-const calculateEnergySystemTotalEmbodiedEnergy = (energySystem: EnergySystem, systemSize: ISystemSize, ) => {
-  return calculateEnergySystemTotalCategoryCost("embodiedEnergy", energySystem, systemSize);
+const calculateEnergySystemTotalEmbodiedEmissions = (energySystem: EnergySystem, systemSize: ISystemSize, ) => {
+  return calculateEnergySystemTotalCategoryCost("embodiedEmissions", energySystem, systemSize);
 }
 
 const calculateEnergySystemTotalCategoryCost = (category: TCostCurveCategory, energySystem: EnergySystem, systemSize: ISystemSize,) => {

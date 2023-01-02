@@ -28,6 +28,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             rootPath: "buildingTypes",
             mode: "input",
           },
+          /*
           energyPerformanceCertificate: {
             key: "energyPerformanceCertificate",
             unit: "none",
@@ -46,6 +47,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
             rootPath: "buildingTypes",
             mode: "input",
           }
+          */
         }
       },
       "buildingGeometry": {
@@ -166,7 +168,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           basementFloorArea: {
             key: "basementFloorArea",
             unit: "meterSq",
-            info: "Equal to building footprint",
+            info: "Equal to building footprint. If there is no basement, this is the area of the foundation.",
             type: Number,
             label: "Foundation area",
             rootPath: "buildingTypes",

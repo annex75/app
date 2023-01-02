@@ -113,7 +113,7 @@ export class NewProjectForm extends Component<INewProjectFormProps, INewProjectF
             onInputChange={this.createProjectFromXlsx}
             inputProps={{ accept: ".xlsx" }}/>
           <FileInput 
-            disabled
+            disabled={!(process.env.REACT_APP_ENV === "development")} // enabled if in dev mode
             className="bp3-intent-primary"
             text="Upload project .json"
             onInputChange={this.createProjectFromJson}

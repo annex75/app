@@ -118,7 +118,7 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
     primaryEnergyFactorTotal: {
       key: "primaryEnergyFactorTotal",
       unit: "kiloWattHourPerKiloWattHour",
-      info: "Includes renewable and renewable sources",
+      info: "Includes renewable and non-renewable sources",
       type: Number,
       mode: "input",
       label: "Primary energy factor",

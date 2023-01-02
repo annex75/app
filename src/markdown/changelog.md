@@ -1,3 +1,11 @@
+## 1.4.8 (2023-01-02)
+* Enabled JSON import in dev mode as default
+* Visual feedback when system sizes are not strictly increasing in cost curve
+* Temporarily moved calculation model documentation to GitHub
+* Revised documentation
+* Clarified use of embodied emissions/embodied emissions
+* Added more info labels
+
 ## 1.4.7 (2022-11-30)
 * Added "getting started" information
 * Added more info text

@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 import {
   calculateBuildingMeasures,
   calculateBuildingMeasureAnnualizedSpecificRenovationCost,
-  calculateBuildingMeasureSpecificEmbodiedEnergy,
+  calculateBuildingMeasureSpecificEmbodiedEmissions,
   calculateHeatLossCoefficient,
   calculateEnergySystems,
   calculateEnergySystemAnnualizedSpecificInvestmentCost,
@@ -19,18 +19,18 @@ const insulationMeasureA = new EnvelopeMeasure("insulation", "insulationA");
 insulationMeasureA.renovationCost = 10;
 insulationMeasureA.lifeTime = 25;
 insulationMeasureA.lambdaValue = 0.036;
-insulationMeasureA.embodiedEnergy = 5;
+insulationMeasureA.embodiedEmissions = 5;
 
 const windowMeasureA = new WindowMeasure("windows", "windowA");
 windowMeasureA.renovationCost = 20;
 windowMeasureA.lifeTime = 25;
 windowMeasureA.uValue = 0.5;
-windowMeasureA.embodiedEnergy = 10;
+windowMeasureA.embodiedEmissions = 10;
 
 const hvacMeasureA = new HvacMeasure("hvac", "hvacA");
 hvacMeasureA.renovationCost = 200;
 hvacMeasureA.lifeTime = 25;
-hvacMeasureA.embodiedEnergy = 100;
+hvacMeasureA.embodiedEmissions = 100;
 hvacMeasureA.efficiency = 0.9;
 
 const project = new Project("project", "owner", false);
@@ -126,13 +126,13 @@ const costCurvesCentralized = {
 energySystemA.costCurves.substation = {
   investmentCost: new CostCurveIndividual("euro", costCurvesIndividual),
   maintenanceCost: new CostCurveIndividual("euroPerYear", costCurvesIndividual),
-  embodiedEnergy: new CostCurveIndividual("kiloGramCO2EqPerYear", costCurvesIndividual),
+  embodiedEmissions: new CostCurveIndividual("kiloGramCO2EqPerYear", costCurvesIndividual),
 }
 
 energySystemA.costCurves.centralized = {
   investmentCost: new CostCurveCentralized("euro", costCurvesCentralized),
   maintenanceCost: new CostCurveCentralized("euroPerYear", costCurvesCentralized),
-  embodiedEnergy: new CostCurveCentralized("kiloGramCO2EqPerYear", costCurvesCentralized),
+  embodiedEmissions: new CostCurveCentralized("kiloGramCO2EqPerYear", costCurvesCentralized),
 }
 
 scenarioInfo.energySystem.energySystem = energySystemId;
@@ -173,7 +173,7 @@ const systemInfo: IEnergySystemScenarioInfo = {
     circulation: 100,
     generation: 100,
   },
-  embodiedEnergy: {
+  embodiedEmissions: {
     substation: 2500,
     intake: 2500,
     circulation: 2500,
@@ -208,15 +208,15 @@ describe('calculateBuildingMeasures', () => {
 
     // THEN
     expect(result[scenarioId].facade[insulationMeasureA.id].renovationCost).toBeCloseTo(690);
-    expect(result[scenarioId].facade[insulationMeasureA.id].embodiedEnergy).toBeCloseTo(345);
+    expect(result[scenarioId].facade[insulationMeasureA.id].embodiedEmissions).toBeCloseTo(345);
     expect(result[scenarioId].roof[insulationMeasureA.id].renovationCost).toBeCloseTo(420);
-    expect(result[scenarioId].roof[insulationMeasureA.id].embodiedEnergy).toBeCloseTo(210);
+    expect(result[scenarioId].roof[insulationMeasureA.id].embodiedEmissions).toBeCloseTo(210);
     expect(result[scenarioId].foundation[insulationMeasureA.id].renovationCost).toBeCloseTo(720);
-    expect(result[scenarioId].foundation[insulationMeasureA.id].embodiedEnergy).toBeCloseTo(360);
+    expect(result[scenarioId].foundation[insulationMeasureA.id].embodiedEmissions).toBeCloseTo(360);
     expect(result[scenarioId].windows[windowMeasureA.id].renovationCost).toBeCloseTo(6000);
-    expect(result[scenarioId].windows[windowMeasureA.id].embodiedEnergy).toBeCloseTo(3000);
+    expect(result[scenarioId].windows[windowMeasureA.id].embodiedEmissions).toBeCloseTo(3000);
     expect(result[scenarioId].hvac[hvacMeasureA.id].renovationCost).toBeCloseTo(600);
-    expect(result[scenarioId].hvac[hvacMeasureA.id].embodiedEnergy).toBeCloseTo(300);
+    expect(result[scenarioId].hvac[hvacMeasureA.id].embodiedEmissions).toBeCloseTo(300);
   });
 });
 
@@ -226,7 +226,7 @@ describe('calculateBuildingMeasureAnnualizedSpecificRenovationCost', () => {
     const buildingArea = 1000;
     const measureInfo = {
       renovationCost: 50000,
-      embodiedEnergy: 25000,
+      embodiedEmissions: 25000,
     }
 
     // WHEN
@@ -237,17 +237,17 @@ describe('calculateBuildingMeasureAnnualizedSpecificRenovationCost', () => {
   });
 });
 
-describe('calculateBuildingMeasureSpecificEmbodiedEnergy', () => {
-  it('calculates specific embodied energy correctly', () => {
+describe('calculateBuildingMeasureSpecificEmbodiedEmissions', () => {
+  it('calculates specific embodied emissions correctly', () => {
     // GIVEN
     const buildingArea = 1000;
     const measureInfo = {
       renovationCost: 50000,
-      embodiedEnergy: 25000,
+      embodiedEmissions: 25000,
     }
 
     // WHEN
-    const result = calculateBuildingMeasureSpecificEmbodiedEnergy(measureInfo, buildingArea);
+    const result = calculateBuildingMeasureSpecificEmbodiedEmissions(measureInfo, buildingArea);
 
     // THEN
     expect(result).toBeCloseTo(25);
@@ -306,9 +306,9 @@ describe('calculateEnergySystems', () => {
       const exp = key === "substation" ? 12.896: 16.12;
       expect(result.investmentCost[key as TCostCurveType]).toBeCloseTo(exp);
     });
-    Object.keys(result.embodiedEnergy).forEach(key => {
+    Object.keys(result.embodiedEmissions).forEach(key => {
       const exp = key === "substation" ? 12.896: 16.12;
-      expect(result.embodiedEnergy[key as TCostCurveType]).toBeCloseTo(exp);
+      expect(result.embodiedEmissions[key as TCostCurveType]).toBeCloseTo(exp);
     });
     expect(result.primaryEnergyUse).toEqual(28125/energySystemA.coefficientOfPerformance);
     expect(result.lifetimeEnergyCost).toEqual(1054687.5/energySystemA.coefficientOfPerformance);
@@ -335,9 +335,9 @@ describe('calculateEnergySystems', () => {
       const exp = key === "substation" ? 13.575: 0;
       expect(result.investmentCost[key as TCostCurveType]).toBeCloseTo(exp);
     });
-    Object.keys(result.embodiedEnergy).forEach(key => {
+    Object.keys(result.embodiedEmissions).forEach(key => {
       const exp = key === "substation" ? 13.575: 0;
-      expect(result.embodiedEnergy[key as TCostCurveType]).toBeCloseTo(exp);
+      expect(result.embodiedEmissions[key as TCostCurveType]).toBeCloseTo(exp);
     });
     expect(result.primaryEnergyUse).toEqual(22500/energySystemB.efficiency/energySystemB.coefficientOfPerformance);
     expect(result.lifetimeEnergyCost).toBeCloseTo(444078.95);
@@ -366,9 +366,9 @@ describe('calculateEnergySystemSpecificMaintenanceCost', () => {
 });
 
 describe('calculateSpecificValueFromEnergySystemScenarioInfo', () => {
-  it('calculates embodied energy correctly', () => {
+  it('calculates embodied emissions correctly', () => {
     const buildingArea = 2000;
-    const result = calculateSpecificValueFromEnergySystemScenarioInfo(systemInfo, buildingArea, "embodiedEnergy");
+    const result = calculateSpecificValueFromEnergySystemScenarioInfo(systemInfo, buildingArea, "embodiedEmissions");
     expect(result).toEqual(5);
   });
 });

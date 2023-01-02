@@ -1,13 +1,14 @@
 // external
 import React, { Component } from 'react';
 import '@blueprintjs/table/lib/css/table.css';
-import { MenuItem, Button, Classes, FormGroup } from '@blueprintjs/core';
+import { MenuItem, Button, Classes, FormGroup, Intent } from '@blueprintjs/core';
 import { Select, ItemRenderer } from '@blueprintjs/select';
 import { Table, Column, EditableCell, ColumnHeaderCell } from '@blueprintjs/table';
 
 // internal
 import { ICostCurveCategory, ICostCurveEditorProps, ICostCurveEditorState, ICostCurve, getEnergySystemCategory, getEnergySystemType, ICostCurveScale, Units } from '../../../types';
 import { renderScatterChart, getNewColor, IChartSetup } from '../../../helpers';
+import { monotonicIncreasing } from '../../../calculation-model/utils';
 
 const CostCurveSelect = Select.ofType<ICostCurveCategory>();
 const renderCostCurveType: ItemRenderer<ICostCurveCategory> = (type, { handleClick, modifiers }) => {
@@ -53,9 +54,9 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
         unit: "euroPerYear"
       },
       {
-        name: "embodiedEnergy",
-        label: "Embodied energy",
-        unit: "kiloWattHourPerMeterSqYear"
+        name: "embodiedEmissions",
+        label: "Embodied emissions",
+        unit: "kilogram"
       }
     ];
     this.costCurveScales = [
@@ -90,9 +91,10 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
     }
   }
 
-  renderCell = (rowIndex: number, columnIndex: number, id: string, costCurve: ICostCurve) => {
+  renderCell = (rowIndex: number, columnIndex: number, id: string, costCurve: ICostCurve, danger?: boolean) => {
     return (
       <EditableCell
+        intent={danger? Intent.DANGER: Intent.NONE}
         value={costCurve.value[rowIndex] == null ? String(0) : String(costCurve.value[rowIndex])}
         onConfirm={this.handleValueChange(rowIndex, columnIndex, id, costCurve)}
       />
@@ -112,6 +114,11 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
     return <ColumnHeaderCell name={`${label}${unit? ` [${Units[unit]}]`: ''}`} />;
   };
 
+  // returns a warning string if invalid, else empty string
+  isXCurveInvalid = (xCurve: ICostCurve) => {
+    return !monotonicIncreasing(xCurve.value, true);
+  }
+
   render() {
     const { energySystems } = this.props;
     const { costCurveCategory, costCurveScale, activeEnergySystemId } = this.state;
@@ -123,17 +130,23 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
       const tB = activeSystem.costCurves[costCurveScale.name][costCurveCategory.name][b] as ICostCurve;
       return tA.index < tB.index? -1 : tA.index > tB.index? 1 : 0;
     });
+
+    const xCurve = activeSystem.costCurves[costCurveScale.name][costCurveCategory.name][costCurvesSorted[0]];
+
+    const xCurveInvalid = this.isXCurveInvalid(xCurve);
+
     const columns = costCurvesSorted.map((id: string, index: number) => {
       const costCurve = activeSystem.costCurves[costCurveScale.name][costCurveCategory.name][id] as ICostCurve;
+      const danger = !index && xCurveInvalid;
       return (
         <Column
           key={String(index)}
-          cellRenderer={(r: number, c: number) => this.renderCell(r, c, id, costCurve)} 
+          cellRenderer={(r: number, c: number) => this.renderCell(r, c, id, costCurve, danger)} 
           columnHeaderCellRenderer={(index: number) => this.renderColumnHeader(index, costCurve.label, costCurve.unit)}/>
       )
     });
 
-    const xCurve = activeSystem.costCurves[costCurveScale.name][costCurveCategory.name][costCurvesSorted[0]];
+
 
     const chartSetup: IChartSetup = {
       xUnit: " kW",
@@ -213,6 +226,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
             />
           </CostCurveSelect>
         </FormGroup>
+        <div><i>Double click the cell you wish to edit, enter the new value, and press enter to save the content of a cell.</i></div>
         <Table
           numRows={this.state.costCurveRows}
           enableRowHeader={false}
@@ -224,6 +238,10 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
           >
           {columns}
         </Table>
+        {xCurveInvalid?
+          <div><i>The system size column needs to be strictly increasing.</i></div>
+          : null
+        }
         <h3>Cost curves</h3>
         {
           renderScatterChart(graphData, chartSetup )

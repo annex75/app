@@ -3,7 +3,7 @@ import { IProject, IBuildingMeasure, TBuildingMeasureScenarioCategory, buildingM
 export interface IBuildingMeasureScenarioInfo {
   renovationCost: number;
   // maintenanceCost: Record<TBuildingMeasureCategory, number>;
-  embodiedEnergy: number;
+  embodiedEmissions: number;
   [key: string]: number;
 }
 
@@ -71,16 +71,16 @@ export const calculateBuildingMeasures = (project: IProject) => {
           }
         }
         const cost = buildingMeasure.renovationCost * factor;
-        const embodiedEnergy = buildingMeasure.embodiedEnergy * factor;
+        const embodiedEmissions = buildingMeasure.embodiedEmissions * factor;
 
         if (!Object.keys(buildingMeasuresInUse[scenarioId][scenarioCat]).includes(buildingMeasure.id)) {
           buildingMeasuresInUse[scenarioId][scenarioCat][buildingMeasureId] = {
             renovationCost: cost,
-            embodiedEnergy: embodiedEnergy,
+            embodiedEmissions: embodiedEmissions,
           };
         } else {
           buildingMeasuresInUse[scenarioId][scenarioCat][buildingMeasureId].renovationCost += cost;
-          buildingMeasuresInUse[scenarioId][scenarioCat][buildingMeasureId].embodiedEnergy += embodiedEnergy;
+          buildingMeasuresInUse[scenarioId][scenarioCat][buildingMeasureId].embodiedEmissions += embodiedEmissions;
         }
       });
     });
@@ -102,14 +102,14 @@ export const calculateBuildingMeasureAnnualizedSpecificRenovationCost = (
   return buildingMeasureScenarioInfo.renovationCost/(totalBuildingArea*buildingMeasure.lifeTime);
 }
 
-export const calculateBuildingMeasureSpecificEmbodiedEnergy = (
+export const calculateBuildingMeasureSpecificEmbodiedEmissions = (
   buildingMeasureScenarioInfo: IBuildingMeasureScenarioInfo,
   totalBuildingArea: number,
 ) => {
   if (!totalBuildingArea) {
     throw new Error("Building area must be positive");
   }
-  return buildingMeasureScenarioInfo.embodiedEnergy/(totalBuildingArea);
+  return buildingMeasureScenarioInfo.embodiedEmissions/(totalBuildingArea);
 }
 
 

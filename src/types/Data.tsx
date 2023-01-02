@@ -341,7 +341,7 @@ export interface IBuildingMeasure {
   measureName: string;
   renovationCost: number;
   lifeTime: number;
-  embodiedEnergy: number;
+  embodiedEmissions: number;
   deleted?: boolean;
   [key: string]: IBuildingMeasure[keyof IBuildingMeasure];
 }
@@ -356,7 +356,7 @@ abstract class BaseBuildingMeasure {
   measureName: string = "";
   renovationCost: number = 0;
   lifeTime: number = 0;
-  embodiedEnergy: number = 0;
+  embodiedEmissions: number = 0;
   deleted: boolean = false;
 }
 
@@ -404,11 +404,11 @@ export class ScenarioData {
 
 export interface IBuildingMeasureResult {
   renovationCost: number;
-  embodiedEnergy: number;
+  embodiedEmissions: number;
 }
 
 export interface IResultSummary {
-  specificEmbodiedEnergy: number; // [kWh/m2]
+  specificEmbodiedEmissions: number; // [kgCO2eq/m2]
   annualizedSpecificCost: number; // [€/m2a]
   buildingArea: number; // [m2]
   heatingNeed: number; // [kWh]
@@ -417,7 +417,7 @@ export interface IResultSummary {
   energySystems: {
     investmentCost: Record<TCostCurveType, number>;
     maintenanceCost: Record<TCostCurveType, number>;
-    embodiedEnergy: Record<TCostCurveType, number>;
+    embodiedEmissions: Record<TCostCurveType, number>;
   };
   buildingMeasures: Record<TBuildingMeasureScenarioCategory,IBuildingMeasureResult>;
   // specificGHGEmissions: number; // todo: implement
@@ -427,7 +427,7 @@ export interface IResultSummary {
 }
 
 export class ResultSummary implements IResultSummary {
-  specificEmbodiedEnergy: number = 0;
+  specificEmbodiedEmissions: number = 0;
   annualizedSpecificCost: number = 0;
   buildingArea: number = 0;
   heatingNeed: number = 0;
@@ -438,14 +438,14 @@ export class ResultSummary implements IResultSummary {
   energySystems = {
     investmentCost: { intake: 0, generation: 0, circulation: 0, substation: 0, },
     maintenanceCost: { intake: 0, generation: 0, circulation: 0, substation: 0, },
-    embodiedEnergy: { intake: 0, generation: 0, circulation: 0, substation: 0, },
+    embodiedEmissions: { intake: 0, generation: 0, circulation: 0, substation: 0, },
   };
   buildingMeasures = {
-    roof: { renovationCost: 0, embodiedEnergy: 0, },
-    facade: { renovationCost: 0, embodiedEnergy: 0, },
-    foundation: { renovationCost: 0, embodiedEnergy: 0, },
-    windows: { renovationCost: 0, embodiedEnergy: 0, },
-    hvac: { renovationCost: 0, embodiedEnergy: 0, },
+    roof: { renovationCost: 0, embodiedEmissions: 0, },
+    facade: { renovationCost: 0, embodiedEmissions: 0, },
+    foundation: { renovationCost: 0, embodiedEmissions: 0, },
+    windows: { renovationCost: 0, embodiedEmissions: 0, },
+    hvac: { renovationCost: 0, embodiedEmissions: 0, },
   };
   [key: string]: ResultSummary[keyof ResultSummary];
 }
@@ -463,11 +463,11 @@ export class Scenario {
   }
   energySystems: Record<string,IEnergySystemScenarioInfo> = { };
   buildingMeasures: Record<TBuildingMeasureScenarioCategory, Record<string, IBuildingMeasureScenarioInfo>> = {
-    facade: { placeholder: { renovationCost: 0, embodiedEnergy: 0, }},
-    roof: { placeholder: { renovationCost: 0, embodiedEnergy: 0, }},
-    foundation: { placeholder: { renovationCost: 0, embodiedEnergy: 0, }},
-    hvac: { placeholder: { renovationCost: 0, embodiedEnergy: 0, }},
-    windows: { placeholder: { renovationCost: 0, embodiedEnergy: 0, }},
+    facade: { placeholder: { renovationCost: 0, embodiedEmissions: 0, }},
+    roof: { placeholder: { renovationCost: 0, embodiedEmissions: 0, }},
+    foundation: { placeholder: { renovationCost: 0, embodiedEmissions: 0, }},
+    hvac: { placeholder: { renovationCost: 0, embodiedEmissions: 0, }},
+    windows: { placeholder: { renovationCost: 0, embodiedEmissions: 0, }},
   };
   buildingTypes: Record<string, ScenarioInfo> = {}; 
   total: ResultSummary = new ResultSummary();
@@ -549,6 +549,11 @@ export interface IValidatorResult {
   invalidMsg: string;
 }
 
+export enum CostCurveLabels {
+  cost = "Cost",
+  emissions = "Emissions",
+}
+
 export enum Units {
   none = "",
   wattPerMeterKelvin = "W/mK",
@@ -575,7 +580,11 @@ export enum Units {
   meterSq = "m²",
   meterCubed = "m³",
   personsPerMeterSq = "persons/m²",
+  meterSqPerPerson = "m²/person",
+  kiloGramCO2Eq = "kg CO₂eq",
   kiloGramCO2EqPerKiloWattHour = "kg CO₂eq/kWh",
   kiloGramCO2EqPerYear = "kg CO₂eq/a",
+  kiloGramCO2PerCentimeterMeterSq = "kg CO₂eq/(cm, m²)",
+  kiloGramCO2PerMeterSq = "kg CO₂eq/m²",
 }
   

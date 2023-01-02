@@ -58,10 +58,11 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               key: "occupants",
               type: Number,
               mode: "input",
-              unit: "personsPerMeterSq",
+              unit: "meterSqPerPerson",
               rootPath: "scenarioData.scenarios",
-              label: "Number of occupants",
+              label: "Area per occupant",
             },
+            /*
             setPointTemp: {
               key: "setPointTemp",
               type: Number,
@@ -70,6 +71,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               rootPath: "scenarioData.scenarios",
               label: "Set point temperature (heating)",
             },
+            */
             appliancesElectricityUsage: {
               key: "appliancesElectricityUsage",
               type: Number,
@@ -102,7 +104,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               unit: "percent",
               mode: "input",
               rootPath: "scenarioData.scenarios",
-              label: "Interest rate",
+              label: "Real interest rate",
             },
             /*energyPriceIncrease: {
               key: "energyPriceIncrease",
@@ -111,6 +113,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               rootPath: "scenarioData.scenarios",
               label: "Annual energy price increase",
             },*/
+            /*
             calculationPeriod: {
               key: "calculationPeriod",
               type: Number,
@@ -119,6 +122,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               rootPath: "scenarioData.scenarios",
               label: "Calculation period"
             },
+            */
           }
         },
         energySystem: {

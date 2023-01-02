@@ -5,7 +5,7 @@ Author: Toivo Säwén
 Last updated: 2022-10-24
 
 ## Energy system size and cost calculations
-In each scenario, the goal to calculate the size of the global system by in turn calculating the power needed to heat each building. Then, the size of the system is matched to the cost curves, which determine the total costs, embodied energy, and emissions of the
+In each scenario, the goal to calculate the size of the global system by in turn calculating the power needed to heat each building. Then, the size of the system is matched to the cost curves, which determine the total costs, embodied emissions, and emissions of the
 
 For each scenario $S$:
 
@@ -125,7 +125,7 @@ For each scenario $S$:
 
 >> where $C_{HVAC}$ is the cost $[€]$ of HVAC system replacement.
 
->> Embodied energy $EE_{M,c,embodied}$ for each component is calculated similary, replacing cost $[€]$ by embodied energy $EE_c$ $[kgCO_2eq]$.
+>> Embodied Emissions $EE_{M,c,embodied}$ for each component is calculated similary, replacing cost $[€]$ by embodied emissions $EE_c$ $[kgCO_2eq]$.
 
 ## Summation
 
@@ -143,7 +143,7 @@ For each scenario $S$:
 
 > where $C_{E, maintenance}$ is the maintenance costs $[€/a]$ for all energy systems $E$ in scenario $S$, and $A_{total, buildings}$ is the total floor area of buildings in scenario $S$.
 
-> Specific energy costs, $C_{specific, energy}$, specific primary energy use, $PEU_{specific}$, specific embodied energy, $EE_{E, specific}$ and specific emissions, $EE_{E, specific}$, are calculated similarly using the energy cost $C_{PE}$, primary energy use $PEU$, embodied energy, $EE$ and emissions $EM$, respectively, of each energy system.
+> Specific energy costs, $C_{specific, energy}$, specific primary energy use, $PEU_{specific}$, specific embodied emissions, $EE_{E, specific}$ and specific emissions, $EE_{E, specific}$, are calculated similarly using the energy cost $C_{PE}$, primary energy use $PEU$, embodied emissions, $EE$ and emissions $EM$, respectively, of each energy system.
 
 > $C_{annualised, specific, renovation}$ := Annualised specific costs for renovation measures are also calculated similarly, according to Equation (14)
 
@@ -151,9 +151,9 @@ For each scenario $S$:
 
 > where $\sum_c{C_{M,c}}$ is the sum of costs of each component $c$ for measure $M$, $l_{M,c}$ is lifetime of the measure, and $A_{total, buildings}$ is the total floor area of buildings in scenario $S$.
 
-> Specific embodied energy is calculated similarly.
+> Specific embodied emissions is calculated similarly.
 
-> This allows summation of costs, embodied energy, and primary energy use, according to Equations (15a-c).
+> This allows summation of costs, embodied emissions, and primary energy use, according to Equations (15a-c).
 
 > $C_{total, annualised, specific} = C_{E, annualised, specific, investment} + C_{E, specific, maintenance} + C_{specific, energy} + C_{annualised, specific, renovation}$, (15a)
 

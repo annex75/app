@@ -1,11 +1,11 @@
 // external
 import { v4 as uuidv4 } from 'uuid';
-import { Units } from '../Data';
+import { Units, CostCurveLabels } from '../Data';
 
 const defSystemSizes = [ 50, 100, 500, 1000, 5000 ];
 const defCostCurve = [ 0, 0, 0, 0, 0];
 
-export const costCurveCategories = [ "investmentCost", "maintenanceCost", "embodiedEnergy" ] as const;
+export const costCurveCategories = [ "investmentCost", "maintenanceCost", "embodiedEmissions" ] as const;
 export type TCostCurveCategory = typeof costCurveCategories[number];
 export const costCurveTypes = [ "intake", "circulation", "generation", "substation" ] as const;
 export type TCostCurveType = typeof costCurveTypes[number];
@@ -19,14 +19,14 @@ export class EnergySystem {
     this.id = id;
     this.costCurves = {
       substation: {
-        investmentCost: new CostCurveIndividual("euro"),
-        maintenanceCost: new CostCurveIndividual("euroPerYear"),
-        embodiedEnergy: new CostCurveIndividual("kiloGramCO2EqPerYear"),
+        investmentCost: new CostCurveIndividual("euro", "cost"),
+        maintenanceCost: new CostCurveIndividual("euroPerYear", "cost"),
+        embodiedEmissions: new CostCurveIndividual("kiloGramCO2EqPerYear", "emissions"),
       },
       centralized: {
         investmentCost: new CostCurveCentralized("euro"),
         maintenanceCost: new CostCurveCentralized("euroPerYear"),
-        embodiedEnergy: new CostCurveCentralized("kiloGramCO2EqPerYear"),
+        embodiedEmissions: new CostCurveCentralized("kiloGramCO2EqPerYear"),
       },
     };
   }
@@ -81,8 +81,9 @@ export class CostCurveCentralized {
 }
 
 export class CostCurveIndividual {
-  constructor(unit: keyof typeof Units, curves = { systemSize: defSystemSizes, substation: defCostCurve }) {
+  constructor(unit: keyof typeof Units, label: keyof typeof CostCurveLabels, curves = { systemSize: defSystemSizes, substation: defCostCurve }) {
     this.substation.unit = unit;
+    this.substation.label = label;
     this.systemSize.value = curves.systemSize;
     this.substation.value = curves.substation;
   }

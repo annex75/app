@@ -311,7 +311,7 @@ export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
   renovationCost: IBuildingMeasureInfo = {
     key: "renovationCost",
     type: String,
-    info: "Cost of adding 1 cm of insulation per square meter. The thickness of insulation is defined in the Scenarios panel.",
+    info: "Investment cost of adding 1 cm of insulation per square meter. The thickness of insulation is defined in the Scenarios panel.",
     label: "Renovation cost",
     unit: "euroPerCentimeterMeterSq",
   };
@@ -322,11 +322,11 @@ export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
     label: "λ-value",
     unit: "wattPerMeterKelvin",
   };
-  embodiedEnergy: IBuildingMeasureInfo = {
-    key: "embodiedEnergy",
+  embodiedEmissions: IBuildingMeasureInfo = {
+    key: "embodiedEmissions",
     type: Number,
-    label: "Embodied energy",
-    unit: "kiloWattHourPerCentimeterMeterSq",
+    label: "Embodied emissions",
+    unit: "kiloGramCO2PerCentimeterMeterSq",
   };
   [key: string]: EnvelopeMeasureParameters[keyof EnvelopeMeasureParameters];
 }
@@ -334,7 +334,7 @@ export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
 export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
   renovationCost: IBuildingMeasureInfo = {
     key: "renovationCost",
-    info: "Cost per square metre of refurbished window",
+    info: "Investment cost per square metre of refurbished window",
     type: String,
     label: "Renovation cost",
     unit: "euroPerMeterSq",
@@ -353,11 +353,11 @@ export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
     label: "g-value",
     unit: "nonDimensional",
   };
-  embodiedEnergy: IBuildingMeasureInfo = {
-    key: "embodiedEnergy",
+  embodiedEmissions: IBuildingMeasureInfo = {
+    key: "embodiedEmissions",
     type: Number,
-    label: "Embodied energy",
-    unit: "kiloWattHourPerMeterSq",
+    label: "Embodied emissions",
+    unit: "kiloGramCO2PerMeterSq",
   };
   [key: string]: WindowMeasureParameters[keyof WindowMeasureParameters];
 }
@@ -366,16 +366,16 @@ export class WindowMeasureParameters extends BaseBuildingMeasureParameters {
 export class HvacMeasureParameters extends BaseBuildingMeasureParameters {
   renovationCost: IBuildingMeasureInfo = {
     key: "renovationCost",
-    info: "Cost of new HVAC system, per building",
+    info: "Investment cost of new HVAC system, per building",
     type: String,
     label: "Renovation cost",
     unit: "euro",
   };
-  embodiedEnergy: IBuildingMeasureInfo = {
-    key: "embodiedEnergy",
+  embodiedEmissions: IBuildingMeasureInfo = {
+    key: "embodiedEmissions",
     type: Number,
-    label: "Embodied energy",
-    unit: "kiloWattHour",
+    label: "Embodied emissions",
+    unit: "kiloGramCO2Eq",
   };
   ventilationType: IBuildingMeasureInfo = {
     key: "ventilationType",
@@ -384,6 +384,7 @@ export class HvacMeasureParameters extends BaseBuildingMeasureParameters {
     label: "Ventilation system type",
     unit: "none",
   };
+  /*
   coolingType: IBuildingMeasureInfo = {
     key: "coolingType",
     type: String,
@@ -405,6 +406,7 @@ export class HvacMeasureParameters extends BaseBuildingMeasureParameters {
     disabled: true,
     unit: "none",
   };
+  */
   efficiency: IBuildingMeasureInfo = {
     key: "efficiency",
     type: Number,
