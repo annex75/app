@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Popover, PopoverInteractionKind, Position } from '@blueprintjs/core';
 import { IHeaderProps, IHeaderState, IUserInfoProps, IUserInfoState } from '../types';
+import { getCurrentTime } from '../helpers'
 
 export class Header extends Component<IHeaderProps, IHeaderState> {
   constructor(props: IHeaderProps) {
@@ -30,11 +31,7 @@ export class Header extends Component<IHeaderProps, IHeaderState> {
                   
                   this.props.activeProject? (
                     <>
-                      <h6 className="header-reminder-text">Project last saved: {(() => {
-                        const timeZoneOffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-                        const dateString = (new Date(Date.now() - timeZoneOffset)).toISOString().slice(2,-5);
-                        return dateString;
-                      })()}</h6>
+                      <h6 className="header-reminder-text">Project last saved: {getCurrentTime()}</h6>
                       <span className="bp3-navbar-divider"></span>
                     </>
                   ) : null

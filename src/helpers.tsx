@@ -329,3 +329,9 @@ export class InfoButton extends Component<IInfoButtonProps, IInfoButtonState> {
 
 
 }
+
+export const getCurrentTime = () => {
+  const timeZoneOffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+  const dateString = (new Date(Date.now() - timeZoneOffset)).toISOString().slice(2,-5);
+  return dateString;
+}

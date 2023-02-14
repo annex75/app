@@ -1,3 +1,8 @@
+## 1.4.9 (2023-02-14)
+* Happy Valentine's day!
+* Improved tooltips
+* Improved report feature
+
 ## 1.4.8 (2023-01-02)
 * Enabled JSON import in dev mode as default
 * Visual feedback when system sizes are not strictly increasing in cost curve

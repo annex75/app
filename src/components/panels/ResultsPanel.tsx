@@ -4,8 +4,8 @@ import { get as _fpGet } from 'lodash/fp';
 import html2pdf from 'html2pdf.js';
 
 // internal
-import { IResultsPanelProps, IResultsPanelState, Scenario, Units } from '../../types';
-import { renderScatterChart, IChartSetup, InfoButton } from '../../helpers';
+import { IResultsPanelProps, IResultsPanelState, Scenario, Units, CalcData } from '../../types';
+import { renderScatterChart, IChartSetup, InfoButton, getCurrentTime } from '../../helpers';
 import { Button } from '@blueprintjs/core';
 import { Table, Column, ColumnHeaderCell, Cell } from '@blueprintjs/table';
 
@@ -109,16 +109,29 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
     },
   ];
 
-  printPdf = () => {    
+  // this is pretty HACKy to print the input data without rendering it
+  printPdf = () => {
+    const container = document.createElement('div');    
+    
+    const cloneGraphs = document.getElementById("results-graph-container")!.cloneNode(true);
+    const cloneInputData = document.getElementById("hidden-input-data")!.cloneNode(true) as HTMLDivElement;
+
+    cloneInputData.style.display = "block";
+    
+    container.appendChild(cloneGraphs);
+    container.appendChild(cloneInputData);
+
     const worker = html2pdf();
     const options = {
       margin:       1,
-      filename:     'myfile.pdf',
+      filename:     `annex-75-tool-report-${getCurrentTime()}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2 },
       jsPDF:        { unit: 'cm', format: 'a4', orientation: 'portrait' }
     };
-    worker.from(document.getElementById("results-graph-container")).using(options).save();
+    worker.from(container).using(options).save().then(() => {
+      container.remove();
+    });
   }
 
   getTableData = (scenarios: Scenario[]) => {
@@ -154,6 +167,22 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
       )
     })];
   }
+
+  // todo: this could be generated in a smarter way
+  getInputData = () => {
+    const { project } = this.props;
+    return this.printCalcData(project.calcData)
+  }
+
+  // todo: should this reside here? In Data.tsx makes no sense
+  printCalcData = (calcData: CalcData) => {
+    return (
+      <div>
+        <h3>District information</h3>
+        Country: {calcData.district}
+      </div>
+    )
+  }
         
   render() {
     const activeScenarioIds = Object.keys(this.props.project.scenarioData.scenarios).filter(id => {
@@ -168,6 +197,9 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
         <div className="bp3-card panel-card">
           <h3>Graphical results</h3>
           <div id="results-graph-container" >
+            <p>Project name: {this.props.project.name}</p>
+            <p>Report generated: {getCurrentTime()}</p>
+            <p>Calculation performed by: {this.props.project.overviewData.contactInfo.name}</p>
             {
               this.resultGraphs.map(graph => {
                 const data = activeScenarios.map(scenario => {
@@ -216,6 +248,10 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
         </div>
         <div id="results-button-container" className="bp3-card panel-card">
           <Button minimal icon="print" onClick={this.printPdf} style={{ padding: "10px" }}>Save results as PDF</Button>
+        </div>
+        {/* This div is only here to be able to print the input data without rendering it */}
+        <div id="hidden-input-data" style={{ display: "none" }}>
+          {this.getInputData()}
         </div>
       </div>
     )

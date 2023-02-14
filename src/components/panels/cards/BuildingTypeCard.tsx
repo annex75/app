@@ -79,7 +79,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           perimeter: {
             key: "perimeter",
             unit: "meter",
-            info: "Exterior length of building perimeter",
+            info: "Exterior length of building perimeter (faces exposed to the outdoor climate)",
             type: Number,
             label: "Perimeter",
             rootPath: "buildingTypes",
@@ -88,7 +88,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           facadeAreaN: {
             key: "facadeAreaN",
             unit: "meterSq",
-            info: "Façade area including windows",
+            info: "Area including windows of façades oriented between NW and NE",
             type: Number,
             label: "Façade area to the North",
             rootPath: "buildingTypes",
@@ -97,7 +97,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           facadeAreaE: {
             key: "facadeAreaE",
             unit: "meterSq",
-            info: "Façade area including windows",
+            info: "Area including windows of façades oriented between NE and SE",
             type: Number,
             label: "Façade area to the East",
             rootPath: "buildingTypes",
@@ -106,7 +106,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           facadeAreaS: {
             key: "facadeAreaS",
             unit: "meterSq",
-            info: "Façade area including windows",
+            info: "Area including windows of façades oriented between SE and SW",
             type: Number,
             label: "Façade area to the South",
             rootPath: "buildingTypes",
@@ -115,7 +115,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           facadeAreaW: {
             key: "facadeAreaW",
             unit: "meterSq",
-            info: "Façade area including windows",
+            info: "Area including windows of façades oriented between NW and SW",
             type: Number,
             label: "Façade area to the West",
             rootPath: "buildingTypes",
@@ -132,7 +132,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           windowAreaN: {
             key: "windowAreaN",
             unit: "meterSq",
-            info: "Window area including frames",
+            info: "Area of windows (including frames) oriented between NW and NE",
             type: Number,
             label: "Window area to the North",
             rootPath: "buildingTypes",
@@ -141,7 +141,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           windowAreaE: {
             key: "windowAreaE",
             unit: "meterSq",
-            info: "Window area including frames",
+            info: "Area of windows (including frames) oriented between NE and SE",
             type: Number,
             label: "Window area to the East",
             rootPath: "buildingTypes",
@@ -150,7 +150,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           windowAreaS: {
             key: "windowAreaS",
             unit: "meterSq",
-            info: "Window area including frames",
+            info: "Area of windows (including frames) oriented between SE and SW",
             type: Number,
             label: "Window area to the South",
             rootPath: "buildingTypes",
@@ -159,7 +159,7 @@ export class BuildingTypeCard extends Component<IBuildingTypeCardProps, IBuildin
           windowAreaW: {
             key: "windowAreaW",
             unit: "meterSq",
-            info: "Window area including frames",
+            info: "Area of windows (including frames) oriented between SW and NW",
             type: Number,
             label: "Window area to the West",
             rootPath: "buildingTypes",

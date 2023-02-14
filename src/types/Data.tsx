@@ -140,6 +140,13 @@ export class District {
   //economy: DistrictEconomy = new DistrictEconomy(); // should this possibly be in Country?
 }
 
+export const printableDistrictData = (district: District) => {
+  return {
+    ...printableLocationData(district.location),
+
+  }
+}
+
 export class Location {
   country: Country = new Country();
   place: string = "";
@@ -148,8 +155,23 @@ export class Location {
   altitude: number = 0;
 }
 
+export const printableLocationData = (location: Location) => {
+  return {
+    ...printableCountryData(location.country),
+    "Latitude": location.lat,
+    "Longitude": location.lon,
+    "Altitude": location.altitude,
+  }
+}
+
 export class Country {
   country: string = "";
+}
+
+export const printableCountryData = (country: Country) => {
+  return {
+    "Country": country.country,
+  }
 }
 
 export class Climate {
@@ -160,7 +182,7 @@ export class Climate {
 
 export class DistrictGeometry {
   pipingLength: number = 0;
-  distanceToDistrictHeatingNetwork: number = 0;
+  //distanceToDistrictHeatingNetwork: number = 0;
   solarPanelArea: number = 0;
 }
 

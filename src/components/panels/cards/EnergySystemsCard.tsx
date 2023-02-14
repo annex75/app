@@ -72,7 +72,8 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
       key: "efficiency",
       unit: "nonDimensional",
       type: Number,
-      mode: "input",
+      info: "Efficiency, i.e., how much of the generated heat comes to use within the system",
+      mode: "input",  
       label: "Efficiency"
     },
     coefficientOfPerformance: {
@@ -81,7 +82,7 @@ export class EnergySystemsCard extends Component<IEnergySystemsCardProps, IEnerg
       type: Number,
       mode: "input",
       label: "COP",
-      info: "Coefficient of performance",
+      info: "Coefficient of performance, i.e., the ratio of desired effect to input work",
     },
     energyCarrier: {
       key: "energyCarrier",
