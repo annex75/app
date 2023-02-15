@@ -4,7 +4,7 @@ import { get as _fpGet } from 'lodash/fp';
 import html2pdf from 'html2pdf.js';
 
 // internal
-import { IResultsPanelProps, IResultsPanelState, Scenario, Units, CalcData } from '../../types';
+import { IResultsPanelProps, IResultsPanelState, Scenario, Units, IProject, printableProjectData } from '../../types';
 import { renderScatterChart, IChartSetup, InfoButton, getCurrentTime } from '../../helpers';
 import { Button } from '@blueprintjs/core';
 import { Table, Column, ColumnHeaderCell, Cell } from '@blueprintjs/table';
@@ -39,6 +39,13 @@ const defChartSetup: IChartSetup = {
 
 export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelState> {
   
+  constructor(props: IResultsPanelProps) {
+    super(props);
+    this.state = {
+      printData: false,
+    }
+  }
+
   resultGraphs: IResultGraph[] = [
     /*{
       id: "embodiedEmissions",
@@ -109,19 +116,29 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
     },
   ];
 
+  beginPrintPdf = () => {
+    this.setState({ printData: true },
+      this.printPdf);
+  }
+
   // this is pretty HACKy to print the input data without rendering it
   printPdf = () => {
+    
     const container = document.createElement('div');    
     
     const cloneGraphs = document.getElementById("results-graph-container")!.cloneNode(true);
     const cloneInputData = document.getElementById("hidden-input-data")!.cloneNode(true) as HTMLDivElement;
 
     cloneInputData.style.display = "block";
+    cloneInputData.style.pageBreakBefore = "always";
     
     container.appendChild(cloneGraphs);
     container.appendChild(cloneInputData);
 
-    const worker = html2pdf();
+    const worker = html2pdf().set({
+      pagebreak: { mode: 'avoid-all', before: '#page2el' }
+    });
+
     const options = {
       margin:       1,
       filename:     `annex-75-tool-report-${getCurrentTime()}.pdf`,
@@ -129,8 +146,10 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
       html2canvas:  { scale: 2 },
       jsPDF:        { unit: 'cm', format: 'a4', orientation: 'portrait' }
     };
+
     worker.from(container).using(options).save().then(() => {
       container.remove();
+      this.setState({ printData: false });
     });
   }
 
@@ -171,15 +190,26 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
   // todo: this could be generated in a smarter way
   getInputData = () => {
     const { project } = this.props;
-    return this.printCalcData(project.calcData)
+    return this.printProjectData(project)
   }
 
   // todo: should this reside here? In Data.tsx makes no sense
-  printCalcData = (calcData: CalcData) => {
+  printProjectData = (project: IProject) => {
     return (
       <div>
-        <h3>District information</h3>
-        Country: {calcData.district}
+        {printableProjectData(project).map((printableObj, i) => {
+          if (printableObj.level && ["h2", "h3", "h4"].includes(printableObj.level)) {
+            const Comp = `${printableObj.level}` as keyof JSX.IntrinsicElements;
+            return <Comp key={`print-project-data-${i}`}>{printableObj.name}</Comp>
+          } else if ("value" in printableObj) {
+            return (<p key={`print-project-data-${i}`}>
+              {printableObj.name}: {printableObj.value}
+              {printableObj.unit? ` [${printableObj.unit}]`: null}
+            </p>)
+          } else {
+            return null;
+          }
+        })}
       </div>
     )
   }
@@ -247,11 +277,11 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
           </Table>
         </div>
         <div id="results-button-container" className="bp3-card panel-card">
-          <Button minimal icon="print" onClick={this.printPdf} style={{ padding: "10px" }}>Save results as PDF</Button>
+          <Button minimal icon="print" onClick={this.beginPrintPdf} style={{ padding: "10px" }}>Save results as PDF</Button>
         </div>
         {/* This div is only here to be able to print the input data without rendering it */}
         <div id="hidden-input-data" style={{ display: "none" }}>
-          {this.getInputData()}
+          {this.state.printData? this.getInputData() : null}
         </div>
       </div>
     )

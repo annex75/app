@@ -2,11 +2,46 @@
 import { v4 as uuidv4 } from 'uuid';
 
 // internal
-import { EnergySystem, TCostCurveType } from './classes/EnergySystem';
+import { EnergySystem, TCostCurveType, printableEnergySystemData } from './classes/EnergySystem';
 import { IEnergySystemScenarioInfo, IBuildingMeasureScenarioInfo } from '../calculation-model/calculate';
 
 // this module defines data containers
 
+/* Strings representing units */
+export enum Units {
+  none = "",
+  wattPerMeterKelvin = "W/mK",
+  wattPerMeterSqKelvin = "W/m²K",
+  years = "a",
+  nonDimensional = "-",
+  euro = "€",
+  euroPerKiloWattHour = "€/kWh",
+  euroPerYear = "€/a",
+  euroPerMeterSq = "€/m²",
+  euroPerCentimeterMeterSq = "€/(cm, m²)",
+  percent = "%",
+  airChangesHourly = "ACH",
+  degC = "°C",
+  deg = "°",
+  kiloWatt = "kW",
+  kiloWattHour = "kWh",
+  kiloWattHourPerKiloWattHour = "kWh/kWh",
+  kiloWattHourPerYear = "kWh/a",
+  kiloWattHourPerMeterSq = "kWh/m²",
+  kiloWattHourPerMeterSqYear = "kWh/m²a",
+  kiloWattHourPerCentimeterMeterSq = "kWh/(cm, m²)",
+  meter = "m",
+  centimeter = "cm",
+  meterSq = "m²",
+  meterCubed = "m³",
+  personsPerMeterSq = "persons/m²",
+  meterSqPerPerson = "m²/person",
+  kiloGramCO2Eq = "kg CO₂eq",
+  kiloGramCO2EqPerKiloWattHour = "kg CO₂eq/kWh",
+  kiloGramCO2EqPerYear = "kg CO₂eq/a",
+  kiloGramCO2EqPerCentimeterMeterSq = "kg CO₂eq/(cm, m²)",
+  kiloGramCO2EqPerMeterSq = "kg CO₂eq/m²",
+}
 
 /* Dictionaries */
 export interface IDictProject {
@@ -35,6 +70,27 @@ export interface IProject {
   deleted: boolean;
   test?: string;
   timeStamp: number;
+}
+
+type TPrintLevel = "p" | "h2" | "h3" | "h4";
+
+export interface IPrintableData {
+  name: string; // readable string representing the data point
+  value?: string | number;
+  unit?: string;
+  level?: TPrintLevel;
+}
+
+// todo: this whole chain of functions badly need refactoring. it's gonna be awful to maintain
+export const printableProjectData = (project: IProject): IPrintableData[] => {
+  return [
+    {
+      level: "h2",
+      name: "Calculation data",
+    },
+    ...printableCalcData(project.calcData),
+    ...printableScenarioData(project.scenarioData),
+  ]
 }
 
 interface IXlsxData {
@@ -131,6 +187,16 @@ export class CalcData {
   buildingMeasures: Record<TBuildingMeasureCategory,IDictBuildingMeasure>;
 }
 
+const printableCalcData = (calcData: CalcData): IPrintableData[] => {
+  return [
+    ...printableDistrictData(calcData.district),
+    ...printableBuildingTypesData(calcData.buildingTypes),
+    ...printableEnergySystemsData(calcData.energySystems),
+    ...printableEnergyCarrierData(calcData.energyCarriers),
+    ...printableBuildingMeasuresData(calcData.buildingMeasures),
+  ]
+}
+
 export class District {
   // location information
   location: Location = new Location();
@@ -140,11 +206,16 @@ export class District {
   //economy: DistrictEconomy = new DistrictEconomy(); // should this possibly be in Country?
 }
 
-export const printableDistrictData = (district: District) => {
-  return {
+const printableDistrictData = (district: District): IPrintableData[] => {
+  return [{
+      name: "District information",
+      level: "h3",
+    },
     ...printableLocationData(district.location),
-
-  }
+    ...printableClimateData(district.climate),
+    ...printableDistrictGeometryData(district.geometry),
+    ...printableDistrictEnergyData(district.energy),
+  ]
 }
 
 export class Location {
@@ -155,23 +226,37 @@ export class Location {
   altitude: number = 0;
 }
 
-export const printableLocationData = (location: Location) => {
-  return {
+const printableLocationData = (location: Location) => {
+  return [
     ...printableCountryData(location.country),
-    "Latitude": location.lat,
-    "Longitude": location.lon,
-    "Altitude": location.altitude,
-  }
+    {
+      name: "Latitude",
+      value: location.lat,
+      unit: Units.deg,
+    },{
+      name: "Longitude",
+      value: location.lon,
+      unit: Units.deg,
+    },{
+      name: "Altitude",
+      value: location.altitude,
+      unit: Units.meter,
+    },
+  ]
 }
 
 export class Country {
   country: string = "";
 }
 
-export const printableCountryData = (country: Country) => {
-  return {
-    "Country": country.country,
-  }
+const printableCountryData = (country: Country): IPrintableData[] => {
+  return [
+    {
+      name: "Country",
+      value: country.country,
+      unit: "",
+    },
+  ]
 }
 
 export class Climate {
@@ -180,15 +265,57 @@ export class Climate {
   filename: string = "";
 }
 
+const printableClimateData = (climate: Climate): IPrintableData[] => {
+  return [
+    {
+      name: "Climate zone",
+      value: climate.zone,
+      unit: "",
+    },{
+      name: "Design outdoor temperature",
+      value: climate.designOutdoorTemperature,
+      unit: Units.degC,
+    },
+  ]
+}
+
 export class DistrictGeometry {
   pipingLength: number = 0;
   //distanceToDistrictHeatingNetwork: number = 0;
   solarPanelArea: number = 0;
 }
 
+const printableDistrictGeometryData = (geometry: DistrictGeometry): IPrintableData[] => {
+  return [
+    {
+      name: "Piping length",
+      value: geometry.pipingLength,
+      unit: Units.meter,
+    },{
+      name: "Solar panel area",
+      value: geometry.solarPanelArea,
+      unit: Units.meterSq,
+    },
+  ]
+}
+
 export class DistrictEnergy {
   heatSources: string = ""; // what should this be?
   gshpArea: number = 0; // is this a useful way of quantifying this?
+}
+
+const printableDistrictEnergyData = (energy: DistrictEnergy): IPrintableData[] => {
+  return [
+    {
+      name: "Available heat sources",
+      value: energy.heatSources,
+      unit: "",
+    },{
+      name: "Available area for ground source heat pumps",
+      value: energy.gshpArea,
+      unit: Units.meterSq,
+    },
+  ]
 }
 
 /*
@@ -200,6 +327,21 @@ export class DistrictEconomy {
 
 export interface IDictBuildingType {
   [index: string]: BuildingType;
+}
+
+const printableBuildingTypesData = (buildingTypes: IDictBuildingType): IPrintableData[] => {
+  const buildingTypesData: IPrintableData[] = [
+    {
+      name: "Building types",
+      level: "h3",
+    },
+  ]
+
+  for (const buildingType of Object.values(buildingTypes)) {
+    buildingTypesData.push(...printableBuildingTypeData(buildingType));
+  }
+  
+  return buildingTypesData;
 }
 
 export class BuildingType {
@@ -217,15 +359,44 @@ export class BuildingType {
   [key: string]: BuildingType[keyof BuildingType];
 }
 
+const printableBuildingTypeData = (buildingType: BuildingType): IPrintableData[] => {
+  return [
+    {
+      name: buildingType.name,
+      level: "h4",
+    },
+    ...printableBuildingInformation(buildingType.buildingInformation),
+    ...printableBuildingGeometry(buildingType.buildingGeometry),
+    ...printableBuildingThermalProperties(buildingType.buildingThermalProperties),
+  ]
+}
+
 export class BuildingInformation {
   constructionYear: number = 1970;
-  energyPerformanceCertificate: string = "";
-  ownership: string = "";
+  //energyPerformanceCertificate: string = "";
+  //ownership: string = "";
   [key: string]: BuildingInformation[keyof BuildingInformation];
+}
+
+const printableBuildingInformation = (buildingInformation: BuildingInformation): IPrintableData[] => {
+  return [
+    {
+      name: "Construction year",
+      unit: "",
+      value: buildingInformation.constructionYear,
+    },
+  ]
 }
 
 export class BuildingGeometry {
   grossFloorArea: number = 0;
+  /* todo: implement the data like this:
+  grossFloorArea: BuildingGeometryData = {
+    value: 0,
+    unit: Units.meterSq,
+    name: "Gross floor area",
+  },
+  */
   heatedVolume: number = 0;
   perimeter: number = 0;
   facadeAreaN: number = 0;
@@ -243,6 +414,80 @@ export class BuildingGeometry {
   numberOfFloorsBelow: number = 0;
   floorHeight: number = 0;
   [key: string]: BuildingGeometry[keyof BuildingGeometry];
+}
+
+const printableBuildingGeometry = (buildingGeometry: BuildingGeometry):IPrintableData[] => {
+  return [
+    {
+      name: "Gross floor area",
+      unit: Units.meterSq,
+      value: buildingGeometry.grossFloorArea,
+    },{
+      name: "Heated volume",
+      unit: Units.meterCubed,
+        value: buildingGeometry.heatedVolume
+     },{
+      name: "Perimeter",
+      unit: Units.meter,
+        value: buildingGeometry.perimeter,
+    },{
+      name: "Façade area facing NW-NE",
+      unit: Units.meterSq,
+      value: buildingGeometry.facadeAreaN,
+    },{
+      name: "Façade area facing NE-SE",
+      unit: Units.meterSq,
+      value: buildingGeometry.facadeAreaE,
+    },{
+      name: "Façade area facing SE-SW",
+      unit: Units.meterSq,
+      value: buildingGeometry.facadeAreaS,
+    },{
+      name: "Façade area facing SW-NW",
+      unit: Units.meterSq,
+      value: buildingGeometry.facadeAreaW,
+    },{
+      name: "Window area facing NW-NE",
+      unit: Units.meterSq,
+      value: buildingGeometry.windowAreaN,
+    },{
+      name: "Window area facing NE-SE",
+      unit: Units.meterSq,
+      value: buildingGeometry.windowAreaE,
+    },{
+      name: "Window area facing SE-SW",
+      unit: Units.meterSq,
+      value: buildingGeometry.windowAreaS,
+    },{
+      name: "Window area facing SW-NW",
+      unit: Units.meterSq,
+      value: buildingGeometry.windowAreaW,
+    },{
+      name: "Roof area",
+      unit: Units.meterSq,
+      value: buildingGeometry.roofArea,
+    },{
+      name: "Foundation area",
+      unit: Units.meterSq,
+      value: buildingGeometry.basementFloorArea,
+    },{
+      name: "Basement wall area",
+      unit: Units.meterSq,
+      value: buildingGeometry.basementWallArea,
+    },{
+      name: "Number of floors above ground",
+      unit: "",
+      value: buildingGeometry.numberOfFloorsAbove,
+    },{
+      name: "Number of floors below ground",
+      unit: "",
+      value: buildingGeometry.numberOfFloorsBelow,
+    },{
+      name: "Storey height",
+      unit: Units.meter,
+      value: buildingGeometry.floorHeight,
+    },
+  ]
 }
 
 export const getBuildingArea = (buildingGeometry: BuildingGeometry, category: TBuildingMeasureScenarioCategory) : number  => {
@@ -287,7 +532,39 @@ export class BuildingThermalProperties {
   [key: string]: BuildingThermalProperties[keyof BuildingThermalProperties];
 }
 
-/* modify in scenarios?
+const printableBuildingThermalProperties = (buildingThermalProperties: BuildingThermalProperties): IPrintableData[] => {
+  return [
+    {
+      name: "Building thermal mass",
+      unit: Units.none,
+      value: buildingThermalProperties.buildingClass,
+    },{
+      name: "Façade original U-value",
+      unit: Units.wattPerMeterSqKelvin,
+      value: buildingThermalProperties.facadeUValue,
+    },{
+      name: "Window original U-value",
+      unit: Units.wattPerMeterSqKelvin,
+      value: buildingThermalProperties.windowUValue,
+    },{
+      name: "Roof original U-value",
+      unit: Units.wattPerMeterSqKelvin,
+      value: buildingThermalProperties.roofUValue,
+    },{
+      name: "Basement wall original U-value",
+      unit: Units.wattPerMeterSqKelvin,
+      value: buildingThermalProperties.basementWallUValue,
+    },{
+      name: "Foundation original U-value",
+      unit: Units.wattPerMeterSqKelvin,
+      value: buildingThermalProperties.foundationUValue,
+    },{
+      name: "Design indoor air temperature",
+      unit: Units.degC,
+      value: buildingThermalProperties.designIndoorTemperature,
+    },
+  ]
+}/* modify in scenarios?
 export class BuildingOccupancy {
   occupancy: string = "";
   occupants: number = 0;
@@ -299,8 +576,29 @@ export interface IDictEnergySystem {
   [index: string]: EnergySystem;
 }
 
+const printableEnergySystemsData = (energySystems: IDictEnergySystem): IPrintableData[] => {
+  const energySystemsData: IPrintableData[] = [
+    {
+      name: "Energy systems",
+      level: "h3",
+    },
+  ]
+
+  for (const energySystem of Object.values(energySystems)) {
+    energySystemsData.push(...printableEnergySystemData(energySystem));
+  }
+  
+  return energySystemsData;
+}
+
 export interface IDictEnergyCarrier {
   [index: string]: EnergyCarrier;
+}
+
+const printableEnergyCarrierData = (energyCarriers: IDictEnergyCarrier): IPrintableData[] => {
+  return [
+
+  ]
 }
 
 export class EnergyCarrier {
@@ -321,6 +619,20 @@ export class EnergyCarrier {
 
 export interface IDictBuildingMeasure {
   [index: string]: IBuildingMeasure;
+}
+
+const printableBuildingMeasuresData = (buildingMeasures: Record<TBuildingMeasureCategory,IDictBuildingMeasure>): IPrintableData[] => {
+  const buildingMeasuresData: IPrintableData[] = [
+    {
+      name: "Building measures",
+      level: "h3",
+    },
+    ...printableEnvelopeMeasuresData(buildingMeasures.insulation),
+    ...printableWindowMeasuresData(buildingMeasures.windows),
+    ...printableHvacMeasuresData(buildingMeasures.hvac),
+  ]
+  
+  return buildingMeasuresData;
 }
 
 export const buildingMeasureCategories = [ "insulation", "windows", "hvac" ] as const;
@@ -382,6 +694,14 @@ abstract class BaseBuildingMeasure {
   deleted: boolean = false;
 }
 
+const printableBuildingMeasureData = (buildingMeasure: BaseBuildingMeasure): IPrintableData[] => {
+  const buildingMeasureData: IPrintableData[] = [
+
+  ]
+  
+  return buildingMeasureData;
+}
+
 export const createBuildingMeasure = (category: TBuildingMeasureCategory, id: string = uuidv4()) => {
   switch (category) {
     case "insulation":
@@ -399,11 +719,33 @@ export class EnvelopeMeasure extends BaseBuildingMeasure {
   [key: string]: EnvelopeMeasure[keyof EnvelopeMeasure];
 }
 
+const printableEnvelopeMeasuresData = (envMeasures: IDictBuildingMeasure): IPrintableData[] => {
+  const envelopeMeasureData: IPrintableData[] = [
+    {
+      name: "Envelope measures",
+      level: "h3",
+    },
+  ];
+  
+  return envelopeMeasureData;
+}
+
 export class WindowMeasure extends BaseBuildingMeasure {  
   uValue: number = 0;
   gValue: number = 0;
 
   [key: string]: WindowMeasure[keyof WindowMeasure];
+}
+
+const printableWindowMeasuresData = (winMeasures: IDictBuildingMeasure): IPrintableData[] => {
+  const windowMeasureData: IPrintableData[] = [
+    {
+      name: "Window measures",
+      level: "h3",
+    },
+  ];
+  
+  return windowMeasureData;
 }
 
 export class HvacMeasure extends BaseBuildingMeasure {  
@@ -417,11 +759,28 @@ export class HvacMeasure extends BaseBuildingMeasure {
   hotWaterTemp: number = 80;
   ventilationRate: number = 0.5;
 
-  [key: string]: EnvelopeMeasure[keyof EnvelopeMeasure];
+  [key: string]: HvacMeasure[keyof HvacMeasure];
+}
+
+const printableHvacMeasuresData = (hvacMeasures: IDictBuildingMeasure): IPrintableData[] => {
+  const hvacMeasureData: IPrintableData[] = [
+    {
+      name: "HVAC measures",
+      level: "h3",
+    },
+  ];
+  
+  return hvacMeasureData;
 }
 
 export class ScenarioData {
   scenarios: Record<string, Scenario> = {};
+}
+
+const printableScenarioData = (scenarios: ScenarioData): IPrintableData[] => {
+  return [
+
+  ]
 }
 
 export interface IBuildingMeasureResult {
@@ -575,38 +934,3 @@ export enum CostCurveLabels {
   cost = "Cost",
   emissions = "Emissions",
 }
-
-export enum Units {
-  none = "",
-  wattPerMeterKelvin = "W/mK",
-  wattPerMeterSqKelvin = "W/m²K",
-  years = "a",
-  nonDimensional = "-",
-  euro = "€",
-  euroPerKiloWattHour = "€/kWh",
-  euroPerYear = "€/a",
-  euroPerMeterSq = "€/m²",
-  euroPerCentimeterMeterSq = "€/(cm, m²)",
-  percent = "%",
-  airChangesHourly = "ACH",
-  degC = "°C",
-  kiloWatt = "kW",
-  kiloWattHour = "kWh",
-  kiloWattHourPerKiloWattHour = "kWh/kWh",
-  kiloWattHourPerYear = "kWh/a",
-  kiloWattHourPerMeterSq = "kWh/m²",
-  kiloWattHourPerMeterSqYear = "kWh/m²a",
-  kiloWattHourPerCentimeterMeterSq = "kWh/(cm, m²)",
-  meter = "m",
-  centimeter = "cm",
-  meterSq = "m²",
-  meterCubed = "m³",
-  personsPerMeterSq = "persons/m²",
-  meterSqPerPerson = "m²/person",
-  kiloGramCO2Eq = "kg CO₂eq",
-  kiloGramCO2EqPerKiloWattHour = "kg CO₂eq/kWh",
-  kiloGramCO2EqPerYear = "kg CO₂eq/a",
-  kiloGramCO2EqPerCentimeterMeterSq = "kg CO₂eq/(cm, m²)",
-  kiloGramCO2EqPerMeterSq = "kg CO₂eq/m²",
-}
-  

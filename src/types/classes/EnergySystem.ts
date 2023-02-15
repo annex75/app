@@ -1,6 +1,6 @@
 // external
 import { v4 as uuidv4 } from 'uuid';
-import { Units, CostCurveLabels } from '../Data';
+import { Units, CostCurveLabels, IPrintableData } from '../Data';
 
 const defSystemSizes = [ 50, 100, 500, 1000, 5000 ];
 const defCostCurve = [ 0, 0, 0, 0, 0];
@@ -168,4 +168,10 @@ export const energySystemCategories: EnergySystemCategory[] = [
 
 export const getEnergySystemCategory = (id: string) => {
   return energySystemCategories.find(e => e.id === id) || { name: "" };
+}
+
+export const printableEnergySystemData = (energySystem: EnergySystem): IPrintableData[] => {
+  return [
+
+  ];
 }

@@ -514,4 +514,6 @@ export interface IResultsPanelProps extends IPanelProps {
   updateProject(project: IProject): void;
  }
 
-export interface IResultsPanelState extends IPanelState { }
+export interface IResultsPanelState extends IPanelState {
+  printData: boolean;
+ }
