@@ -72,7 +72,7 @@ export interface IProject {
   timeStamp: number;
 }
 
-type TPrintLevel = "p" | "h2" | "h3" | "h4";
+type TPrintLevel = "p" | "h2" | "h3" | "h4" | "h5";
 
 export interface IPrintableData {
   name: string; // readable string representing the data point
@@ -84,10 +84,6 @@ export interface IPrintableData {
 // todo: this whole chain of functions badly need refactoring. it's gonna be awful to maintain
 export const printableProjectData = (project: IProject): IPrintableData[] => {
   return [
-    {
-      level: "h2",
-      name: "Calculation data",
-    },
     ...printableCalcData(project.calcData),
     ...printableScenarioData(project.scenarioData),
   ]
@@ -188,7 +184,11 @@ export class CalcData {
 }
 
 const printableCalcData = (calcData: CalcData): IPrintableData[] => {
-  return [
+  return [    
+    {
+      level: "h2",
+      name: "Calculation data",
+    },
     ...printableDistrictData(calcData.district),
     ...printableBuildingTypesData(calcData.buildingTypes),
     ...printableEnergySystemsData(calcData.energySystems),
@@ -597,7 +597,10 @@ export interface IDictEnergyCarrier {
 
 const printableEnergyCarrierData = (energyCarriers: IDictEnergyCarrier): IPrintableData[] => {
   return [
-
+    {
+      name: "Energy carriers",
+      level: "h3",
+    },
   ]
 }
 
@@ -779,7 +782,10 @@ export class ScenarioData {
 
 const printableScenarioData = (scenarios: ScenarioData): IPrintableData[] => {
   return [
-
+    {
+      level: "h2",
+      name: "Scenario data",
+    },
   ]
 }
 
@@ -933,4 +939,9 @@ export interface IValidatorResult {
 export enum CostCurveLabels {
   cost = "Cost",
   emissions = "Emissions",
+  systemSize = "System size",
+  substation = "Substation",
+  intake = "Intake",
+  generation = "Generation",
+  circulation = "Circulation",
 }

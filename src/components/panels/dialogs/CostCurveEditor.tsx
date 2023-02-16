@@ -6,7 +6,7 @@ import { Select, ItemRenderer } from '@blueprintjs/select';
 import { Table, Column, EditableCell, ColumnHeaderCell } from '@blueprintjs/table';
 
 // internal
-import { ICostCurveCategory, ICostCurveEditorProps, ICostCurveEditorState, ICostCurve, getEnergySystemCategory, getEnergySystemType, ICostCurveScale, Units } from '../../../types';
+import { ICostCurveCategory, ICostCurveEditorProps, ICostCurveEditorState, ICostCurve, getEnergySystemCategory, getEnergySystemType, ICostCurveScale, Units, CostCurveLabels } from '../../../types';
 import { renderScatterChart, getNewColor, IChartSetup } from '../../../helpers';
 import { monotonicIncreasing } from '../../../calculation-model/utils';
 
@@ -101,7 +101,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
     );
   };
 
-  renderColumnHeader = (columnIndex: number, label: string, unit: keyof typeof Units) => {
+  renderColumnHeader = (columnIndex: number, label: keyof typeof CostCurveLabels, unit: keyof typeof Units) => {
     
     
     /*const nameRenderer = (name: string) => {
@@ -111,7 +111,7 @@ export class CostCurveEditor extends Component<ICostCurveEditorProps, ICostCurve
         />
       );
     };*/
-    return <ColumnHeaderCell name={`${label}${unit? ` [${Units[unit]}]`: ''}`} />;
+    return <ColumnHeaderCell name={`${CostCurveLabels[label]}${unit? ` [${Units[unit]}]`: ''}`} />;
   };
 
   // returns a warning string if invalid, else empty string

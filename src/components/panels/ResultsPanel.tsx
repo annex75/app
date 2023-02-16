@@ -121,9 +121,8 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
       this.printPdf);
   }
 
-  // this is pretty HACKy to print the input data without rendering it
   printPdf = () => {
-    
+    // this workflow is pretty HACKy to print the input data without rendering it
     const container = document.createElement('div');    
     
     const cloneGraphs = document.getElementById("results-graph-container")!.cloneNode(true);
@@ -147,7 +146,16 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
       jsPDF:        { unit: 'cm', format: 'a4', orientation: 'portrait' }
     };
 
-    worker.from(container).using(options).save().then(() => {
+    worker.from(container).using(options).toPdf().get('pdf').then((pdf: any) => {
+      var totalPages = pdf.internal.getNumberOfPages();
+    
+      for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(10);
+        pdf.setTextColor(150);
+        pdf.text('' + i, (pdf.internal.pageSize.getWidth()/2), (pdf.internal.pageSize.getHeight() - 0.3));
+      } 
+    }).save().then(() => {
       container.remove();
       this.setState({ printData: false });
     });
@@ -197,8 +205,9 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
   printProjectData = (project: IProject) => {
     return (
       <div>
+        <br/><br/><br/>
         {printableProjectData(project).map((printableObj, i) => {
-          if (printableObj.level && ["h2", "h3", "h4"].includes(printableObj.level)) {
+          if (printableObj.level && ["h2", "h3", "h4", "h5"].includes(printableObj.level)) {
             const Comp = `${printableObj.level}` as keyof JSX.IntrinsicElements;
             return <Comp key={`print-project-data-${i}`}>{printableObj.name}</Comp>
           } else if ("value" in printableObj) {
