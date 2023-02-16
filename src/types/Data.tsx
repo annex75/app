@@ -85,7 +85,7 @@ export interface IPrintableData {
 export const printableProjectData = (project: IProject): IPrintableData[] => {
   return [
     ...printableCalcData(project.calcData),
-    ...printableScenarioData(project.scenarioData),
+    ...printableScenariosData(project.scenarioData, project.calcData),
   ]
 }
 
@@ -103,7 +103,7 @@ export class OverviewData {
   resultOverview: ResultOverview = new ResultOverview();
 
   // about
-  aboutText: string = "";
+    aboutTxt: string = "";
 
   [key: string]: any;
 }
@@ -192,7 +192,7 @@ const printableCalcData = (calcData: CalcData): IPrintableData[] => {
     ...printableDistrictData(calcData.district),
     ...printableBuildingTypesData(calcData.buildingTypes),
     ...printableEnergySystemsData(calcData.energySystems),
-    ...printableEnergyCarrierData(calcData.energyCarriers),
+    ...printableEnergyCarriersData(calcData.energyCarriers),
     ...printableBuildingMeasuresData(calcData.buildingMeasures),
   ]
 }
@@ -595,13 +595,19 @@ export interface IDictEnergyCarrier {
   [index: string]: EnergyCarrier;
 }
 
-const printableEnergyCarrierData = (energyCarriers: IDictEnergyCarrier): IPrintableData[] => {
-  return [
+const printableEnergyCarriersData = (energyCarriers: IDictEnergyCarrier): IPrintableData[] => {
+  const energyCarriersData: IPrintableData[] = [
     {
       name: "Energy carriers",
       level: "h3",
     },
-  ]
+  ];
+
+  for (const energyCarrier of Object.values(energyCarriers)) {
+    energyCarriersData.push(...printableEnergyCarrierData(energyCarrier));
+  }
+
+  return energyCarriersData;
 }
 
 export class EnergyCarrier {
@@ -610,14 +616,39 @@ export class EnergyCarrier {
   }
   id: string;
   name: string = "";
-  primaryEnergyFactorRe: number = 0;
-  primaryEnergyFactorNonRe: number = 0;
+  //primaryEnergyFactorRe: number = 0;
+  //primaryEnergyFactorNonRe: number = 0;
   primaryEnergyFactorTotal: number = 0;
   emissionFactor: number = 0;
   currentPrice: number = 0;
   projectedPrice: number = 0;
   deleted: boolean = false;
   [key: string]: EnergyCarrier[keyof EnergyCarrier];
+}
+
+const printableEnergyCarrierData = (energyCarrier: EnergyCarrier): IPrintableData[] => {
+  return [
+    {
+      name: energyCarrier.name,
+      level: "h4",
+    },{
+      name: "Primary energy factor",
+      unit: Units.kiloWattHourPerKiloWattHour,
+      value: energyCarrier.primaryEnergyFactorTotal,
+    },{
+      name: "Emission factor",
+      unit: Units.kiloGramCO2EqPerKiloWattHour,
+      value: energyCarrier.emissionFactor,
+    },{
+      name: "Current price",
+      unit: Units.euroPerKiloWattHour,
+      value: energyCarrier.currentPrice,
+    },{
+      name: "Projected price in 2030",
+      unit: Units.euroPerKiloWattHour,
+      value: energyCarrier.projectedPrice,
+    }
+  ]
 }
 
 export interface IDictBuildingMeasure {
@@ -679,7 +710,7 @@ export interface IBuildingMeasure {
   renovationCost: number;
   lifeTime: number;
   embodiedEmissions: number;
-  deleted?: boolean;
+  deleted: boolean;
   [key: string]: IBuildingMeasure[keyof IBuildingMeasure];
 }
 
@@ -698,10 +729,41 @@ abstract class BaseBuildingMeasure {
 }
 
 const printableBuildingMeasureData = (buildingMeasure: BaseBuildingMeasure): IPrintableData[] => {
-  const buildingMeasureData: IPrintableData[] = [
-
-  ]
   
+  const units = {
+    "hvac": {
+      cost: Units.euro,
+      embodiedEmissions: Units.kiloGramCO2Eq,
+    },
+    "windows": {
+      cost: Units.euroPerMeterSq,
+      embodiedEmissions: Units.kiloGramCO2EqPerMeterSq,
+    },
+    "insulation": {
+      cost: Units.euroPerCentimeterMeterSq,
+      embodiedEmissions: Units.kiloGramCO2EqPerCentimeterMeterSq,
+    }
+  };
+
+  const buildingMeasureData: IPrintableData[] = [
+    {
+      name: buildingMeasure.measureName,
+      level: "h4",
+    },{
+      name: "Renovation cost",
+      unit: units[buildingMeasure.category].cost,
+      value: buildingMeasure.renovationCost,
+    },{
+      name: "Reference life time",
+      unit: Units.years,
+      value: buildingMeasure.lifeTime,
+    },{
+      name: "Embodied emissions",
+      unit: units[buildingMeasure.category].embodiedEmissions,
+      value: buildingMeasure.embodiedEmissions,
+    },
+  ];
+
   return buildingMeasureData;
 }
 
@@ -723,10 +785,28 @@ export class EnvelopeMeasure extends BaseBuildingMeasure {
 }
 
 const printableEnvelopeMeasuresData = (envMeasures: IDictBuildingMeasure): IPrintableData[] => {
-  const envelopeMeasureData: IPrintableData[] = [
+  const envelopeMeasuresData: IPrintableData[] = [
     {
       name: "Envelope measures",
       level: "h3",
+    },
+  ];
+
+  for (const envMeasure of Object.values(envMeasures)) {
+    envelopeMeasuresData.push(...printableEnvelopeMeasureData(envMeasure as EnvelopeMeasure));
+    
+  }
+  
+  return envelopeMeasuresData;
+}
+
+const printableEnvelopeMeasureData = (envMeasure: EnvelopeMeasure): IPrintableData[] => {
+  const envelopeMeasureData: IPrintableData[] = [
+    ...printableBuildingMeasureData(envMeasure),
+    {
+      name: "Thermal conductivity",
+      value: envMeasure.lambdaValue,
+      unit: Units.wattPerMeterKelvin,
     },
   ];
   
@@ -741,21 +821,44 @@ export class WindowMeasure extends BaseBuildingMeasure {
 }
 
 const printableWindowMeasuresData = (winMeasures: IDictBuildingMeasure): IPrintableData[] => {
-  const windowMeasureData: IPrintableData[] = [
+  const windowMeasuresData: IPrintableData[] = [
     {
       name: "Window measures",
       level: "h3",
     },
   ];
   
+  for (const winMeasure of Object.values(winMeasures)) {
+    windowMeasuresData.push(...printableWindowMeasureData(winMeasure as WindowMeasure));
+    
+  }
+  
+  return windowMeasuresData;
+}
+
+const printableWindowMeasureData = (winMeasure: WindowMeasure): IPrintableData[] => {
+  const windowMeasureData: IPrintableData[] = [
+    ...printableBuildingMeasureData(winMeasure),
+    {
+      name: "U-value",
+      value: winMeasure.uValue,
+      unit: Units.wattPerMeterSqKelvin,
+    },{
+      name: "g-value",
+      value: winMeasure.gValue,
+      unit: Units.nonDimensional,
+    },
+  ];
+  
   return windowMeasureData;
 }
 
+
 export class HvacMeasure extends BaseBuildingMeasure {  
   ventilationType: string = "";
-  coolingType: string = "None";
-  heatingType: string = "None";
-  energyCarrier: string = "";
+  //coolingType: string = "None";
+  //heatingType: string = "None";
+  //energyCarrier: string = "";
   efficiency: number = 0;
   recoveryEfficiency: number = 0;
   coldWaterTemp: number = 15;
@@ -766,12 +869,62 @@ export class HvacMeasure extends BaseBuildingMeasure {
 }
 
 const printableHvacMeasuresData = (hvacMeasures: IDictBuildingMeasure): IPrintableData[] => {
-  const hvacMeasureData: IPrintableData[] = [
+  const hvacMeasuresData: IPrintableData[] = [
     {
       name: "HVAC measures",
       level: "h3",
     },
   ];
+  
+  for (const hvacMeasure of Object.values(hvacMeasures)) {
+    hvacMeasuresData.push(...printableHvacMeasureData(hvacMeasure as HvacMeasure));
+    
+  }
+  
+  return hvacMeasuresData;
+}
+
+const printableHvacMeasureData = (hvacMeasure: HvacMeasure): IPrintableData[] => {
+  const hvacMeasureData: IPrintableData[] = [
+    ...printableBuildingMeasureData(hvacMeasure),
+    {
+      name: "",
+      unit: Units.none,
+      value: hvacMeasure.ventilationType,
+    },/*{
+      name: "",
+      unit: Units.none,
+      value: hvacMeasure.coolingType,
+    },{
+      name: "",
+      unit: Units.none,
+      value: hvacMeasure.heatingType,
+    },{
+      name: "",
+      unit: Units.none,
+      value: hvacMeasure.energyCarrier,
+    },*/{
+      name: "Efficiency",
+      unit: Units.nonDimensional,
+      value: hvacMeasure.efficiency,
+    },{
+      name: "Recovery efficiency",
+      unit: Units.nonDimensional,
+      value: hvacMeasure.recoveryEfficiency,
+    },{
+      name: "Water return temperature",
+      unit: Units.degC,
+      value: hvacMeasure.coldWaterTemp,
+    },{
+      name: "Hot water temperature",
+      unit: Units.degC,
+      value: hvacMeasure.hotWaterTemp,
+    },{
+      name: "Air change rate",
+      unit: Units.airChangesHourly,
+      value: hvacMeasure.ventilationRate,
+    },
+  ]
   
   return hvacMeasureData;
 }
@@ -780,13 +933,19 @@ export class ScenarioData {
   scenarios: Record<string, Scenario> = {};
 }
 
-const printableScenarioData = (scenarios: ScenarioData): IPrintableData[] => {
-  return [
+const printableScenariosData = (scenarioData: ScenarioData, calcData: CalcData): IPrintableData[] => {
+  const scenariosData: IPrintableData[] = [
     {
       level: "h2",
       name: "Scenario data",
     },
-  ]
+  ];
+
+  for (const scenario of Object.values(scenarioData.scenarios)) {
+    scenariosData.push(...printableScenarioData(scenario, calcData));
+  }
+
+  return scenariosData;
 }
 
 export interface IBuildingMeasureResult {
@@ -845,8 +1004,8 @@ export class Scenario {
   name: string = "";
   economy: IScenarioEconomyData = {
     interestRate: 0,
-    energyPriceIncrease: 0,
-    calculationPeriod: 0,
+    //energyPriceIncrease: 0,
+    //calculationPeriod: 0,
   }
   energySystems: Record<string,IEnergySystemScenarioInfo> = { };
   buildingMeasures: Record<TBuildingMeasureScenarioCategory, Record<string, IBuildingMeasureScenarioInfo>> = {
@@ -859,6 +1018,104 @@ export class Scenario {
   buildingTypes: Record<string, ScenarioInfo> = {}; 
   total: ResultSummary = new ResultSummary();
   deleted: boolean = false;
+}
+
+const printableScenarioData = (scenario: Scenario, calcData: CalcData): IPrintableData[] => {
+  console.log(scenario)
+  const scenarioData: IPrintableData[] = [
+    {
+      name: `Scenario: ${scenario.name}`,
+      level: "h4",
+    },{
+      name: "Interest rate",
+      unit: Units.percent,
+      value: scenario.economy.interestRate,
+    },/*{
+      name: "",
+      unit: Units.none,
+      value: scenario.economy.energyPriceIncrease,
+    },{
+      name: "",
+      unit: Units.none,
+      value: scenario.economy.calculationPeriod,
+    },*/
+  ]
+
+  for (const [id, scenarioInfo] of Object.entries(scenario.buildingTypes)) {
+    const buildingName = calcData.buildingTypes[id].name;
+    const buildingTypeData: IPrintableData[] = [
+      {
+        level: "h4",
+        name: `Building type: ${buildingName}`,
+      },{
+        value: scenarioInfo.buildingType.numberOfBuildings,
+        name: "Number of buildings of type",
+        unit: Units.none,
+      },{
+        value: scenarioInfo.buildingType.heatingNeed,
+        name: "Heating need (per building)",
+        unit: Units.kiloWattHourPerYear,
+      },{
+        value: scenarioInfo.buildingType.occupancy,
+        name: "Building use",
+        unit: Units.none,
+      },{
+        value: scenarioInfo.buildingType.occupants,
+        name: "Area per occupant",
+        unit: Units.meterSqPerPerson,
+      },{
+        value: scenarioInfo.buildingType.setPointTemp,
+        name: "Set point temperature",
+        unit: Units.degC,
+      },{
+        value: scenarioInfo.buildingType.appliancesElectricityUsage,
+        name: "Domestic electricity usage",
+        unit: Units.kiloWattHourPerMeterSqYear,
+      },{
+        value: scenarioInfo.buildingType.domesticHotWaterUsage,
+        name: "Domestic hot water usage",
+        unit: Units.kiloWattHourPerMeterSqYear,
+      },{
+        name: "Energy system",
+        value: calcData.energySystems[scenarioInfo.energySystem.energySystem].name,
+      },{
+        name: "Facade insulation measure",
+        value: calcData.buildingMeasures.insulation[scenarioInfo.buildingMeasures.facade.id].measureName,
+      },{
+        name: "Facade insulation thickness",
+        value: (scenarioInfo.buildingMeasures.facade as IScenarioEnvelopeMeasureData).thickness,
+        unit: Units.centimeter,
+      },{
+        name: "Roof insulation measure",
+        value: calcData.buildingMeasures.insulation[scenarioInfo.buildingMeasures.roof.id].measureName,
+      },{
+        name: "Roof insulation thickness",
+        value: (scenarioInfo.buildingMeasures.roof as IScenarioEnvelopeMeasureData).thickness,
+        unit: Units.centimeter,
+      },{
+        name: "Foundation insulation measure",
+        value: calcData.buildingMeasures.insulation[scenarioInfo.buildingMeasures.foundation.id].measureName,
+      },{
+        name: "Basement wall insulation thickness",
+        value: (scenarioInfo.buildingMeasures.foundation as IScenarioFoundationMeasureData).wallThickness,
+        unit: Units.centimeter,
+      },{
+        name: "Basement/bottom floor insulation thickness",
+        value: (scenarioInfo.buildingMeasures.foundation as IScenarioFoundationMeasureData).floorThickness,
+        unit: Units.centimeter,
+      },{
+        name: "Window measure",
+        value: calcData.buildingMeasures.windows[scenarioInfo.buildingMeasures.windows.id].measureName,
+      },{
+        name: "HVAC measure",
+        value: calcData.buildingMeasures.hvac[scenarioInfo.buildingMeasures.hvac.id].measureName,
+      },
+    ];
+
+    scenarioData.push(...buildingTypeData);
+  }
+  
+  return scenarioData
 }
 
 export class ScenarioInfo {
@@ -912,8 +1169,8 @@ export interface IScenarioBuildingData {
 
 export interface IScenarioEconomyData {
   interestRate: number;
-  energyPriceIncrease: number;
-  calculationPeriod: number;
+  //energyPriceIncrease: number;
+  //calculationPeriod: number;
 }
 
 export type TScenarioBuildingMeasureData = IScenarioBuildingMeasureData | IScenarioEnvelopeMeasureData | IScenarioFoundationMeasureData;

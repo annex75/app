@@ -6,8 +6,9 @@ import html2pdf from 'html2pdf.js';
 // internal
 import { IResultsPanelProps, IResultsPanelState, Scenario, Units, IProject, printableProjectData } from '../../types';
 import { renderScatterChart, IChartSetup, InfoButton, getCurrentTime } from '../../helpers';
-import { Button } from '@blueprintjs/core';
+import { Button, Intent } from '@blueprintjs/core';
 import { Table, Column, ColumnHeaderCell, Cell } from '@blueprintjs/table';
+import { AppToaster } from '../../toaster';
 
 interface IResultGraph {
   id: string;
@@ -154,6 +155,7 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
         pdf.setFontSize(10);
         pdf.setTextColor(150);
         pdf.text('' + i, (pdf.internal.pageSize.getWidth()/2), (pdf.internal.pageSize.getHeight() - 0.3));
+        pdf.text(`Annex 75 Calculation Tool report - Project name: ${this.props.project.name}`, (pdf.internal.pageSize.getWidth()/32), (pdf.internal.pageSize.getHeight() - 0.3));
       } 
     }).save().then(() => {
       container.remove();
@@ -198,7 +200,11 @@ export class ResultsPanel extends Component<IResultsPanelProps, IResultsPanelSta
   // todo: this could be generated in a smarter way
   getInputData = () => {
     const { project } = this.props;
-    return this.printProjectData(project)
+    try {
+      return this.printProjectData(project)
+    } catch (e) {
+      AppToaster.show({ intent: Intent.DANGER, message: `Unable to print calculation data. Has all data been entered correctly? Error: ${e}` });
+    }
   }
 
   // todo: should this reside here? In Data.tsx makes no sense

@@ -193,7 +193,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               rootPath: "scenarioData.scenarios",
               subPath: "foundation.wallThickness",
               mode: "input",
-              label: "Thickness of cellar wall insulation",
+              label: "Thickness of basement wall insulation",
             },
             foundationFloorInsulationThickness: {
               key: "foundationFloorInsulationThickness",
@@ -202,7 +202,7 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
               rootPath: "scenarioData.scenarios",
               subPath: "foundation.floorThickness",
               mode: "input",
-              label: "Thickness of insulation to ground/cold cellar",
+              label: "Thickness of insulation to ground/cold basement",
             },
             windows: {
               key: "windows",

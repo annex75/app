@@ -325,7 +325,7 @@ export class EnvelopeMeasureParameters extends BaseBuildingMeasureParameters {
   embodiedEmissions: IBuildingMeasureInfo = {
     key: "embodiedEmissions",
     type: Number,
-    label: "Embodied emissions",
+    label: "Emb. emissions",
     unit: "kiloGramCO2EqPerCentimeterMeterSq",
   };
   [key: string]: EnvelopeMeasureParameters[keyof EnvelopeMeasureParameters];

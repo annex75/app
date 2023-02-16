@@ -113,7 +113,7 @@ export const calculateEnergySystems = (project: IProject) => {
       energySystemScenarioInfo.primaryEnergyUse = calculateEnergySystemPrimaryEnergyUse(energySystem, energyCarrier, heatingNeed);
       energySystemScenarioInfo.emissions = calculateEnergySystemEmissions(energySystem, energyCarrier, heatingNeed);
 
-      energySystemScenarioInfo.lifetimeEnergyCost = calculateEnergySystemLifetimeEnergyCost(energySystem, energyCarrier, energySystemScenarioInfo.primaryEnergyUse, scenario.economy.energyPriceIncrease);
+      energySystemScenarioInfo.lifetimeEnergyCost = calculateEnergySystemLifetimeEnergyCost(energySystem, energyCarrier, energySystemScenarioInfo.primaryEnergyUse /*, scenario.economy.energyPriceIncrease*/);
     });
   });
   return energySystemsInUse;
@@ -312,7 +312,7 @@ const calculateEnergySystemLifetimeEnergyCost = (
   energySystem: EnergySystem,
   energyCarrier: EnergyCarrier,
   primaryEnergyUse: number,
-  priceIncrease: number,
+  //priceIncrease: number,
   mode: string = "projected",
 ) => {
   let lifetimeEnergyCost = 0;
@@ -322,9 +322,11 @@ const calculateEnergySystemLifetimeEnergyCost = (
       case "projected":
         energyCost = primaryEnergyUse*energyCarrier.projectedPrice;
         break;
+        /*
       case "annualIncrease":
         energyCost = primaryEnergyUse*energyCarrier.currentPrice*Math.pow(+priceIncrease,i);
         break;
+        */
       default:
         throw new Error(`Energy cost mode ${mode} is not defined`);
     }
