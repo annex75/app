@@ -22,7 +22,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-markdown": "^8.0.3",
-    "react-scripts": "3.3.0",
+    "react-scripts": "5.0.1",
     "rehype-katex": "^6.0.2",
     "remark-gfm": "^3.0.1",
     "remark-math": "^5.1.1",
