@@ -1021,7 +1021,6 @@ export class Scenario {
 }
 
 const printableScenarioData = (scenario: Scenario, calcData: CalcData): IPrintableData[] => {
-  console.log(scenario)
   const scenarioData: IPrintableData[] = [
     {
       name: `Scenario: ${scenario.name}`,
