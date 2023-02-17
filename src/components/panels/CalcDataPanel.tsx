@@ -112,7 +112,9 @@ export class CalcDataPanel extends Component<ICalcDataPanelProps, ICalcDataPanel
   }
 
   handleDropdownChange = (item: IDropdownAlt) => {
-    this.handleChange(this.formatPath(item.path), item.id);
+    if (item.path) {
+      this.handleChange(this.formatPath(item.path), item.id);
+    }
   }
 
   // todo: this function should be able to tell if a local or root path is provided and act accordingly

@@ -259,9 +259,11 @@ export class ScenariosPanel extends Component<IScenariosPanelProps, IScenariosPa
   }
 
   handleDropdownChange = (item: IDropdownAlt) => {
-    const path = this.formatPath(item.path);
-    const newState = _fpSet(path, item.id, this.state);
-    this.setStateAndUpdate(newState);
+    if (item.path) {
+      const path = this.formatPath(item.path);
+      const newState = _fpSet(path, item.id, this.state);
+      this.setStateAndUpdate(newState);
+    }
   }
 
   handleAddScenarioClick = (e: React.MouseEvent<HTMLElement>) => {

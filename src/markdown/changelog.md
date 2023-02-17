@@ -2,6 +2,7 @@
 * Happy Valentine's day!
 * Improved tooltips
 * Improved report feature
+* Fixed crash caused by not selecting an item from dropdown list
 
 ## 1.4.8 (2023-01-02)
 * Enabled JSON import in dev mode as default

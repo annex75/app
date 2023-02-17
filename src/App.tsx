@@ -240,7 +240,10 @@ class App extends Component<IAppProps, IAppState> {
   }
 
   updateProject = (iProject: IProject) => {
-    console.log(iProject);
+    if (process.env.REACT_APP_ENV === "development") {
+      console.log(iProject);
+    }
+    
     if (!this.validProjectName(iProject.name, iProject.id)) {
       // todo: save warning messages somewhere
       AppToaster.show({ intent: Intent.DANGER, message: `Invalid project name` });
