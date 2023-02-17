@@ -52,10 +52,10 @@ export const printableEnergySystemData = (energySystem: EnergySystem): IPrintabl
       level: "h4",
     },{
       name: "System type",
-      value: energySystem.systemType,
+      value: getEnergySystemType(energySystem.systemType).name,
     },{
       name: "Category",
-      value: energySystem.systemCategory,
+      value: getEnergySystemCategory(energySystem.systemCategory).name,
     },{
       name: "Reference life time",
       value: energySystem.lifeTime,

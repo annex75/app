@@ -888,7 +888,7 @@ const printableHvacMeasureData = (hvacMeasure: HvacMeasure): IPrintableData[] =>
   const hvacMeasureData: IPrintableData[] = [
     ...printableBuildingMeasureData(hvacMeasure),
     {
-      name: "",
+      name: "Ventilation type",
       unit: Units.none,
       value: hvacMeasure.ventilationType,
     },/*{
